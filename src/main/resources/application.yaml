@@ -1,0 +1,28 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /auctionkoi
+
+jwt:
+  signerKey: "wxZ78Wi0+dAAbQLRRkt/c5gkT1t68h9/PucRFyJ3BZBryUdRsiObtjM2Q4Zn4HJ+"
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: "jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=AuctionKoi"
+    username: sa
+    password: 12345
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        ddl-auto: update
+        naming-strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html
+
