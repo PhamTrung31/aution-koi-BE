@@ -1,7 +1,7 @@
 server:
   port: 8081
-  servlet:
-    context-path: /auctionkoi
+#  servlet:
+#    context-path: /auctionkoi
 
 jwt:
   signerKey: "wxZ78Wi0+dAAbQLRRkt/c5gkT1t68h9/PucRFyJ3BZBryUdRsiObtjM2Q4Zn4HJ+"
