@@ -13,7 +13,7 @@ import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired

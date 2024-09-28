@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("/staffs")
 public class StaffController {
 
     @Autowired
