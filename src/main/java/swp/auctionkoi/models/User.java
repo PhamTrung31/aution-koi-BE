@@ -18,6 +18,7 @@ import java.time.Instant;
 @DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id

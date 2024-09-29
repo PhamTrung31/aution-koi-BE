@@ -1,28 +1,41 @@
 package swp.auctionkoi.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import swp.auctionkoi.dto.request.ApiResponse;
 import swp.auctionkoi.dto.request.UserCreateRequest;
 import swp.auctionkoi.dto.request.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.UserResponse;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.StaffService;
+import swp.auctionkoi.service.user.impl.StaffServiceImpl;
 
 import java.util.HashMap;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/staffs")
+
 public class StaffController {
 
     @Autowired
     private StaffService staffService;
 
     @GetMapping("/all")
-    public ResponseEntity<HashMap<Integer, User>> getAllUser() {
-        return ResponseEntity.ok(staffService.getAllUser());
+    public ApiResponse<HashMap<Integer, User>> getAllUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("Username {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
+
+        return ApiResponse.<HashMap<Integer, User>>builder()
+                .result(staffService.getAllUser())
+                .build();
     }
 
     @GetMapping("/{userId}")

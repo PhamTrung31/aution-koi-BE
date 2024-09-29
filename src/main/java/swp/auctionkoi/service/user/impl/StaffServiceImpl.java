@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import swp.auctionkoi.dto.request.ApiResponse;
 import swp.auctionkoi.dto.request.UserCreateRequest;
 import swp.auctionkoi.dto.request.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.UserResponse;
@@ -33,12 +34,12 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public HashMap<Integer, User> getAllUser() {
-        List<User> listUser = userRepository.findAll();
-        HashMap<Integer, User> userHashMap = new HashMap<>();
-        for (User user : listUser) {
-            userHashMap.put(user.getId(), user);
+        HashMap<Integer, User> users = new HashMap<>();
+        List<User> userList = userRepository.findAll();
+        for (User user : userList) {
+            users.put(user.getId(), user);
         }
-        return userHashMap;
+        return users;
     }
 
     @Override
