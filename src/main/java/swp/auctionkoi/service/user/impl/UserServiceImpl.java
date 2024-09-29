@@ -1,6 +1,8 @@
 package swp.auctionkoi.service.user.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,12 +18,14 @@ import swp.auctionkoi.service.user.UserService;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserMapper userMapper;
+    UserRepository userRepository;
+
+    UserMapper userMapper;
+
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void login() {
@@ -42,7 +46,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(request);
 
         //hash password
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //set role

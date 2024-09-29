@@ -1,5 +1,6 @@
 package swp.auctionkoi.service.user;
 
+import swp.auctionkoi.dto.request.ApiResponse;
 import swp.auctionkoi.dto.request.UserCreateRequest;
 import swp.auctionkoi.dto.request.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.UserResponse;
