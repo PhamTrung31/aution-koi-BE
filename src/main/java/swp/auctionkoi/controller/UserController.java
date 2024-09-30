@@ -25,4 +25,6 @@ public class UserController {
         apiResponse.setResult(userService.createAccount(request));
         return apiResponse;
     }
+
+
 }
