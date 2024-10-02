@@ -18,8 +18,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
         ddl-auto: update
-        naming-strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
-
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 springdoc:
   api-docs:
     path: /api-docs
