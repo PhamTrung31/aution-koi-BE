@@ -3,12 +3,11 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.ApiResponse;
-import swp.auctionkoi.dto.request.UserCreateRequest;
-import swp.auctionkoi.dto.request.UserUpdateRequest;
-import swp.auctionkoi.dto.respone.UserResponse;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserUpdateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.mapper.UserMapper;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
@@ -24,6 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('STAFF')")
 public class StaffServiceImpl implements StaffService {
 
     UserRepository userRepository;
@@ -33,11 +33,11 @@ public class StaffServiceImpl implements StaffService {
     UserMapper userMapper;
 
     @Override
-    public HashMap<Integer, User> getAllUser() {
-        HashMap<Integer, User> users = new HashMap<>();
+    public HashMap<Integer, UserResponse> getAllUser() {
+        HashMap<Integer, UserResponse> users = new HashMap<>();
         List<User> userList = userRepository.findAll();
         for (User user : userList) {
-            users.put(user.getId(), user);
+            users.put(user.getId(), userMapper.toUserResponse(user));
         }
         return users;
     }
@@ -49,18 +49,16 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Optional<User> addUser(UserCreateRequest request) {
+    public Optional<UserResponse> addUser(UserCreateRequest request) {
         User user = new User();
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
 
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFullname(request.getFullname());
-        user.setPhone(request.getPhone());
-        user.setAddress(request.getAddress());
-        return Optional.of(userRepository.save(user));
+        user = userMapper.toUser(request);
+
+        userRepository.save(user);
+        return Optional.ofNullable(userMapper.toUserResponse(user));
     }
 
     @Override
@@ -98,6 +96,7 @@ public class StaffServiceImpl implements StaffService {
     public Auction updateAuction(Auction auction) {
         return null;
     }
+
 
     @Override
     public void deleteAuction(int id) {

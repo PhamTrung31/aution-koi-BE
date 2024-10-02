@@ -1,4 +1,4 @@
-package swp.auctionkoi.dto.request;
+package swp.auctionkoi.dto.request.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
