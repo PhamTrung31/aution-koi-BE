@@ -18,22 +18,6 @@ public class AuctionController {
     @Autowired
     private AuctionServiceImpl auctionService;
 
-    @PostMapping("/{auctionId}/join")
-
-    public ResponseEntity<String> joinAuction(@PathVariable int auctionId,
-                                              @RequestBody int memberId,
-                                              @RequestParam Double depositAmount) {
-        auctionService.joinAuctionWithDeposit(auctionId, memberId, depositAmount);
-        return ResponseEntity.ok("Joined auction and deposit placed successfully");
-    }
-
-    @PostMapping("/{auctionId}/result")
-    public ResponseEntity<String> handleAuctionResult(@PathVariable Long auctionId,
-                                                      @RequestParam Long winningMemberId) {
-        auctionService.handleAuctionResult(Math.toIntExact(auctionId), Math.toIntExact(winningMemberId));
-        return ResponseEntity.ok("Auction result handled and deposits refunded");
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Auction> getAuctionById(@PathVariable int id) {
         Optional<Auction> auction = auctionService.getAuction(id);

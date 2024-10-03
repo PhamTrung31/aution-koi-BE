@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.ApiResponse;
 import swp.auctionkoi.dto.request.UserCreateRequest;
@@ -13,6 +14,7 @@ import swp.auctionkoi.mapper.UserMapper;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.StaffService;
@@ -31,6 +33,8 @@ public class StaffServiceImpl implements StaffService {
     AuctionRepository auctionRepository;
 
     UserMapper userMapper;
+
+    PasswordEncoder passwordEncoder;
 
     @Override
     public HashMap<Integer, User> getAllUser() {
@@ -56,10 +60,14 @@ public class StaffServiceImpl implements StaffService {
             throw new RuntimeException("Username already exists");
 
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+
         user.setFullname(request.getFullname());
         user.setPhone(request.getPhone());
         user.setAddress(request.getAddress());
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        user.setRole(Role.BREEDER);
         return Optional.of(userRepository.save(user));
     }
 

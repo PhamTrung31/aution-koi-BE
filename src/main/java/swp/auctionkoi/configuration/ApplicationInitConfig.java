@@ -29,6 +29,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("swp391"))
+                        .fullname("Admin")
                         .role(Role.MANAGER)
                         .build();
 

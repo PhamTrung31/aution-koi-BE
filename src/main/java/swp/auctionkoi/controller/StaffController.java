@@ -47,7 +47,7 @@ public class StaffController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     @PostMapping
-    public ResponseEntity<User> addUser(UserCreateRequest request) {
+    public ResponseEntity<User> addUser(@RequestBody UserCreateRequest request) {
         Optional<User> userOptional = staffService.addUser(request);
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(userOptional.get());
