@@ -25,8 +25,8 @@ import javax.crypto.spec.SecretKeySpec;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users/create","/staffs",
-            "/auth/token", "/auth/introspect", "/api/profile"
+    private final String[] PUBLIC_ENDPOINTS = {"/users","/staffs",
+            "/auth/token", "/auth/introspect"
     };
 
     @Value("${jwt.signerKey}")
