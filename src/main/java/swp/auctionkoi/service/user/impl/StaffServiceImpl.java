@@ -46,9 +46,11 @@ public class StaffServiceImpl implements StaffService {
         return users;
     }
 
+
+
     @Override
     public Optional<UserResponse> getUser(int id) {
-        User user =  userRepository.findById(id).get();
+        User user = userRepository.findById(id).get();
         return Optional.ofNullable(userMapper.toUserResponse(user));
     }
 
@@ -56,7 +58,7 @@ public class StaffServiceImpl implements StaffService {
     public Optional<User> addUser(UserCreateRequest request) {
         User user = new User();
 
-        if(userRepository.existsByUsername(request.getUsername()))
+        if (userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
 
         user.setUsername(request.getUsername());
@@ -75,7 +77,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public Optional<UserResponse> updateUser(int id, UserUpdateRequest tryUpdateUser) {
         User user = userRepository.findById(id).get();
-        if(user != null) {
+        if (user != null) {
             userMapper.updateUser(user, tryUpdateUser);
             return Optional.of(userMapper.toUserResponse(userRepository.save(user)));
         }
@@ -85,7 +87,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public boolean deleteUser(int id) {
         User user = userRepository.findById(id).get();
-        if(user != null) {
+        if (user != null) {
             userRepository.deleteById(id);
             return true;
         }

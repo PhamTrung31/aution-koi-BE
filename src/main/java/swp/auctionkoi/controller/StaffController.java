@@ -38,6 +38,8 @@ public class StaffController {
                 .build();
     }
 
+
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable int userId) {
         Optional<UserResponse> userOptional = staffService.getUser(userId);

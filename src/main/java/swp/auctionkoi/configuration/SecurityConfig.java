@@ -22,7 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users/create","/staffs",
+    private final String[] PUBLIC_ENDPOINTS = {"/users/allbreeder","/users/create","/staffs",
             "/auth/token", "/auth/introspect"
     };
 
@@ -34,6 +34,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("SCOPE_STAFF")
+                        .requestMatchers(HttpMethod.PUT, "/manager").hasAnyAuthority("SCOPE_MANAGER")
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

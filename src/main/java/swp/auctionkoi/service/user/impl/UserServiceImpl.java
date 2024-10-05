@@ -16,6 +16,9 @@ import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.UserService;
 
+import java.util.HashMap;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -63,5 +66,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateProfile(User user) {
 
+    }
+
+    public HashMap<Integer, User> getAllBreeder() {
+        HashMap<Integer, User> breeder = new HashMap<>();
+        List<User> userList = userRepository.findAll();
+        for (User user : userList) {
+            if (user.getRole() == Role.BREEDER)
+                breeder.put(user.getId(), user);
+        }
+        return breeder;
     }
 }

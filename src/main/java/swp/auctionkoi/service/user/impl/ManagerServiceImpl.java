@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import swp.auctionkoi.dto.request.ApiResponse;
 import swp.auctionkoi.dto.request.UserCreateRequest;
 import swp.auctionkoi.dto.request.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.UserResponse;
@@ -15,6 +16,7 @@ import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.ManagerService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,11 +31,24 @@ public class ManagerServiceImpl implements ManagerService {
 
     @Override
     public HashMap<Integer, User> getAllStaff() {
-        return null;
+
+        HashMap<Integer, User> staff = new HashMap<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getRole() == Role.STAFF)
+                staff.put(user.getId(), user);
+        }
+        return staff;
     }
 
     @Override
     public Optional<UserResponse> getStaff(int id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null && user.getRole() == Role.STAFF) {
+            UserResponse userResponse = new UserResponse();
+            return Optional.of(userResponse);
+        }
+
         return Optional.empty();
     }
 
@@ -62,12 +77,26 @@ public class ManagerServiceImpl implements ManagerService {
 
 
     @Override
-    public Optional<UserResponse> updateStaff(int id, UserUpdateRequest user) {
+    public Optional<UserResponse> updateActiveStaff(int id, UserUpdateRequest user) {
+        User user1 = userRepository.findById(id).orElse(null);
+        if (user != null && user1.getRole() == Role.STAFF) {
+            user1.setIsActive(user.getIsActive());
+            userRepository.save(user1);
+            UserResponse userResponse = new UserResponse();
+            return Optional.of(userResponse);
+
+
+        }
         return Optional.empty();
     }
 
     @Override
     public boolean deleteStaff(int id) {
+        User user = userRepository.findById(id).get();
+        if (user != null && user.getRole() == Role.STAFF) {
+            userRepository.delete(user);
+            return true;
+        }
         return false;
     }
 

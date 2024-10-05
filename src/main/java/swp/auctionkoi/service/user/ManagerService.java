@@ -13,7 +13,7 @@ public interface ManagerService {
     public Optional<UserResponse> getStaff(int id);
     public Optional<User> addStaff(UserCreateRequest request);
 
-    public Optional<UserResponse> updateStaff(int id, UserUpdateRequest user);
+    public Optional<UserResponse> updateActiveStaff(int id, UserUpdateRequest user);
 
     public boolean deleteStaff(int id);
 }
