@@ -1,9 +1,7 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -12,6 +10,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Transactions")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Transaction {

@@ -1,4 +1,4 @@
-package swp.auctionkoi.dto.respone;
+package swp.auctionkoi.dto.respone.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
     String username;
-    String password;
     String fullname;
     String phone;
     String address;

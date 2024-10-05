@@ -1,11 +1,13 @@
 package swp.auctionkoi.service.user.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.UserMapper;
@@ -16,12 +18,14 @@ import swp.auctionkoi.service.user.UserService;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserMapper userMapper;
+    UserRepository userRepository;
+
+    UserMapper userMapper;
+
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void login() {
@@ -34,7 +38,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAccount(UserCreateRequest request) {
+    public User create(UserCreateRequest request) {
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -42,7 +46,6 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(request);
 
         //hash password
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //set role
@@ -53,8 +56,13 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void viewProfile(int userId) {
+    public UserResponse viewProfile() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
 
+        User user = userRepository.findByUsername(name).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
     }
 
     @Override

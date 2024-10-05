@@ -1,15 +1,17 @@
-package swp.auctionkoi.dto.request;
+package swp.auctionkoi.dto.request.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+@Getter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    String username;
+public class UserUpdateRequest {
     String password;
+    String fullname;
+    String phone;
+    String address;
 }

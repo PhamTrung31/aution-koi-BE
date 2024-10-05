@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import swp.auctionkoi.dto.request.ApiResponse;
+import swp.auctionkoi.dto.request.LogoutRequest;
+import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;
@@ -25,7 +26,7 @@ public class AuthenticationController {
 
     AuthenticationService authenticationService;
 
-    @PostMapping("/login")
+    @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
         var result = authenticationService.authenticated(authenticationRequest);
 
@@ -40,6 +41,14 @@ public class AuthenticationController {
 
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 

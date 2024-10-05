@@ -1,29 +1,41 @@
 package swp.auctionkoi.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import swp.auctionkoi.dto.request.UserCreateRequest;
-import swp.auctionkoi.dto.request.UserUpdateRequest;
-import swp.auctionkoi.dto.respone.UserResponse;
+import swp.auctionkoi.dto.respone.ApiResponse;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserUpdateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.HashMap;
 import java.util.Optional;
 
+@Slf4j
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("/staffs")
+
 public class StaffController {
 
     @Autowired
     private StaffService staffService;
 
-    @GetMapping("/all")
-    public ResponseEntity<HashMap<Integer, User>> getAllUser() {
-        return ResponseEntity.ok(staffService.getAllUser());
-    }
+//    @GetMapping("/all")
+//    public ApiResponse<HashMap<Integer, User>> getAllUser() {
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        log.info("Username {}", authentication.getName());
+//        authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
+//
+//        return ApiResponse.<HashMap<Integer, UserResponse>>builder()
+//                .result(staffService.getAllUser())
+//                .build();
+//    }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable int userId) {
@@ -34,8 +46,8 @@ public class StaffController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     @PostMapping
-    public ResponseEntity<User> addUser(UserCreateRequest request) {
-        Optional<User> userOptional = staffService.addUser(request);
+    public ResponseEntity<UserResponse> addUser(UserCreateRequest request) {
+        Optional<UserResponse> userOptional = staffService.addUser(request);
         if (userOptional.isPresent()) {
             return ResponseEntity.ok(userOptional.get());
         }

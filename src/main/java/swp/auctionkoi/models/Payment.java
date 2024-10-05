@@ -1,14 +1,14 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Payments")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment {
