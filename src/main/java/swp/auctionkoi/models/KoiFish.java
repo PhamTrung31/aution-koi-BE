@@ -14,8 +14,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "KoiFishs")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "KoiFishs")
 public class KoiFish {
     @Id
     @Column(name = "id", nullable = false)

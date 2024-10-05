@@ -19,7 +19,7 @@ public class AuctionController {
 
     private final AuctionRequestService auctionRequestService;
 
-     @PostMapping("/auction/request")
+     @PostMapping("/request")
      public AuctionRequestResponse sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
         return auctionRequestService.sendAuctionRequest(auctionRequestDTO);
      }
