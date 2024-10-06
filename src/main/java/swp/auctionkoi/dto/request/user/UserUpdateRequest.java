@@ -1,4 +1,4 @@
-package swp.auctionkoi.dto.request;
+package swp.auctionkoi.dto.request.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,10 +9,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserCreateRequest {
-    String username;
+public class UserUpdateRequest {
     String password;
     String fullname;
     String phone;
     String address;
+    Boolean isActive;
 }

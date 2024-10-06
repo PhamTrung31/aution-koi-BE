@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import swp.auctionkoi.dto.request.ApiResponse;
+import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;

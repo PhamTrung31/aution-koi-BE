@@ -2,18 +2,20 @@ package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
+import swp.auctionkoi.models.enums.KoiStatus;
+import swp.auctionkoi.models.enums.Sex;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "KoiFishs")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class KoiFish {
@@ -31,7 +33,8 @@ public class KoiFish {
     String name;
 
     @Column(name = "sex")
-    Integer sex;
+    @Enumerated(EnumType.ORDINAL)
+    Sex sex;
 
     @Column(name = "\"size\"")
     Double size;
@@ -49,7 +52,8 @@ public class KoiFish {
     String image;
 
     @Column(name = "status")
-    Integer status;
+    @Enumerated(EnumType.ORDINAL)
+    KoiStatus status;
 
     @ColumnDefault("getdate()")
     @Column(name = "fish_created_date")

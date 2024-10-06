@@ -3,11 +3,11 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.UserMapper;
@@ -17,7 +17,6 @@ import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.UserService;
 
 import java.util.HashMap;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAccount(UserCreateRequest request) {
+    public User create(UserCreateRequest request) {
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -59,8 +58,13 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void viewProfile(int userId) {
+    public UserResponse viewProfile() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
 
+        User user = userRepository.findByUsername(name).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
     }
 
     @Override
@@ -68,13 +72,8 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
     public HashMap<Integer, User> getAllBreeder() {
-        HashMap<Integer, User> breeder = new HashMap<>();
-        List<User> userList = userRepository.findAll();
-        for (User user : userList) {
-            if (user.getRole() == Role.BREEDER)
-                breeder.put(user.getId(), user);
-        }
-        return breeder;
+        return null;
     }
 }

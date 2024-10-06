@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import swp.auctionkoi.dto.request.ApiResponse;
-import swp.auctionkoi.dto.request.UserCreateRequest;
-import swp.auctionkoi.dto.request.UserUpdateRequest;
-import swp.auctionkoi.dto.respone.UserResponse;
+import swp.auctionkoi.dto.respone.ApiResponse;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserUpdateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.ManagerService;
 import swp.auctionkoi.service.user.impl.ManagerServiceImpl;
@@ -66,7 +66,7 @@ public class ManagerController {
     @PutMapping("/{id}/status")
     public ResponseEntity<UserResponse> updateStaffStatus(@PathVariable int id,
                                                           @RequestBody UserUpdateRequest request) {
-        Optional<UserResponse> user = managerService.updateActiveStaff(id, request);
+        Optional<UserResponse> user = managerService.updateStaff(id, request);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         }

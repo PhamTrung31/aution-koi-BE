@@ -17,12 +17,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
+import swp.auctionkoi.dto.request.LogoutRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;
 import swp.auctionkoi.dto.respone.IntrospectResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
+import swp.auctionkoi.models.InvalidatedToken;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.repository.InvalidatedTokenRepository;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.authentication.AuthenticationService;
 
@@ -31,6 +34,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,9 +43,9 @@ import java.util.StringJoiner;
 public class AuthenticationServiceImpl  implements AuthenticationService {
 
     UserRepository userRepository;
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
 
     @NonFinal
-//    @Value("${jwt.signerKey}")
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
@@ -77,6 +81,7 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
                 .issuer("http://localhost:8081/auctionkoi")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .build();
 
@@ -118,4 +123,42 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
         }
         return "";
     }
+
+
+    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        var verified = signedJWT.verify(verifier);
+
+        if (!(verified && expiryTime.after(new Date())))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        int jwtIdHash = signedJWT.getJWTClaimsSet().getJWTID().hashCode();
+
+        if (invalidatedTokenRepository.existsById(jwtIdHash)) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        return signedJWT;
+    }
+
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        var signToken = verifyToken(request.getToken());
+
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+        int jwtIdHash = signToken.getJWTClaimsSet().getJWTID().hashCode();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jwtIdHash)
+                .expiryTime(expiryTime.toInstant())
+                .build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+    }
+
 }
