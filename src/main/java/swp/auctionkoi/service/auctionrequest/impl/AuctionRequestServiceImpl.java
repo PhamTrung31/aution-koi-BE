@@ -2,21 +2,22 @@ package swp.auctionkoi.service.auctionrequest.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import swp.auctionkoi.dto.request.AuctionDTO;
 import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
+import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.KoiFish;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.Role;
-import swp.auctionkoi.repository.AuctionRepository;
-import swp.auctionkoi.repository.AuctionRequestRepository;
-import swp.auctionkoi.repository.KoiFishRepository;
-import swp.auctionkoi.repository.UserRepository;
+import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
+import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Service
 public class AuctionRequestServiceImpl implements AuctionRequestService {
@@ -37,28 +38,9 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         KoiFish koiFish = koiFishRepository.findById(auctionRequestDto.getFishId())
                 .orElseThrow(() -> new IllegalArgumentException("KoiFish not found with id: " + auctionRequestDto.getFishId()));
 
-        Auction auction = auctionRepository.findById(auctionRequestDto.getAuctionId())
-                .orElseThrow(() -> new IllegalArgumentException("Auction not found with id: " + auctionRequestDto.getAuctionId()));
-
         User user = userRepository.findById(auctionRequestDto.getBreederId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + auctionRequestDto.getBreederId()));
-        if(koiFish == null)
-        {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("KoiFish not found with id: " + auctionRequestDto.getFishId())
-                    .build();
-        }
 
-        if(auction == null)
-        {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("Auction not found with id: " + auctionRequestDto.getAuctionId())
-                    .build();
-        }
         if(user == null)
         {
             return AuctionRequestResponse
@@ -76,10 +58,25 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     .build();
         }
 
+        KoiFishDTO koiFishDTO = new KoiFishDTO();
+        if(koiFish == null)
+        {
+            koiFish = new KoiFish();
+            koiFish.setBreeder(user);
+            koiFish.setName(koiFishDTO.getName());
+            koiFish.setSex(koiFishDTO.getSex());
+            koiFish.setSize(koiFishDTO.getSize());
+            koiFish.setAge(koiFishDTO.getAge());
+            koiFish.setDescription(koiFishDTO.getDescription());
+            koiFish.setFishCreatedDate(Instant.now());
+            koiFish.setStatus(KoiStatus.NEW);
+            koiFishRepository.save(koiFish);
+        }
+
         AuctionRequest auctionRequest = new AuctionRequest();
         auctionRequest.setBreeder(user);
         auctionRequest.setFish(koiFish);
-        auctionRequest.setAuction(auction);
+        auctionRequest.setAuction(null);
         auctionRequest.setBuyOut(auctionRequestDto.getBuyOut());
         auctionRequest.setStartPrice(auctionRequestDto.getStartPrice());
         auctionRequest.setIncrementPrice(auctionRequestDto.getIncrementPrice());
@@ -150,65 +147,101 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .build();
     }
 
-//    public AuctionRequestResponse approveAuctionRequest(int auctionRequestId, int staffId, Instant auctionDateTime) {
-//        // Fetch the auction request
-//        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-//                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
-//
-//        // Fetch the staff user
-//        User staff = userRepository.findById(staffId)
-//                .orElseThrow(() -> new IllegalArgumentException("Staff not found with id: " + staffId));
-//
-//        // Check if the user is authorized to approve (assumes the staff have a specific role)
-//        if (!staff.getRole().equals(Role.STAFF)) {
-//            return AuctionRequestResponse
-//                    .builder()
-//                    .status("400")
-//                    .message("You are not authorized to approve auction requests.")
-//                    .build();
-//        }
-//
-//        // Validate that the auction request is pending and not already approved or rejected
-//        if (!auctionRequest.getRequestStatus().equals(RequestStatus.PENDING)) {
-//            return AuctionRequestResponse
-//                    .builder()
-//                    .status("400")
-//                    .message("The auction request has already been processed.")
-//                    .build();
-//        }
-//
-//        // Check if the auctionDateTime is valid (e.g., not in the past or conflicting with another auction)
-//        if (auctionDateTime.isBefore(Instant.now())) {
-//            return AuctionRequestResponse
-//                    .builder()
-//                    .status("400")
-//                    .message("The auction date and time cannot be in the past.")
-//                    .build();
-//        }
-//
-//        // Optional: You could add logic to check for auction conflicts, e.g.,
-//        // `auctionRepository.existsByAuctionDateTime(auctionDateTime)` to prevent overlaps.
-//
-//        // Approve the auction request and set the date and time
-//        auctionRequest.setRequestStatus(RequestStatus.APPROVED);
-//        auctionRequest.setAuctionDateTime(auctionDateTime);
-//        auctionRequest.setRequestUpdatedDate(Instant.now());
-//
-//        auctionRequestRepository.save(auctionRequest);
-//
-//        // Return success response
-//        return AuctionRequestResponse
-//                .builder()
-//                .status("200")
-//                .message("Auction request approved successfully!")
-//                .id(auctionRequest.getId())
-//                .methodType(auctionRequest.getMethodType())
-//                .auctionDateTime(auctionRequest.getAuctionDateTime())
-//                .breeder(auctionRequest.getBreeder())
-//                .fish(auctionRequest.getFish())
-//                .startPrice(auctionRequest.getStartPrice())
-//                .incrementPrice(auctionRequest.getIncrementPrice())
-//                .build();
-//    }
+    public AuctionRequestResponse approveAuctionRequest(int auctionRequestId, int staffId, LocalDateTime auctionDateTime) {
+
+        boolean isConflict = auctionRepository.existsAuctionsByStartTime(auctionDateTime);
+
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found with id: " + staffId));
+
+        if (!staff.getRole().equals(Role.STAFF)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("You are not authorized to approve auction requests.")
+                    .build();
+        }
+
+        // Validate that the auction request is pending and not already approved or rejected
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.PENDING_APPROVAL)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("The auction request has already been processed.")
+                    .build();
+        }
+
+        // Check if the auctionDateTime is valid (e.g., not in the past or conflicting with another auction)
+        if (auctionDateTime.isBefore(LocalDateTime.now()) || isConflict) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("The auction date and time are not available. Please choose a different time.")
+                    .build();
+        }
+
+        auctionRequest.setRequestStatus(KoiStatus.APPROVED.ordinal());
+        auctionRequest.setRequestUpdatedDate(Instant.now());
+
+        auctionRequestRepository.save(auctionRequest);
+
+        return AuctionRequestResponse
+                .builder()
+                .status("200")
+                .message("Auction request approved successfully!")
+                .id(auctionRequest.getId())
+                .methodType(auctionRequest.getMethodType())
+                .breeder(auctionRequest.getBreeder())
+                .fish(auctionRequest.getFish())
+                .startPrice(auctionRequest.getStartPrice())
+                .incrementPrice(auctionRequest.getIncrementPrice())
+                .build();
+    }
+
+    public AuctionRequestResponse rejectAuctionRequest(int auctionRequestId, int staffId) {
+
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found with id: " + staffId));
+
+        if (!staff.getRole().equals(Role.STAFF)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("You are not authorized to approve auction requests.")
+                    .build();
+        }
+
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.REJECTED)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("The auction request has already been processed.")
+                    .build();
+        }
+
+        auctionRequest.setRequestStatus(KoiStatus.REJECTED.ordinal());
+        auctionRequest.setRequestUpdatedDate(Instant.now());
+
+        auctionRequestRepository.save(auctionRequest);
+
+        return AuctionRequestResponse
+                .builder()
+                .status("200")
+                .message("Auction request rejected successfully!")
+                .id(auctionRequest.getId())
+                .methodType(auctionRequest.getMethodType())
+                .breeder(auctionRequest.getBreeder())
+                .fish(auctionRequest.getFish())
+                .startPrice(auctionRequest.getStartPrice())
+                .incrementPrice(auctionRequest.getIncrementPrice())
+                .build();
+
+    }
 
 }

@@ -48,9 +48,13 @@ public class KoiFish {
     @Column(name = "description", length = 2000)
     String description;
 
-    @Size(max = 2000)
-    @Column(name = "image", length = 2000)
-    String image;
+    @Size(max = 255)
+    @Column(name = "imageUrl")
+    String imageUrl;
+
+    @Size(max = 255)
+    @Column(name = "videoUrl")
+    String videoUrl;
 
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -24,10 +25,10 @@ public class Auction {
     swp.auctionkoi.models.KoiFish fish;
 
     @Column(name = "start_time")
-    Instant startTime;
+    LocalDateTime startTime;
 
     @Column(name = "end_time")
-    Instant endTime;
+    LocalDateTime endTime;
 
     @Column(name = "current_price")
     Double currentPrice;

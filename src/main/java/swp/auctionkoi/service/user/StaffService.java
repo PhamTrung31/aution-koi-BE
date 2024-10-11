@@ -8,7 +8,7 @@ import swp.auctionkoi.service.auction.AuctionService;
 import java.util.HashMap;
 import java.util.Optional;
 
-public interface StaffService extends AuctionService {
+public interface StaffService {
     public HashMap<Integer, UserResponse> getAllUser();
     public Optional<UserResponse> getUser(int id);
     public Optional<UserResponse> addUser(UserCreateRequest request);
