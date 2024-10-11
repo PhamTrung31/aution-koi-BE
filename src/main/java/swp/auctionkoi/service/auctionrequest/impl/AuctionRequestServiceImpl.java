@@ -83,7 +83,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setMethodType(auctionRequestDto.getMethodType());
         auctionRequest.setRequestCreatedDate(Instant.now());
         auctionRequest.setRequestUpdatedDate(Instant.now());
-        auctionRequest.setRequestStatus(auctionRequestDto.getRequestStatus());
+        auctionRequest.setRequestStatus(KoiStatus.PENDING_APPROVAL.ordinal());
 
         auctionRequestRepository.save(auctionRequest);
 
@@ -138,6 +138,47 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .builder()
                 .status("200")
                 .message("Auction request updated successfully!")
+                .id(auctionRequest.getId())
+                .methodType(auctionRequest.getMethodType())
+                .breeder(auctionRequest.getBreeder())
+                .fish(auctionRequest.getFish())
+                .startPrice(auctionRequest.getStartPrice())
+                .incrementPrice(auctionRequest.getIncrementPrice())
+                .build();
+    }
+
+    public AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID){
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+
+        User breeder = userRepository.findById(breederID)
+                .orElseThrow(() -> new IllegalArgumentException("Breeder not found with id: " + breederID));
+
+        if (!breeder.getRole().equals(Role.BREEDER)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("You are not authorized to approve auction requests.")
+                    .build();
+        }
+
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.CANCELED)) {
+            return AuctionRequestResponse
+                    .builder()
+                    .status("400")
+                    .message("The auction request has already been processed.")
+                    .build();
+        }
+
+        auctionRequest.setRequestStatus(KoiStatus.CANCELED.ordinal());
+        auctionRequest.setRequestUpdatedDate(Instant.now());
+
+        auctionRequestRepository.save(auctionRequest);
+
+        return AuctionRequestResponse
+                .builder()
+                .status("200")
+                .message("Auction request rejected successfully!")
                 .id(auctionRequest.getId())
                 .methodType(auctionRequest.getMethodType())
                 .breeder(auctionRequest.getBreeder())
