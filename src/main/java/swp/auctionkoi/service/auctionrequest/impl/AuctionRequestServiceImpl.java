@@ -7,6 +7,8 @@ import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
 import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.KoiFish;
@@ -36,17 +38,18 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     @Override
     public AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDto) {
         KoiFish koiFish = koiFishRepository.findById(auctionRequestDto.getFishId())
-                .orElseThrow(() -> new IllegalArgumentException("KoiFish not found with id: " + auctionRequestDto.getFishId()));
+                .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
 
         User user = userRepository.findById(auctionRequestDto.getBreederId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + auctionRequestDto.getBreederId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if(user == null)
         {
-            return AuctionRequestResponse
+            return
+                    AuctionRequestResponse
                     .builder()
                     .status("400")
-                    .message("User not found " + auctionRequestDto.getAuctionId())
+                    .message("User not found " + auctionRequestDto.getBreederId())
                     .build();
         }
         
@@ -103,16 +106,16 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     public AuctionRequestResponse updateAuctionRequest (int auctionRequestId, AuctionRequestUpdateDTO auctionRequestDTO)
     {
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
         KoiFish koiFish = koiFishRepository.findById(auctionRequestDTO.getFish().getId())
-                .orElseThrow(() -> new IllegalArgumentException("KoiFish not found with id: " + auctionRequestDTO.getFish().getId()));
+                .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
 
         Auction auction = auctionRepository.findById(auctionRequestDTO.getAuction().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Auction not found with id: " + auctionRequestDTO.getAuction().getId()));
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
         User user = userRepository.findById(auctionRequestDTO.getBreeder().getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + auctionRequestDTO.getBreeder().getId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (!user.getRole().equals(Role.BREEDER) || !user.getRole().equals(Role.STAFF)) {
             return AuctionRequestResponse
@@ -149,10 +152,10 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
     public AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID){
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
         User breeder = userRepository.findById(breederID)
-                .orElseThrow(() -> new IllegalArgumentException("Breeder not found with id: " + breederID));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (!breeder.getRole().equals(Role.BREEDER)) {
             return AuctionRequestResponse
@@ -193,10 +196,10 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         boolean isConflict = auctionRepository.existsAuctionsByStartTime(auctionDateTime);
 
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
         User staff = userRepository.findById(staffId)
-                .orElseThrow(() -> new IllegalArgumentException("Staff not found with id: " + staffId));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (!staff.getRole().equals(Role.STAFF)) {
             return AuctionRequestResponse
@@ -245,10 +248,10 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     public AuctionRequestResponse rejectAuctionRequest(int auctionRequestId, int staffId) {
 
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-                .orElseThrow(() -> new IllegalArgumentException("AuctionRequest not found with id: " + auctionRequestId));
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
         User staff = userRepository.findById(staffId)
-                .orElseThrow(() -> new IllegalArgumentException("Staff not found with id: " + staffId));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (!staff.getRole().equals(Role.STAFF)) {
             return AuctionRequestResponse

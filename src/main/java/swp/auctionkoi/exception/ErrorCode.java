@@ -17,6 +17,9 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1003, "User not existed", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1004, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1005, "You have no permission", HttpStatus.FORBIDDEN),
+    FISH_NOT_EXISTED(1006, "Fish not existed", HttpStatus.BAD_REQUEST),
+    AUCTION_NOT_EXISTED(1007, "Auction not existed", HttpStatus.BAD_REQUEST),
+    AUCTION_REQUEST_NOT_EXISTED(1008, "Auction request not existed", HttpStatus.BAD_REQUEST)
     ;
 
     int code;
