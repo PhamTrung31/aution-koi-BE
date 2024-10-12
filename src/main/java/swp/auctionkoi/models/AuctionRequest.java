@@ -33,13 +33,13 @@ public class AuctionRequest {
     swp.auctionkoi.models.Auction auction;
 
     @Column(name = "buy_out")
-    Double buyOut;
+    Float buyOut;
 
     @Column(name = "start_price")
-    Double startPrice;
+    Float startPrice;
 
     @Column(name = "increment_price")
-    Double incrementPrice;
+    Float incrementPrice;
 
     @Column(name = "method_type")
     Integer methodType;
@@ -54,5 +54,11 @@ public class AuctionRequest {
 
     @Column(name = "request_status")
     Integer requestStatus;
+
+    @Column(name = "start_time")
+    Instant startTime;
+
+    @Column(name = "end_time")
+    Instant endTime;
 
 }

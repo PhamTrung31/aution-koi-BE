@@ -12,36 +12,23 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Transactions")
+@Table(name = "auction_participants")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Transaction {
+public class AuctionParticipants {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id", nullable = true)
-    Auction auction;
+    @JoinColumn(name = "auction_id")
+    swp.auctionkoi.models.Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    swp.auctionkoi.models.User member;
-
-    @Column(name = "payment_id")
-    Integer paymentId;
-
-    @Column(name = "wallet_id")
-    Integer walletId;
-
-    @Column(name = "transaction_fee")
-    Double transactionFee;
-
-    @Column(name = "transaction_float")
-    Integer transactionFloat;
+    @JoinColumn(name = "user_id")
+    swp.auctionkoi.models.User user;
 
     @ColumnDefault("getdate()")
-    @Column(name = "transaction_date")
-    Instant transactionDate;
-
+    @Column(name = "join_date")
+    Instant joinDate;
 }

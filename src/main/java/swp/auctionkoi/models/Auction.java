@@ -23,16 +23,14 @@ public class Auction {
     @JoinColumn(name = "fish_id")
     swp.auctionkoi.models.KoiFish fish;
 
-    @Column(name = "start_time")
-    Instant startTime;
-
-    @Column(name = "end_time")
-    Instant endTime;
-
     @Column(name = "current_price")
-    Double currentPrice;
+    Float currentPrice;
 
     @Column(name = "status")
     Integer status;
+
+    @Column(name = "deposit_amount")
+    Float depositAmount;
+
 
 }
