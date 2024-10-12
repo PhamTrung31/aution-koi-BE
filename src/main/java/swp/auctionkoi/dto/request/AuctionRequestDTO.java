@@ -22,16 +22,16 @@ public class AuctionRequestDTO {
 //    swp.auctionkoi.models.Auction auction;
     Integer breederId;
     Integer fishId;
-    List<String> imageUrls;
-    List<String> videoUrls;
+//    List<String> imageUrls;
+//    List<String> videoUrls;
     Integer auctionId;
     Double buyOut;
     Double startPrice;
     Double incrementPrice;
     Integer methodType;
 
-    LocalDateTime Start_time;
-    LocalDateTime End_time;
+//    LocalDateTime Start_time;
+//    LocalDateTime End_time;
 //    LocalDate requestCreatedDate;
 //    LocalDate requestUpdatedDate;
     Integer requestStatus;

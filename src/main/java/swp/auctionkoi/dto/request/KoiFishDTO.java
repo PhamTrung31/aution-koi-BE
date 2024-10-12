@@ -19,7 +19,7 @@ public class KoiFishDTO {
     Double size;
     Integer age;
     String description;
-    String imageUrl;
-    String videoUrl;
+    String image_Url;
+    String video_Url;
     KoiStatus status;
 }

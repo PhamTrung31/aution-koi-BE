@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 
@@ -30,6 +31,7 @@ public class AuctionRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")
+    @Nullable
     swp.auctionkoi.models.Auction auction;
 
     @Column(name = "buy_out")

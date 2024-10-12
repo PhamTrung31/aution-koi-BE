@@ -49,12 +49,12 @@ public class KoiFish {
     String description;
 
     @Size(max = 255)
-    @Column(name = "imageUrl")
-    String imageUrl;
+    @Column(name = "image_Url")
+    String image_Url;
 
     @Size(max = 255)
-    @Column(name = "videoUrl")
-    String videoUrl;
+    @Column(name = "video_Url")
+    String video_Url;
 
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)

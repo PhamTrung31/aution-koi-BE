@@ -34,17 +34,22 @@ public class AuctionController {
          return  auctionRequestService.updateAuctionRequest(auctionRequestId, auctionRequestUpdateDTO);
      }
 
+     @PutMapping("/cancel/{auctionRequestId}")
+     public AuctionRequestResponse cancelAuctionRequest(@PathVariable Integer auctionRequestId, Integer breederID){
+         return  auctionRequestService.cancelAuctionRequest(auctionRequestId, breederID);
+     }
+
      @PutMapping("/approve/{auctionRequestId}")
      public AuctionRequestResponse approveAuctionRequest(@PathVariable Integer auctionRequestId, Integer staffId, @RequestBody LocalDateTime auctionDateTime){
          return auctionRequestService.approveAuctionRequest(auctionRequestId, staffId, auctionDateTime);
      }
 
      @PutMapping("/reject/{auctionRequestId}")
-     public AuctionRequestResponse rejectAuctionRequest (@PathVariable Integer auctionRequestId, Integer staffId){
+     public AuctionRequestResponse rejectAuctionRequest (@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId){
          return auctionRequestService.rejectAuctionRequest(auctionRequestId, staffId);
      }
 
-     @PostMapping("/add")
+     @PostMapping("/booking")
     public AuctionResponse createAuction(@RequestBody AuctionDTO auctionDTO){
          return auctionService.createAuction(auctionDTO);
      }

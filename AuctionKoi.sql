@@ -31,7 +31,7 @@ BEGIN
 END;
 GO
 
-CREATE TABLE KoiFishs(
+CREATE TABLE Koi_Fishs(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	[name] varchar(250) not null,
@@ -39,8 +39,8 @@ CREATE TABLE KoiFishs(
 	size float not null,
 	age int not null,
 	[description] nvarchar(2000),
-	imageUrl varchar(255),
-	videoUrl varchar(255),
+	image_Url varchar(255),
+	video_Url varchar(255),
 	[status] int,
 	fish_created_date datetime default GETDATE(),
 	fish_updated_date datetime default GETDATE(),
@@ -49,14 +49,14 @@ CREATE TABLE KoiFishs(
 Go
 
 CREATE TRIGGER trg_UpdateFishUpdatedDate
-ON KoiFishs
+ON Koi_Fishs
 AFTER UPDATE
 AS
 BEGIN
     -- Update the FishUpdatedDate to the current date/time when any field is updated
-    UPDATE KoiFishs
+    UPDATE Koi_Fishs
     SET fish_updated_date = GETDATE()
-    FROM KoiFishs f
+    FROM Koi_Fishs f
     INNER JOIN inserted i ON f.id = i.id;
 END;
 GO
@@ -69,7 +69,7 @@ CREATE TABLE Auctions(
 	end_time datetime not null,
 	current_price float not null,
 	[status] int,
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id),
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fishs(id),
 	FOREIGN KEY (winner_id) REFERENCES Users(id)
 );
 Go
@@ -89,7 +89,7 @@ CREATE TABLE AuctionRequests(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	fish_id int not null,
-	auction_id int not null,
+	auction_id int,
 	buy_out float not null,
 	start_price float not null,
 	increment_price float not null,
@@ -99,7 +99,7 @@ CREATE TABLE AuctionRequests(
 	request_status int not null,
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY (breeder_id) REFERENCES Users(id),
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id)
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fishs(id)
 );
 Go
 
@@ -188,7 +188,7 @@ VALUES
 ('customer2', 'pass321', 2, 'Emily Davis', '456-789-0123', '101 Fish Rd, River City'),
 ('admin', 'adminpass', 0, 'Admin User', '567-890-1234', '999 Admin Lane, Aqua City');
 
-INSERT INTO KoiFishs (breeder_id, [name], sex, size, age, [description], imageUrl, videoUrl, [status])
+INSERT INTO Koi_Fishs (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
 VALUES 
 (1, 'Kohaku', 1, 15.5, 3, 'Beautiful Kohaku koi with red and white patterns', 'kohaku.jpg', 'kohaku.mp4', 1),
 (1, 'Sanke', 2, 17.3, 2, 'High-quality Sanke koi with vibrant colors', 'sanke.jpg', 'sanke.mp4', 1),
@@ -212,7 +212,7 @@ VALUES
 (2, 4, 250.0), 
 (3, 3, 300.0);
 
-INSERT INTO AuctionRequests (breeder_id, fish_id, auction_id, buy_out, start_price, increment_price, method_type, request_status)
+INSERT INTO Auction_Requests (breeder_id, fish_id, auction_id, buy_out, start_price, increment_price, method_type, request_status)
 VALUES 
 (1, 1, 1, 1000.0, 500.0, 50.0, 1, 1),
 (1, 2, 2, 1200.0, 600.0, 60.0, 1, 1),

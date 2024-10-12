@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionDTO {
-    Integer id;
     Integer breederId;
     Integer fishId;
     Integer auctionRequestId;

@@ -1,5 +1,6 @@
 package swp.auctionkoi.service.auctionrequest.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionDTO;
@@ -21,6 +22,7 @@ import swp.auctionkoi.models.enums.KoiStatus;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+@RequiredArgsConstructor
 @Service
 public class AuctionRequestServiceImpl implements AuctionRequestService {
     @Autowired
@@ -71,6 +73,8 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             koiFish.setSize(koiFishDTO.getSize());
             koiFish.setAge(koiFishDTO.getAge());
             koiFish.setDescription(koiFishDTO.getDescription());
+            koiFish.setImage_Url(koiFishDTO.getImage_Url());
+            koiFish.setVideo_Url(koiFishDTO.getVideo_Url());
             koiFish.setFishCreatedDate(Instant.now());
             koiFish.setStatus(KoiStatus.NEW);
             koiFishRepository.save(koiFish);
@@ -125,6 +129,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     .build();
         }
 
+        auctionRequest.setId(auctionRequestId);
         auctionRequest.setBreeder(user);
         auctionRequest.setFish(koiFish);
         auctionRequest.setAuction(auction);
