@@ -21,6 +21,8 @@ import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +40,62 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     private UserRepository userRepository;
 
     @Override
+
+    public HashMap<Integer, AuctionRequestResponse> viewAllAuctionRequest(){
+        HashMap<Integer, AuctionRequestResponse> auctionRequests = new HashMap<>();
+        List<AuctionRequest> auctionRequestList = auctionRequestRepository.findAll();
+        for (AuctionRequest auctionRequest : auctionRequestList){
+            AuctionRequestResponse auctionRequestResponse = new AuctionRequestResponse();
+            auctionRequestResponse.setId(auctionRequest.getId());
+            auctionRequestResponse.setBreeder(auctionRequest.getBreeder());
+            auctionRequestResponse.setFish(auctionRequest.getFish());
+            auctionRequestResponse.setMethodType(auctionRequest.getMethodType());
+            auctionRequestResponse.setStatus(auctionRequest.getRequestStatus().toString());
+
+            auctionRequests.put(auctionRequest.getId(), auctionRequestResponse);
+        }
+        return auctionRequests;
+    }
+
+    public AuctionRequestResponse viewAuctionRequestDetail(int auctionRequestId) {
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+
+        // Creating AuctionRequestResponse and setting its fields
+        AuctionRequestResponse auctionRequestResponse = new AuctionRequestResponse();
+        auctionRequestResponse.setId(auctionRequest.getId());
+        auctionRequestResponse.setBreeder(auctionRequest.getBreeder());
+        auctionRequestResponse.setFish(auctionRequest.getFish());
+        auctionRequestResponse.setMethodType(auctionRequest.getMethodType());
+        auctionRequestResponse.setStartPrice(auctionRequest.getStartPrice());
+        auctionRequestResponse.setIncrementPrice(auctionRequest.getIncrementPrice());
+        auctionRequestResponse.setStatus(auctionRequest.getRequestStatus().toString());
+
+        return auctionRequestResponse;
+    }
+
+    public HashMap<Integer, AuctionRequestResponse> viewAllAuctionRequestsForBreeder(int breederId) {
+        User user = userRepository.findById(breederId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        HashMap<Integer, AuctionRequestResponse> auctionRequests = new HashMap<>();
+
+        List<AuctionRequest> auctionRequestList = auctionRequestRepository.findByBreederId(breederId);
+
+        for (AuctionRequest auctionRequest : auctionRequestList) {
+            AuctionRequestResponse auctionRequestResponse = new AuctionRequestResponse();
+            auctionRequestResponse.setId(auctionRequest.getId());
+            auctionRequestResponse.setBreeder(auctionRequest.getBreeder());
+            auctionRequestResponse.setFish(auctionRequest.getFish());
+            auctionRequestResponse.setMethodType(auctionRequest.getMethodType());
+            auctionRequestResponse.setStatus(auctionRequest.getRequestStatus().toString());
+
+            auctionRequests.put(auctionRequest.getId(), auctionRequestResponse);
+        }
+
+        return auctionRequests;
+    }
+
+
     public AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDto) {
         KoiFish koiFish = koiFishRepository.findById(auctionRequestDto.getFishId())
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));

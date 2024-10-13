@@ -2,6 +2,7 @@ package swp.auctionkoi.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.AuctionDTO;
@@ -15,6 +16,7 @@ import swp.auctionkoi.service.auctionrequest.impl.AuctionRequestServiceImpl;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +30,21 @@ public class AuctionController {
      public AuctionRequestResponse sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
         return auctionRequestService.sendAuctionRequest(auctionRequestDTO);
      }
+
+    @GetMapping("/view-all-requests")
+    public ResponseEntity<HashMap<Integer, AuctionRequestResponse>> viewAllAuctionRequest() {
+        return ResponseEntity.ok(auctionRequestService.viewAllAuctionRequest());
+    }
+
+    @GetMapping("/view-request-detail/{auctionRequestId}")
+    public ResponseEntity<AuctionRequestResponse> viewAuctionRequestDetail(@PathVariable Integer auctionRequestId) {
+        return ResponseEntity.ok(auctionRequestService.viewAuctionRequestDetail(auctionRequestId));
+    }
+
+    @GetMapping("/view-all-breeder-requests/{breederId}")
+    public ResponseEntity<HashMap<Integer, AuctionRequestResponse>> viewAllAuctionRequestsForBreeder(@PathVariable Integer breederId) {
+        return ResponseEntity.ok(auctionRequestService.viewAllAuctionRequestsForBreeder(breederId));
+    }
 
      @PutMapping("/update/{auctionRequestId}")
     public AuctionRequestResponse updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestUpdateDTO auctionRequestUpdateDTO){
