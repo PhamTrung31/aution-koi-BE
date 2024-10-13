@@ -45,7 +45,8 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/staffs", "/auth/token", "/auth/introspect",
             "/auth/logout", "/auctions/join","/auctions/end/{auctionId}",
-            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw"
+            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
+            "/deliveries/status"
     };
 
     @Value("${jwt.signerKey}")
@@ -59,6 +60,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")

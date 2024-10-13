@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.Instant;
 
@@ -12,6 +13,8 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@DynamicInsert
 @Table(name = "auction_participants")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionParticipants {
@@ -28,7 +31,6 @@ public class AuctionParticipants {
     @JoinColumn(name = "user_id")
     swp.auctionkoi.models.User user;
 
-    @ColumnDefault("getdate()")
     @Column(name = "join_date")
     Instant joinDate;
 }

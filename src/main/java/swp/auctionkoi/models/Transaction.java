@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.models.enums.TransactionType;
 
 import java.time.Instant;
 
@@ -11,7 +14,9 @@ import java.time.Instant;
 @Setter
 @Entity
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@DynamicInsert
 @Table(name = "Transactions")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Transaction {
@@ -21,7 +26,7 @@ public class Transaction {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id", nullable = true)
+    @JoinColumn(name = "auction_id")
     Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,8 +45,12 @@ public class Transaction {
     @Column(name = "transaction_float")
     Integer transactionFloat;
 
-    @ColumnDefault("getdate()")
+
     @Column(name = "transaction_date")
     Instant transactionDate;
+
+    @Column(name = "transaction_type")
+    @Enumerated(EnumType.ORDINAL)
+    TransactionType transactionType;
 
 }

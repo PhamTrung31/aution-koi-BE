@@ -23,6 +23,10 @@ public enum ErrorCode {
     USER_EXISTED_AUCTION(1008, "User has already joined the auction", HttpStatus.BAD_REQUEST),
     ONLY_MEMBER_ALLOWED(1009, "Only members are allowed to join the auction.", HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_BALANCE(1100, "Not enough balance.", HttpStatus.BAD_REQUEST),
+    AUCTION_JOIN_CLOSED(1101, "Auction joined closed", HttpStatus.CONFLICT),
+    ADMIN_NOT_FOUND(1102, "Admin not found", HttpStatus.NOT_FOUND),
+    DELIVERY_NOT_EXISTED(1103, "Delivery not existed", HttpStatus.NOT_FOUND),
+    BREEDER_NOT_FOUND(1104, "Breeder not found", HttpStatus.NOT_FOUND),
     ;
 
     int code;

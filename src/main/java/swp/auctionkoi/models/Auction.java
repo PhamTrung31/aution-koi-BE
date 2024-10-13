@@ -33,4 +33,8 @@ public class Auction {
     Float depositAmount;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "winner_id")
+    private User winner;
+
 }
