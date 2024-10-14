@@ -80,4 +80,36 @@ public class StaffServiceImpl implements StaffService {
         }
         return false;
     }
+
+//    @Override
+//    public Optional<Auction> getAuction(int id) {
+//
+//        return null;
+//    }
+//
+//    @Override
+//    public Auction addAuction(Auction auction) {
+//        return null;
+//    }
+//
+//    @Override
+//    public Auction updateAuction(Auction auction) {
+//        return null;
+//    }
+//
+//
+//    @Override
+//    public void deleteAuction(int id) {
+//
+//    }
+//
+//    @Override
+//    public void viewDetailAuction(int auctionId) {
+//
+//    }
+//
+//    @Override
+//    public HashMap<Integer, Bid> viewHistoryBidAuction(int auctionId) {
+//        return null;
+//    }
 }

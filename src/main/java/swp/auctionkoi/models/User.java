@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.lang.Nullable;
 import swp.auctionkoi.models.enums.Role;
 
 import java.time.Instant;

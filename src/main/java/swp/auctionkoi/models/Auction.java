@@ -25,7 +25,7 @@ public class Auction {
     swp.auctionkoi.models.KoiFish fish;
 
     @Column(name = "current_price")
-    float currentPrice;
+    Double currentPrice;
 
     @Column(name = "status")
     Integer status;

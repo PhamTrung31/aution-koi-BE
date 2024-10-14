@@ -36,6 +36,9 @@ public enum ErrorCode {
     INVALID_USER_ID(1020, "Invalid user id", HttpStatus.BAD_REQUEST),
     NO_PAYMENT(1021, "Have no payment", HttpStatus.BAD_REQUEST),
 
+    FISH_NOT_EXISTED(1006, "Fish not existed", HttpStatus.BAD_REQUEST),
+    AUCTION_NOT_EXISTED(1007, "Auction not existed", HttpStatus.BAD_REQUEST),
+    AUCTION_REQUEST_NOT_EXISTED(1008, "Auction request not existed", HttpStatus.BAD_REQUEST)
     ;
 
     int code;

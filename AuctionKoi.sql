@@ -31,7 +31,7 @@ BEGIN
 END;
 GO
 
-CREATE TABLE KoiFishs(
+CREATE TABLE Koi_Fishs(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	[name] varchar(250) not null,
@@ -39,7 +39,8 @@ CREATE TABLE KoiFishs(
 	size float not null,
 	age int not null,
 	[description] nvarchar(2000),
-	[image] varchar(2000) not null,
+	image_Url varchar(255),
+	video_Url varchar(255),
 	[status] int,
 	fish_created_date datetime default GETDATE(),
 	fish_updated_date datetime default GETDATE(),
@@ -48,35 +49,17 @@ CREATE TABLE KoiFishs(
 Go
 
 CREATE TRIGGER trg_UpdateFishUpdatedDate
-ON KoiFishs
+ON Koi_Fishs
 AFTER UPDATE
 AS
 BEGIN
     -- Update the FishUpdatedDate to the current date/time when any field is updated
-    UPDATE KoiFishs
+    UPDATE Koi_Fishs
     SET fish_updated_date = GETDATE()
-    FROM KoiFishs f
+    FROM Koi_Fishs f
     INNER JOIN inserted i ON f.id = i.id;
 END;
 GO
-
-CREATE TABLE KoiFishImages(
-	id int IDENTITY(1,1) primary key,
-	koiFish_id int not null,
-	imageUrl varchar(255),
-	uploaded_date datetime default GETDATE(),
-	FOREIGN KEY (koiFish_id) REFERENCES KoiFishs(id),
-);
-Go
-
-CREATE TABLE KoiFishVideos(
-	id int IDENTITY(1,1) primary key,
-	koiFish_id int not null,
-	videoUrl varchar(255),
-	uploaded_date datetime default GETDATE(),
-	FOREIGN KEY (koiFish_id) REFERENCES KoiFishs(id),
-);
-Go
 
 CREATE TABLE Auctions(
 	id int IDENTITY(1,1) primary key,
@@ -86,7 +69,7 @@ CREATE TABLE Auctions(
 	end_time datetime not null,
 	current_price float not null,
 	[status] int,
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id),
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fishs(id),
 	FOREIGN KEY (winner_id) REFERENCES Users(id)
 );
 Go
@@ -106,7 +89,7 @@ CREATE TABLE AuctionRequests(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	fish_id int not null,
-	auction_id int not null,
+	auction_id int,
 	buy_out float not null,
 	start_price float not null,
 	increment_price float not null,
@@ -116,7 +99,7 @@ CREATE TABLE AuctionRequests(
 	request_status int not null,
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY (breeder_id) REFERENCES Users(id),
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id)
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fishs(id)
 );
 Go
 
@@ -195,3 +178,84 @@ CREATE TABLE InvalidatedToken(
 	id int IDENTITY(1,1) primary key,
 	expiryTime datetime default GETDATE()
 )
+
+
+INSERT INTO Users (username, [password], [role], fullname, phone, [address])
+VALUES 
+('breeder1', 'pass123', 1, 'John Doe', '123-456-7890', '123 Koi St, Aqua City'),
+('breeder2', 'pass456', 1, 'Jane Smith', '234-567-8901', '456 Pond Ave, Aqua City'),
+('customer1', 'pass789', 2, 'Michael Brown', '345-678-9012', '789 Lake Blvd, Fish Town'),
+('customer2', 'pass321', 2, 'Emily Davis', '456-789-0123', '101 Fish Rd, River City'),
+('admin', 'adminpass', 0, 'Admin User', '567-890-1234', '999 Admin Lane, Aqua City');
+
+INSERT INTO Koi_Fishs (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
+VALUES 
+(1, 'Kohaku', 1, 15.5, 3, 'Beautiful Kohaku koi with red and white patterns', 'kohaku.jpg', 'kohaku.mp4', 1),
+(1, 'Sanke', 2, 17.3, 2, 'High-quality Sanke koi with vibrant colors', 'sanke.jpg', 'sanke.mp4', 1),
+(2, 'Showa', 1, 14.2, 4, 'Black Showa koi with red accents', 'showa.jpg', 'showa.mp4', 1),
+(2, 'Shusui', 2, 16.0, 3, 'Rare Shusui with stunning scales', 'shusui.jpg', 'shusui.mp4', 1),
+(1, 'Tancho', 1, 18.1, 5, 'Tancho koi with red spot on head', 'tancho.jpg', 'tancho.mp4', 1);
+
+INSERT INTO Auctions (fish_id, start_time, end_time, current_price, [status])
+VALUES 
+(1, '2024-10-15 09:00', '2024-10-15 18:00', 500.0, 1), 
+(2, '2024-10-16 09:00', '2024-10-16 18:00', 600.0, 1), 
+(3, '2024-10-17 09:00', '2024-10-17 18:00', 550.0, 1), 
+(4, '2024-10-18 09:00', '2024-10-18 18:00', 650.0, 1), 
+(5, '2024-10-19 09:00', '2024-10-19 18:00', 700.0, 1);
+
+INSERT INTO AuctionParticipants (auction_id, user_id, deposit_amount)
+VALUES 
+(1, 3, 100.0), 
+(1, 4, 150.0), 
+(2, 3, 200.0), 
+(2, 4, 250.0), 
+(3, 3, 300.0);
+
+INSERT INTO Auction_Requests (breeder_id, fish_id, auction_id, buy_out, start_price, increment_price, method_type, request_status)
+VALUES 
+(1, 1, 1, 1000.0, 500.0, 50.0, 1, 1),
+(1, 2, 2, 1200.0, 600.0, 60.0, 1, 1),
+(2, 3, 3, 1100.0, 550.0, 55.0, 1, 1),
+(2, 4, 4, 1300.0, 650.0, 65.0, 1, 1),
+(1, 5, 5, 1400.0, 700.0, 70.0, 1, 1);
+
+INSERT INTO Bids (auction_id, user_id, bid_amount, bid_price, is_auto_bid)
+VALUES 
+(1, 3, 510.0, 510.0, 0), 
+(1, 4, 520.0, 520.0, 0), 
+(2, 3, 610.0, 610.0, 0), 
+(2, 4, 620.0, 620.0, 0), 
+(3, 3, 560.0, 560.0, 0);
+
+INSERT INTO Wallets (member_id, balance)
+VALUES 
+(3, 5000.0), 
+(4, 4500.0), 
+(1, 10000.0), 
+(2, 8000.0), 
+(5, 20000.0);
+
+INSERT INTO Transactions (auction_id, member_id, payment_id, wallet_id, transaction_fee, transaction_float)
+VALUES 
+(1, 3, 1, 1, 50.0, 1000), 
+(2, 4, 2, 2, 60.0, 1200), 
+(3, 3, 3, 3, 55.0, 1100), 
+(4, 4, 4, 4, 65.0, 1300), 
+(5, 3, 5, 5, 70.0, 1400);
+
+INSERT INTO Payments (member_id, amount, payment_status)
+VALUES 
+(3, 510.0, 1), 
+(4, 520.0, 1), 
+(3, 610.0, 1), 
+(4, 620.0, 1), 
+(3, 560.0, 1);
+
+INSERT INTO Deliveries (transaction_id, from_address, to_address, [status], delivery_date, delivery_fee)
+VALUES 
+(1, '123 Koi St, Aqua City', '789 Lake Blvd, Fish Town', 1, '2024-10-20', 25.0), 
+(2, '456 Pond Ave, Aqua City', '101 Fish Rd, River City', 1, '2024-10-21', 30.0), 
+(3, '789 Lake Blvd, Fish Town', '999 Admin Lane, Aqua City', 1, '2024-10-22', 35.0), 
+(4, '101 Fish Rd, River City', '123 Koi St, Aqua City', 1, '2024-10-23', 40.0), 
+(5, '999 Admin Lane, Aqua City', '456 Pond Ave, Aqua City', 1, '2024-10-24', 45.0);
