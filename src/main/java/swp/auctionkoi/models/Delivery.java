@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
+import swp.auctionkoi.models.enums.DeliveryStatus;
+import swp.auctionkoi.models.enums.TransactionType;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -13,6 +17,10 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
+@DynamicInsert
+@Builder
 @Table(name = "Deliveries")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Delivery {
@@ -35,11 +43,12 @@ public class Delivery {
     @Column(name = "to_address", length = 250)
     String toAddress;
 
-    @Column(name = "status")
-    Integer status;
+    @Column(name = "delivery_status")
+    @Enumerated(EnumType.ORDINAL)
+    DeliveryStatus deliveryStatus ;
 
     @Column(name = "delivery_date")
-    LocalDate deliveryDate;
+    Instant deliveryDate;
 
     @Column(name = "delivery_fee")
     Double deliveryFee;

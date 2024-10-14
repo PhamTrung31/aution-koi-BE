@@ -8,7 +8,13 @@ import swp.auctionkoi.models.Bid;
 
 import java.util.HashMap;
 import java.util.Optional;
-@Service
+import swp.auctionkoi.models.Auction;
+import swp.auctionkoi.models.Bid;
+import swp.auctionkoi.models.User;
+
+import java.util.HashMap;
+import java.util.Optional;
+
 public interface AuctionService {
     public Optional<Auction> getAuction(int id);
     AuctionResponse createAuction(AuctionDTO auctionDTO);
@@ -25,4 +31,7 @@ public interface AuctionService {
     public void checkUserDepositBeforeBidding(int auctionId, int userId);
     public void handleBidDuringAuction(int auctionId, int userId, float bidAmount);
     public void closeAuction(int auctionId);
+    public AuctionJoinResponse JoinAuction(int userId, int auctionId);
+    public void endAuction(int auctionId);
+
 }

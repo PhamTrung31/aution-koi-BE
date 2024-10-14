@@ -4,12 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.models.enums.TransactionType;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -42,7 +46,8 @@ public class Transaction {
     float bidPrice;
 
     @Column(name = "transaction_type")
-    Integer transactionType;
+    @Enumerated(EnumType.ORDINAL)
+    TransactionType transactionType;
 
     @ColumnDefault("getdate()")
     @Column(name = "transaction_date")

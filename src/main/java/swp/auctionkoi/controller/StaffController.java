@@ -25,17 +25,19 @@ public class StaffController {
     @Autowired
     private StaffService staffService;
 
-//    @GetMapping("/all")
-//    public ApiResponse<HashMap<Integer, User>> getAllUser() {
-//        var authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        log.info("Username {}", authentication.getName());
-//        authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
-//
-//        return ApiResponse.<HashMap<Integer, UserResponse>>builder()
-//                .result(staffService.getAllUser())
-//                .build();
-//    }
+    @GetMapping("/all")
+    public ApiResponse<HashMap<Integer, UserResponse>> getAllUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        log.info("Username {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
+
+        return ApiResponse.<HashMap<Integer, UserResponse>>builder()
+                .result(staffService.getAllUser())
+                .build();
+    }
+
+
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable int userId) {
@@ -46,6 +48,8 @@ public class StaffController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     @PostMapping
+    public ResponseEntity<UserResponse> addUser(@RequestBody UserCreateRequest request) {
+        Optional<UserResponse> userOptional = staffService.addUser(request);
     public ResponseEntity<UserResponse> addUser(UserCreateRequest request) {
         Optional<UserResponse> userOptional = staffService.addUser(request);
         if (userOptional.isPresent()) {

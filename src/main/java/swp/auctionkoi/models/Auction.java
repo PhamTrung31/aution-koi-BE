@@ -24,8 +24,14 @@ public class Auction {
     @JoinColumn(name = "fish_id")
     swp.auctionkoi.models.KoiFish fish;
 
+    @Column(name = "start_time")
+    Instant startTime;
+
+    @Column(name = "end_time")
+    Instant endTime;
+
     @Column(name = "current_price")
-    Double currentPrice;
+    Float currentPrice;
 
     @Column(name = "status")
     Integer status;
@@ -40,5 +46,13 @@ public class Auction {
     @ColumnDefault("60")
     @Column(name = "extension_seconds")
     private int extensionSeconds;
+
+    @Column(name = "deposit_amount")
+    Float depositAmount;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "winner_id")
+    private User winner;
 
 }
