@@ -14,4 +14,12 @@ public interface AuctionService {
 
     public void viewDetailAuction(int auctionId);
     public HashMap<Integer, Bid> viewHistoryBidAuction(int auctionId);
+
+
+    public Auction startAuction(int auctionId);
+
+
+    public void checkUserDepositBeforeBidding(int auctionId, int userId);
+    public void handleBidDuringAuction(int auctionId, int userId, float bidAmount);
+    public void closeAuction(int auctionId);
 }

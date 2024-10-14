@@ -11,6 +11,7 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "Bids")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Bid {
@@ -27,9 +28,6 @@ public class Bid {
     @JoinColumn(name = "user_id")
     swp.auctionkoi.models.User user;
 
-    @Column(name = "bid_amount")
-    Double bidAmount;
-
     @Column(name = "bid_created_date")
     Instant bidCreatedDate;
 
@@ -37,12 +35,12 @@ public class Bid {
     Boolean isAutoBid;
 
     @Column(name = "auto_bid_max")
-    Double autoBidMax;
+    float autoBidMax;
 
-    @Column(name = "increment_autobix")
-    Double incrementAutobix;
+    @Column(name = "increment_autobid")
+    float incrementAutobid;
 
     @Column(name = "bid_price")
-    Double bidPrice;
+    float bidPrice;
 
 }

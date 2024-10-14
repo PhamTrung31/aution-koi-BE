@@ -55,4 +55,10 @@ public class AuctionRequest {
     @Column(name = "request_status")
     Integer requestStatus;
 
+    @Column(name = "start_time")
+    Instant startTime;
+
+    @Column(name = "end_time")
+    Instant endTime;
+
 }

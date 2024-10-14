@@ -1,4 +1,29 @@
 package swp.auctionkoi.service.wallet.impl;
 
-public class WalletServiceImpl {
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
+import swp.auctionkoi.models.Wallet;
+import swp.auctionkoi.repository.WalletRepository;
+import swp.auctionkoi.service.wallet.WalletService;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class WalletServiceImpl implements WalletService {
+    private final WalletRepository walletRepository;
+
+    public Optional<Wallet> getWalletByUserId(int userId){
+        if(userId <= 0){
+            throw new AppException(ErrorCode.INVALID_USER_ID);
+        }
+        Wallet wallet = walletRepository.findByUserId(userId);
+        return Optional.ofNullable(wallet);
+    }
 }

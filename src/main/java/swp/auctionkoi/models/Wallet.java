@@ -22,6 +22,5 @@ public class Wallet {
     User member;
 
     @Column(name = "balance")
-    Double balance;
-
+    float balance;
 }

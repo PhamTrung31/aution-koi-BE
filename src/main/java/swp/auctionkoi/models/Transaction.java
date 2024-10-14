@@ -12,6 +12,7 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "Transactions")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Transaction {
@@ -35,10 +36,13 @@ public class Transaction {
     Integer walletId;
 
     @Column(name = "transaction_fee")
-    Double transactionFee;
+    float transactionFee;
 
-    @Column(name = "transaction_float")
-    Integer transactionFloat;
+    @Column(name = "bid_price")
+    float bidPrice;
+
+    @Column(name = "transaction_type")
+    Integer transactionType;
 
     @ColumnDefault("getdate()")
     @Column(name = "transaction_date")
