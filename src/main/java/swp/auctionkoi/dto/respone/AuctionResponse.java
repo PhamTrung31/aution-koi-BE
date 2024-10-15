@@ -15,6 +15,7 @@ public class AuctionResponse {
     private String status;
     private String message;
     private Integer auctionId;
+    private Double currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

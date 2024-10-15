@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
+import swp.auctionkoi.dto.respone.AuctionResponse;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,4 +19,6 @@ public interface AuctionRequestService {
     AuctionRequestResponse cancelAuctionRequest (int auctionRequestId, int breederID);
     AuctionRequestResponse approveAuctionRequest(int auctionRequestId, int staffId, LocalDateTime auctionDateTime);
     AuctionRequestResponse rejectAuctionRequest (int auctionRequestId, int staffId);
+    AuctionRequestResponse sendRequestUpdateDetailAuction(int auctionId, AuctionRequestUpdateDTO auctionRequestUpdateDTO);
+    AuctionResponse approveRequestUpdateAuction(int auctionRequestId, int staffId);
 }

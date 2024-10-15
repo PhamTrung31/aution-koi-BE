@@ -15,17 +15,8 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionDTO {
-    Integer breederId;
+    Integer AuctionId;
     Integer fishId;
-    Integer auctionRequestId;
-    Double buyOut;
-    Double startPrice;
-    Double incrementPrice;
-    Integer methodType;
-//    Integer requestStatus;
-//    List<String> imageUrls;
-//    List<String> videoUrls;
-
     LocalDateTime startTime;
     LocalDateTime endTime;
     Double currentPrice;

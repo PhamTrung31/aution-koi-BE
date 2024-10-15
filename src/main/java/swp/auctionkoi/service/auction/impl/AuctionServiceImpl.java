@@ -35,8 +35,8 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public AuctionResponse createAuction (AuctionDTO auctionDTO){
-        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionDTO.getAuctionRequestId())
-                .orElseThrow(() -> new IllegalArgumentException("Auction Request not found with id: " + auctionDTO.getAuctionRequestId()));
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionDTO.getAuctionId())
+                .orElseThrow(() -> new IllegalArgumentException("Auction Request not found with id: " + auctionDTO.getAuctionId()));
 
         if (!auctionRequest.getRequestStatus().equals(KoiStatus.APPROVED)) {
             return AuctionResponse.builder()

@@ -8,6 +8,7 @@ import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
 import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
+import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.AuctionRequest;
@@ -146,8 +147,8 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setStartPrice(auctionRequestDto.getStartPrice());
         auctionRequest.setIncrementPrice(auctionRequestDto.getIncrementPrice());
         auctionRequest.setMethodType(auctionRequestDto.getMethodType());
-        auctionRequest.setRequestCreatedDate(Instant.now());
-        auctionRequest.setRequestUpdatedDate(Instant.now());
+        auctionRequest.setRequestCreatedDate(LocalDateTime.now());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
         auctionRequest.setRequestStatus(KoiStatus.PENDING_APPROVAL.ordinal());
 
         auctionRequestRepository.save(auctionRequest);
@@ -195,7 +196,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
         auctionRequest.setIncrementPrice(auctionRequestDTO.getIncrementPrice());
         auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
-        auctionRequest.setRequestUpdatedDate(Instant.now());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
         auctionRequest.setRequestStatus(auctionRequestDTO.getRequestStatus());
 
         auctionRequestRepository.save(auctionRequest);
@@ -228,7 +229,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     .build();
         }
 
-        if (!auctionRequest.getRequestStatus().equals(KoiStatus.CANCELED)) {
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.CANCELED) || !auctionRequest.getRequestStatus().equals(KoiStatus.LISTED_FOR_AUCTION)) {
             return AuctionRequestResponse
                     .builder()
                     .status("400")
@@ -237,7 +238,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
         auctionRequest.setRequestStatus(KoiStatus.CANCELED.ordinal());
-        auctionRequest.setRequestUpdatedDate(Instant.now());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
 
         auctionRequestRepository.save(auctionRequest);
 
@@ -272,7 +273,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     .build();
         }
 
-        // Validate that the auction request is pending and not already approved or rejected
         if (!auctionRequest.getRequestStatus().equals(KoiStatus.PENDING_APPROVAL)) {
             return AuctionRequestResponse
                     .builder()
@@ -281,7 +281,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     .build();
         }
 
-        // Check if the auctionDateTime is valid (e.g., not in the past or conflicting with another auction)
         if (auctionDateTime.isBefore(LocalDateTime.now()) || isConflict) {
             return AuctionRequestResponse
                     .builder()
@@ -291,7 +290,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
         auctionRequest.setRequestStatus(KoiStatus.APPROVED.ordinal());
-        auctionRequest.setRequestUpdatedDate(Instant.now());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
 
         auctionRequestRepository.save(auctionRequest);
 
@@ -333,7 +332,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
         auctionRequest.setRequestStatus(KoiStatus.REJECTED.ordinal());
-        auctionRequest.setRequestUpdatedDate(Instant.now());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
 
         auctionRequestRepository.save(auctionRequest);
 
@@ -349,6 +348,73 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .incrementPrice(auctionRequest.getIncrementPrice())
                 .build();
 
+    }
+
+    public AuctionRequestResponse sendRequestUpdateDetailAuction(int auctionId, AuctionRequestUpdateDTO auctionRequestUpdateDTO) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+
+        User user = userRepository.findById(auctionRequestUpdateDTO.getBreeder().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (auction.getStatus().equals(KoiStatus.LISTED_FOR_AUCTION) || auction.getStatus().equals(KoiStatus.CANCELED)) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        AuctionRequest auctionRequest = new AuctionRequest();
+        auctionRequest.setId(auction.getId());
+        auctionRequest.setBreeder(auctionRequestUpdateDTO.getBreeder());
+        auctionRequest.setFish(auctionRequestUpdateDTO.getFish());
+        auctionRequest.setBuyOut(auctionRequestUpdateDTO.getBuyOut());
+        auctionRequest.setStartPrice(auctionRequestUpdateDTO.getStartPrice());
+        auctionRequest.setIncrementPrice(auctionRequestUpdateDTO.getIncrementPrice());
+        auctionRequest.setMethodType(auctionRequestUpdateDTO.getMethodType());
+        auctionRequest.setRequestCreatedDate(LocalDateTime.now());
+        auctionRequest.setRequestStatus(KoiStatus.PENDING_APPROVAL.ordinal());
+
+        auctionRequestRepository.save(auctionRequest);
+
+        AuctionRequestResponse response = new AuctionRequestResponse();
+        response.setId(auctionRequest.getId());
+        response.setBreeder(auctionRequest.getBreeder());
+        response.setFish(auctionRequest.getFish());
+        response.setMethodType(auctionRequest.getMethodType());
+        response.setStatus(auctionRequest.getRequestStatus().toString());
+
+        return response;
+
+    }
+
+    public AuctionResponse approveRequestUpdateAuction(int auctionRequestId, int staffId) {
+
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.PENDING_APPROVAL)) {
+            throw new AppException(ErrorCode.AUCTION_NOT_APPROVE);
+        }
+
+        Auction auction = auctionRepository.findById(auctionRequest.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+
+        auction.setId(auctionRequest.getAuction().getId());
+        auction.setFish(auctionRequest.getFish());
+
+        auctionRequest.setRequestStatus(KoiStatus.APPROVED.ordinal());
+        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
+
+        auctionRepository.save(auction);
+        auctionRequestRepository.save(auctionRequest);
+
+        AuctionResponse response = new AuctionResponse();
+        response.setAuctionId(auction.getId());
+        response.setStartTime(auction.getStartTime());
+        response.setEndTime(auction.getEndTime());
+        response.setCurrentPrice(auction.getCurrentPrice());
+        response.setStatus(auction.getStatus().toString());
+
+        return response;
     }
 
 }

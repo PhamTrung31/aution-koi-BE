@@ -7,6 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -48,11 +49,11 @@ public class AuctionRequest {
 
     @ColumnDefault("getdate()")
     @Column(name = "request_created_date")
-    Instant requestCreatedDate;
+    LocalDateTime requestCreatedDate;
 
     @ColumnDefault("getdate()")
     @Column(name = "request_updated_date")
-    Instant requestUpdatedDate;
+    LocalDateTime requestUpdatedDate;
 
     @Column(name = "request_status")
     Integer requestStatus;

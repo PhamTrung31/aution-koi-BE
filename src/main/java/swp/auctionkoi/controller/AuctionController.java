@@ -31,6 +31,11 @@ public class AuctionController {
         return auctionRequestService.sendAuctionRequest(auctionRequestDTO);
      }
 
+    @PostMapping("/send-request-update/{auctionId}")
+    public AuctionRequestResponse sendRequestUpdateDetailAuction(@PathVariable Integer auctionId, @RequestBody AuctionRequestUpdateDTO auctionRequestUpdateDTO) {
+        return auctionRequestService.sendRequestUpdateDetailAuction(auctionId, auctionRequestUpdateDTO);
+    }
+
     @GetMapping("/view-all-requests")
     public ResponseEntity<HashMap<Integer, AuctionRequestResponse>> viewAllAuctionRequest() {
         return ResponseEntity.ok(auctionRequestService.viewAllAuctionRequest());
@@ -70,4 +75,8 @@ public class AuctionController {
     public AuctionResponse createAuction(@RequestBody AuctionDTO auctionDTO){
          return auctionService.createAuction(auctionDTO);
      }
+    @PutMapping("/approve-update/{auctionRequestId}")
+    public AuctionResponse approveAuctionUpdate(@PathVariable Integer auctionRequestId, Integer staffId) {
+        return auctionRequestService.approveRequestUpdateAuction(auctionRequestId, staffId);
+    }
 }
