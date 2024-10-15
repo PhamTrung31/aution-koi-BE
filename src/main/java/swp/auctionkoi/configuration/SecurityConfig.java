@@ -30,6 +30,7 @@ public class SecurityConfig {
             "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
             "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
+            "/auction/approve-update/{auctionRequestId}","/auction/send-request-update/{auctionId}",
     };
 
     @Value("${jwt.signerKey}")
