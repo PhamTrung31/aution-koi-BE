@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.Instant;
 
@@ -14,16 +15,16 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
+@Table(name = "invalidated_token")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 public class InvalidatedToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    String id;
 
-    @ColumnDefault("getdate()")
-    @Column(name = "expiryTime")
-    private Instant expiryTime;
+    @Column(name = "expiry_time")
+    Instant expiryTime;
 
 }

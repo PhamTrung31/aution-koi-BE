@@ -26,8 +26,8 @@ public enum ErrorCode {
     AUCTION_JOIN_CLOSED(1101, "Auction joined closed", HttpStatus.CONFLICT),
     ADMIN_NOT_FOUND(1102, "Admin not found", HttpStatus.NOT_FOUND),
     DELIVERY_NOT_EXISTED(1103, "Delivery not existed", HttpStatus.NOT_FOUND),
-    BREEDER_NOT_FOUND(1104, "Breeder not found", HttpStatus.NOT_FOUND),
-    ;
+    BREEDER_NOT_FOUND(1104, "Breeder not found", HttpStatus.NOT_FOUND);
+
 
     int code;
     String message;

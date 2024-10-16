@@ -26,7 +26,7 @@ public class AuctionRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fish_id")
-    swp.auctionkoi.models.KoiFish fish;
+    swp.auctionkoi.models.KoiFishs fish;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")

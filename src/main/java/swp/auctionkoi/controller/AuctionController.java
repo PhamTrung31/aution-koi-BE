@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 
+import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
 import swp.auctionkoi.models.AuctionParticipants;
 import swp.auctionkoi.service.auction.AuctionService;
@@ -22,7 +23,7 @@ public class AuctionController {
     AuctionService auctionService;
 
     @PostMapping("/join")
-    public ResponseEntity<AuctionJoinResponse> joinAuction(@RequestBody AuctionJoinRequest request) {
+    public ApiResponse<AuctionJoinResponse> joinAuction(@RequestBody AuctionJoinRequest request) {
 
         AuctionJoinResponse auctionParticipant = auctionService.JoinAuction(request.getUserId(), request.getAuctionId());
 
@@ -32,17 +33,28 @@ public class AuctionController {
                 .joinDate(auctionParticipant.getJoinDate())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ApiResponse.<AuctionJoinResponse>builder()
+                .result(response)
+                .code(200)
+                .message("Successfully")
+                .build();
     }
 
 
     @PostMapping("/end/{auctionId}")
-    public ResponseEntity<String> endAuction(@PathVariable int auctionId) {
+    public ApiResponse<String> endAuction(@PathVariable int auctionId) {
         try {
             auctionService.endAuction(auctionId);
-            return ResponseEntity.ok("Auction ended successfully.");
+            return ApiResponse.<String>builder()
+                    .code(200)
+                    .message("Successfully")
+                    .build();
         } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+//            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ApiResponse.<String>builder()
+                    .code(404)
+                    .message(ex.getMessage())
+                    .build();
         }
     }
 
