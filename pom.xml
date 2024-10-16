@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>swp</groupId>
-    <artifactId>auction-koi</artifactId>
+    <artifactId>auctionMapper-koi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>auction-koi</name>
     <description>auction-koi</description>

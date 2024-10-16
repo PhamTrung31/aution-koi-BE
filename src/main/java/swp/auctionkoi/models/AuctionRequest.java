@@ -55,6 +55,14 @@ public class AuctionRequest {
     @Column(name = "request_updated_date")
     LocalDateTime requestUpdatedDate;
 
+    @ColumnDefault("getdate()")
+    @Column(name = "request_start_date")
+    LocalDateTime requestStartDate;
+
+    @ColumnDefault("getdate()")
+    @Column(name = "request_end_date")
+    LocalDateTime requestEndDate;
+
     @Column(name = "request_status")
     Integer requestStatus;
 

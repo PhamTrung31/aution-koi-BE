@@ -18,9 +18,9 @@ public enum ErrorCode {
     UNAUTHENTICATED(1004, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1005, "You have no permission", HttpStatus.FORBIDDEN),
     FISH_NOT_EXISTED(1006, "Fish not existed", HttpStatus.BAD_REQUEST),
-    AUCTION_NOT_EXISTED(1007, "Auction not existed", HttpStatus.NOT_FOUND),
-    AUCTION_REQUEST_NOT_EXISTED(1008, "Auction request not existed", HttpStatus.NOT_FOUND),
-    AUCTION_NOT_APPROVE(1009,"Auction request is not pending approval", HttpStatus.BAD_REQUEST)
+    AUCTION_NOT_EXISTED(1007, "AuctionMapper not existed", HttpStatus.NOT_FOUND),
+    AUCTION_REQUEST_NOT_EXISTED(1008, "AuctionMapper request not existed", HttpStatus.NOT_FOUND),
+    AUCTION_NOT_APPROVE(1009,"AuctionMapper request is not pending approval", HttpStatus.BAD_REQUEST)
 
     ;
 

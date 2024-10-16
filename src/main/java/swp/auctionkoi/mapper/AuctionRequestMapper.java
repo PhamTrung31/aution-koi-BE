@@ -12,4 +12,8 @@ public interface AuctionRequestMapper
     swp.auctionkoi.models.AuctionRequest toAuctionRequest(AuctionRequest auctionRequest);
     AuctionRequestResponse toAuctionRequestResponse(swp.auctionkoi.models.AuctionRequest auctionRequest);
     void updateAuctionRequest(@MappingTarget swp.auctionkoi.models.AuctionRequest auctionRequest, AuctionRequestUpdate auctionRequestDto);
+    AuctionMapper toAuction(AuctionRequest auctionRequest);
+//    void updateAuctionFromRequest(@MappingTarget swp.auctionkoi.models.AuctionRequest auctionRequest, AuctionMapper auction) {
+//        auction.setFish(auctionRequest.getFish());
+//    }
 }

@@ -105,8 +105,12 @@ public class AuctionController {
      }
 
      @PostMapping("/booking")
-    public AuctionResponse createAuction(@RequestBody Auction auction){
-         return auctionService.createAuction(auction);
+    public ResponseEntity<AuctionResponse>createAuction (Auction auctionDTO){
+         Optional<AuctionResponse> auctionResponseOptional = auctionService.createAuction(auctionDTO);
+         if(auctionResponseOptional.isPresent()){
+             return ResponseEntity.ok(auctionResponseOptional.get());
+         }
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
      }
 
     @PutMapping("/approve-update/{auctionRequestId}")

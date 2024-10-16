@@ -164,9 +164,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
-        User user = userRepository.findById(auctionRequestUpdate.getBreeder().getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         if (auction.getStatus().equals(KoiStatus.LISTED_FOR_AUCTION) || auction.getStatus().equals(KoiStatus.CANCELED)) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }

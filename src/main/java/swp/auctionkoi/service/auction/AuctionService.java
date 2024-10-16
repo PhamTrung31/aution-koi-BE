@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface AuctionService {
     public Optional<swp.auctionkoi.models.Auction> getAuction(int id);
-    AuctionResponse createAuction(Auction auction);
+    public Optional<AuctionResponse> createAuction (Auction auctionDTO);
     public swp.auctionkoi.models.Auction updateAuction(swp.auctionkoi.models.Auction auction);
     public void deleteAuction(int id);
     public void viewDetailAuction(int auctionId);

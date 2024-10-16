@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,7 +22,9 @@ public class AuctionRequestUpdate {
     Double startPrice;
     Double incrementPrice;
     Integer methodType;
-    LocalDate requestCreatedDate;
-    LocalDate requestUpdatedDate;
+    LocalDateTime requestCreatedDate;
+    LocalDateTime requestUpdatedDate;
+    LocalDateTime requestStartDate;
+    LocalDateTime requestEndDate;
     Integer requestStatus;
 }

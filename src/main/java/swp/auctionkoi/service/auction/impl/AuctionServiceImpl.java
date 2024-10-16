@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.Auction;
 import swp.auctionkoi.dto.respone.AuctionResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
+import swp.auctionkoi.mapper.AuctionMapper;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.enums.KoiStatus;
@@ -27,39 +30,20 @@ public class AuctionServiceImpl implements AuctionService {
     @Autowired
     private UserRepository userRepository;
 
+    AuctionMapper auctionMapper;
+
     @Override
     public Optional<swp.auctionkoi.models.Auction> getAuction(int id) {
         return Optional.empty();
     }
 
     @Override
-    public AuctionResponse createAuction (Auction auctionDTO){
+    public Optional<AuctionResponse> createAuction (Auction auctionDTO){
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionDTO.getAuctionId())
-                .orElseThrow(() -> new IllegalArgumentException("Auction Request not found with id: " + auctionDTO.getAuctionId()));
-
-        if (!auctionRequest.getRequestStatus().equals(KoiStatus.APPROVED)) {
-            return AuctionResponse.builder()
-                    .status("400")
-                    .message("Auction Request is not approved")
-                    .build();
-        }
-
-        swp.auctionkoi.models.Auction auction = new swp.auctionkoi.models.Auction();
-        auction.setFish(auctionRequest.getFish());
-        auction.setStartTime(auctionDTO.getStartTime());
-        auction.setEndTime(auctionDTO.getEndTime());
-        auction.setCurrentPrice(auctionRequest.getStartPrice());  // Start price comes from auction request
-        auction.setStatus(KoiStatus.LISTED_FOR_AUCTION.ordinal()); // Enum representing scheduled auction status
-
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+        swp.auctionkoi.models.Auction auction = auctionMapper.toAuction(auctionDTO);
         auctionRepository.save(auction);
-
-        return AuctionResponse.builder()
-                .status("200")
-                .message("Auction created successfully")
-                .auctionId(auction.getId())
-                .startTime(auction.getStartTime())
-                .endTime(auction.getEndTime())
-                .build();
+        return Optional.ofNullable(auctionMapper.toAuctionResponse(auction));
     }
 
     @Override

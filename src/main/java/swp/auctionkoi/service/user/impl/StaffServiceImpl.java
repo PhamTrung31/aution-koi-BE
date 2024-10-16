@@ -82,18 +82,18 @@ public class StaffServiceImpl implements StaffService {
     }
 
 //    @Override
-//    public Optional<Auction> getAuction(int id) {
+//    public Optional<AuctionMapper> getAuction(int id) {
 //
 //        return null;
 //    }
 //
 //    @Override
-//    public Auction addAuction(Auction auction) {
+//    public AuctionMapper addAuction(AuctionMapper auction) {
 //        return null;
 //    }
 //
 //    @Override
-//    public Auction updateAuction(Auction auction) {
+//    public AuctionMapper updateAuction(AuctionMapper auction) {
 //        return null;
 //    }
 //

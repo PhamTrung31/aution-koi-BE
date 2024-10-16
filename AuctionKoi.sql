@@ -85,7 +85,7 @@ CREATE TABLE AuctionParticipants (
 );
 GO
 
-CREATE TABLE AuctionRequests(
+CREATE TABLE Auction_Requests(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	fish_id int not null,
@@ -96,6 +96,8 @@ CREATE TABLE AuctionRequests(
 	method_type int not null,
 	request_created_date datetime default GETDATE(),
 	request_updated_date datetime default GETDATE(),
+	request_start_date datetime default GETDATE(),
+	request_end_date datetime default GETDATE(),
 	request_status int not null,
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY (breeder_id) REFERENCES Users(id),
@@ -104,14 +106,14 @@ CREATE TABLE AuctionRequests(
 Go
 
 CREATE TRIGGER trg_UpdateRequestUpdatedDate
-ON AuctionRequests
+ON Auction_Requests
 AFTER UPDATE
 AS
 BEGIN
     -- Update the RequestUpdatedDate to the current date/time when any field is updated
-    UPDATE AuctionRequests
+    UPDATE Auction_Requests
     SET request_updated_date = GETDATE()
-    FROM AuctionRequests r
+    FROM Auction_Requests r
     INNER JOIN inserted i ON r.id = i.id;
 END;
 GO
