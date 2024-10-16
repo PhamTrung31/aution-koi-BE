@@ -21,6 +21,7 @@ public enum ErrorCode {
     AUCTION_NOT_EXISTED(1007, "Auction not existed", HttpStatus.NOT_FOUND),
     AUCTION_REQUEST_NOT_EXISTED(1008, "Auction request not existed", HttpStatus.NOT_FOUND),
     AUCTION_NOT_APPROVE(1009,"Auction request is not pending approval", HttpStatus.BAD_REQUEST)
+
     ;
 
     int code;

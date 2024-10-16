@@ -91,149 +91,73 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             koiFishRepository.save(koiFish);
         }
         swp.auctionkoi.models.AuctionRequest auctionRequest = auctionRequestMapper.toAuctionRequest(auctionRequestDto);
+        auctionRequest.setRequestStatus(KoiStatus.NEW.ordinal());
         auctionRequestRepository.save(auctionRequest);
 
         return Optional.ofNullable(auctionRequestMapper.toAuctionRequestResponse(auctionRequest));
     }
 
     @Override
-    public Optional<AuctionRequestResponse> updateAuctionRequest (int auctionRequestId, AuctionRequestUpdate auctionRequestDTO)
-    {
+    public Optional<AuctionRequestResponse> updateAuctionRequest (int auctionRequestId, AuctionRequestUpdate auctionRequestDTO) {
+
         swp.auctionkoi.models.AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId).get();
         if(auctionRequest != null){
             auctionRequestMapper.updateAuctionRequest(auctionRequest, auctionRequestDTO);
+            auctionRequestRepository.save(auctionRequest);
             return Optional.of(auctionRequestMapper.toAuctionRequestResponse(auctionRequestRepository.save(auctionRequest)));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public Optional<AuctionRequestResponse> cancelAuctionRequest(int auctionRequestId, int breederID){
+    public Optional<AuctionRequestResponse> cancelAuctionRequest(int auctionRequestId){
+
         swp.auctionkoi.models.AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
-        User breeder = userRepository.findById(breederID)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        if (!breeder.getRole().equals(Role.BREEDER)) {
-            return Optional.of(AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("You are not authorized to cancel auction requests.")
-                    .build());
-        }
         if (!auctionRequest.getRequestStatus().equals(KoiStatus.CANCELED) || !auctionRequest.getRequestStatus().equals(KoiStatus.LISTED_FOR_AUCTION)) {
-            return Optional.of(AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("The auction request has already been processed.")
-                    .build());
+            auctionRequest.setRequestStatus(KoiStatus.CANCELED.ordinal());
+            auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
+            auctionRequestRepository.save(auctionRequest);
+            AuctionRequestResponse auctionRequestResponse = auctionRequestMapper.toAuctionRequestResponse(auctionRequest);
+            return Optional.of(auctionRequestResponse);
         }
-
-        auctionRequest.setRequestStatus(KoiStatus.CANCELED.ordinal());
-        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
-        auctionRequestRepository.save(auctionRequest);
-
-        return Optional.ofNullable(auctionRequestMapper.toAuctionRequestResponse(auctionRequest));
+        return Optional.empty();
     }
 
     @Override
-    public AuctionRequestResponse approveAuctionRequest(int auctionRequestId, int staffId, LocalDateTime auctionDateTime) {
-
-        boolean isConflict = auctionRepository.existsAuctionsByStartTime(auctionDateTime);
+    public Optional<AuctionRequestResponse> approveAuctionRequest(int auctionRequestId) {
 
         swp.auctionkoi.models.AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
-        User staff = userRepository.findById(staffId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        if (!staff.getRole().equals(Role.STAFF)) {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("You are not authorized to approve auction requests.")
-                    .build();
+        if (!auctionRequest.getRequestStatus().equals(KoiStatus.APPROVED) || !auctionRequest.getRequestStatus().equals(KoiStatus.REJECTED)) {
+            auctionRequest.setRequestStatus(KoiStatus.APPROVED.ordinal());
+            auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
+            auctionRequestRepository.save(auctionRequest);
+            AuctionRequestResponse auctionRequestResponse = auctionRequestMapper.toAuctionRequestResponse(auctionRequest);
+            return Optional.of(auctionRequestResponse);
         }
-
-        if (!auctionRequest.getRequestStatus().equals(KoiStatus.PENDING_APPROVAL)) {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("The auction request has already been processed.")
-                    .build();
-        }
-
-        if (auctionDateTime.isBefore(LocalDateTime.now()) || isConflict) {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("The auction date and time are not available. Please choose a different time.")
-                    .build();
-        }
-
-        auctionRequest.setRequestStatus(KoiStatus.APPROVED.ordinal());
-        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
-
-        auctionRequestRepository.save(auctionRequest);
-
-        return AuctionRequestResponse
-                .builder()
-                .status("200")
-                .message("Auction request approved successfully!")
-                .id(auctionRequest.getId())
-                .methodType(auctionRequest.getMethodType())
-                .breeder(auctionRequest.getBreeder())
-                .fish(auctionRequest.getFish())
-                .startPrice(auctionRequest.getStartPrice())
-                .incrementPrice(auctionRequest.getIncrementPrice())
-                .build();
+        return Optional.empty();
     }
 
     @Override
-    public AuctionRequestResponse rejectAuctionRequest(int auctionRequestId, int staffId) {
+    public Optional<AuctionRequestResponse> rejectAuctionRequest(int auctionRequestId) {
 
         swp.auctionkoi.models.AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
-
-        User staff = userRepository.findById(staffId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        if (!staff.getRole().equals(Role.STAFF)) {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("You are not authorized to approve auction requests.")
-                    .build();
-        }
 
         if (!auctionRequest.getRequestStatus().equals(KoiStatus.REJECTED)) {
-            return AuctionRequestResponse
-                    .builder()
-                    .status("400")
-                    .message("The auction request has already been processed.")
-                    .build();
+            auctionRequest.setRequestStatus(KoiStatus.REJECTED.ordinal());
+            auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
+            auctionRequestRepository.save(auctionRequest);
+            AuctionRequestResponse auctionRequestResponse = auctionRequestMapper.toAuctionRequestResponse(auctionRequest);
+            return Optional.of(auctionRequestResponse);
         }
-
-        auctionRequest.setRequestStatus(KoiStatus.REJECTED.ordinal());
-        auctionRequest.setRequestUpdatedDate(LocalDateTime.now());
-
-        auctionRequestRepository.save(auctionRequest);
-
-        return AuctionRequestResponse
-                .builder()
-                .status("200")
-                .message("Auction request rejected successfully!")
-                .id(auctionRequest.getId())
-                .methodType(auctionRequest.getMethodType())
-                .breeder(auctionRequest.getBreeder())
-                .fish(auctionRequest.getFish())
-                .startPrice(auctionRequest.getStartPrice())
-                .incrementPrice(auctionRequest.getIncrementPrice())
-                .build();
-
+        return Optional.empty();
     }
 
+    //NOT USING MAPPER
     @Override
     public AuctionRequestResponse sendRequestUpdateDetailAuction(int auctionId, AuctionRequestUpdate auctionRequestUpdate) {
 
@@ -265,7 +189,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         response.setBreeder(auctionRequest.getBreeder());
         response.setFish(auctionRequest.getFish());
         response.setMethodType(auctionRequest.getMethodType());
-        response.setStatus(auctionRequest.getRequestStatus().toString());
 
         return response;
 

@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AuctionRequestResponse {
-    private String status;
-    private String message;
     private Integer id;
     private swp.auctionkoi.models.User breeder;
     private swp.auctionkoi.models.KoiFish fish;
