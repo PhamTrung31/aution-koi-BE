@@ -3,11 +3,6 @@ package swp.auctionkoi.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Getter
 @Setter
 @Data
@@ -15,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuctionRequestDTO {
+public class AuctionRequest {
 //    Integer id;
 //    swp.auctionkoi.models.User breeder;
 //    swp.auctionkoi.models.KoiFish fish;

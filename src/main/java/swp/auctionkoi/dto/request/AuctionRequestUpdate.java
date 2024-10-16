@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuctionRequestUpdateDTO {
+public class AuctionRequestUpdate {
     Integer id;
     swp.auctionkoi.models.User breeder;
     swp.auctionkoi.models.KoiFish fish;

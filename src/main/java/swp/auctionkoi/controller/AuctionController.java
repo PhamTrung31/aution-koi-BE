@@ -1,22 +1,20 @@
 package swp.auctionkoi.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import swp.auctionkoi.dto.request.AuctionDTO;
-import swp.auctionkoi.dto.request.AuctionRequestDTO;
-import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
+import swp.auctionkoi.dto.request.Auction;
+import swp.auctionkoi.dto.request.AuctionRequest;
+import swp.auctionkoi.dto.request.AuctionRequestUpdate;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
-import swp.auctionkoi.service.auctionrequest.impl.AuctionRequestServiceImpl;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,13 +25,17 @@ public class AuctionController {
     private final AuctionService auctionService;
 
      @PostMapping("/send-request")
-     public AuctionRequestResponse sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
-        return auctionRequestService.sendAuctionRequest(auctionRequestDTO);
+     public ResponseEntity<AuctionRequestResponse> sendAuctionRequest(@RequestBody AuctionRequest auctionRequest) {
+         Optional<AuctionRequestResponse> auctionRequestResponseOptional = auctionRequestService.sendAuctionRequest(auctionRequest);
+         if(auctionRequestResponseOptional.isPresent()){
+             return ResponseEntity.ok(auctionRequestResponseOptional.get());
+         }
+     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
      }
 
     @PostMapping("/send-request-update/{auctionId}")
-    public AuctionRequestResponse sendRequestUpdateDetailAuction(@PathVariable Integer auctionId, @RequestBody AuctionRequestUpdateDTO auctionRequestUpdateDTO) {
-        return auctionRequestService.sendRequestUpdateDetailAuction(auctionId, auctionRequestUpdateDTO);
+    public AuctionRequestResponse sendRequestUpdateDetailAuction(@PathVariable Integer auctionId, @RequestBody AuctionRequestUpdate auctionRequestUpdate) {
+        return auctionRequestService.sendRequestUpdateDetailAuction(auctionId, auctionRequestUpdate);
     }
 
     @GetMapping("/view-all-requests")
@@ -43,7 +45,11 @@ public class AuctionController {
 
     @GetMapping("/view-request-detail/{auctionRequestId}")
     public ResponseEntity<AuctionRequestResponse> viewAuctionRequestDetail(@PathVariable Integer auctionRequestId) {
-        return ResponseEntity.ok(auctionRequestService.viewAuctionRequestDetail(auctionRequestId));
+        Optional<AuctionRequestResponse> auctionRequestResponseOptional = auctionRequestService.viewAuctionRequestDetail(auctionRequestId);
+        if(auctionRequestResponseOptional.isPresent()){
+            return ResponseEntity.ok(auctionRequestResponseOptional.get());
+        }
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/view-all-breeder-requests/{breederId}")
@@ -52,13 +58,21 @@ public class AuctionController {
     }
 
      @PutMapping("/update/{auctionRequestId}")
-    public AuctionRequestResponse updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestUpdateDTO auctionRequestUpdateDTO){
-         return  auctionRequestService.updateAuctionRequest(auctionRequestId, auctionRequestUpdateDTO);
+    public ResponseEntity<AuctionRequestResponse> updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestUpdate auctionRequestUpdate){
+         Optional<AuctionRequestResponse> auctionRequestResponseOptional = auctionRequestService.updateAuctionRequest(auctionRequestId, auctionRequestUpdate);
+         if(auctionRequestResponseOptional.isPresent()){
+             return ResponseEntity.ok(auctionRequestResponseOptional.get());
+         }
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
      }
 
      @PutMapping("/cancel/{auctionRequestId}")
-     public AuctionRequestResponse cancelAuctionRequest(@PathVariable Integer auctionRequestId, Integer breederID){
-         return  auctionRequestService.cancelAuctionRequest(auctionRequestId, breederID);
+     public ResponseEntity<AuctionRequestResponse> cancelAuctionRequest(@PathVariable int auctionRequestId, @PathVariable int breederId){
+         Optional<AuctionRequestResponse> auctionRequestResponseOptional = auctionRequestService.cancelAuctionRequest(auctionRequestId, breederId);
+         if(auctionRequestResponseOptional.isPresent()){
+             return ResponseEntity.ok(auctionRequestResponseOptional.get());
+         }
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
      }
 
      @PutMapping("/approve/{auctionRequestId}")
@@ -72,8 +86,8 @@ public class AuctionController {
      }
 
      @PostMapping("/booking")
-    public AuctionResponse createAuction(@RequestBody AuctionDTO auctionDTO){
-         return auctionService.createAuction(auctionDTO);
+    public AuctionResponse createAuction(@RequestBody Auction auction){
+         return auctionService.createAuction(auction);
      }
     @PutMapping("/approve-update/{auctionRequestId}")
     public AuctionResponse approveAuctionUpdate(@PathVariable Integer auctionRequestId, Integer staffId) {
