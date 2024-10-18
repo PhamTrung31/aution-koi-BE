@@ -24,12 +24,6 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui-custom.html
-
 #vnpay:
 #  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
 #  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
