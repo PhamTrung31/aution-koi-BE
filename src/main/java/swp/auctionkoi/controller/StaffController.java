@@ -10,6 +10,7 @@ import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
+import swp.auctionkoi.service.transaction.TransactionService;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class StaffController {
 
     @Autowired
     private StaffService staffService;
+
 
     @GetMapping("/all")
     public ApiResponse<HashMap<Integer, UserResponse>> getAllUser() {
@@ -71,5 +73,16 @@ public class StaffController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
+    }
+
+    @PostMapping("/withdraw/approve")
+    public ApiResponse<String> approveWithdrawRequest(@RequestParam int paymentId) throws Exception {
+            String response = staffService.approveWithdrawRequest(paymentId);
+            return ApiResponse.<String>builder()
+                    .result(response)
+                    .code(200)
+                    .message("Successfully")
+                    .build();
+
     }
 }

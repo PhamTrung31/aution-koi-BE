@@ -47,6 +47,7 @@ public class SecurityConfig {
             "/auth/logout", "/auctions/join","/auctions/end/{auctionId}",
             "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
             "/deliveries/status", "/auth/refresh", "/api/files/upload","/api/koifish/upload/{koiId}"
+            ,"/payment/requestwithdraw", "/staffs/withdraw/approve"
     };
 
     @Value("${jwt.signerKey}")

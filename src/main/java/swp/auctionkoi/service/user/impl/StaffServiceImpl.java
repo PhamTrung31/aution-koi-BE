@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.UserMapper;
-import swp.auctionkoi.models.Auction;
-import swp.auctionkoi.models.Bid;
-import swp.auctionkoi.models.User;
-import swp.auctionkoi.repository.AuctionRepository;
-import swp.auctionkoi.repository.UserRepository;
+import swp.auctionkoi.models.*;
+import swp.auctionkoi.models.enums.TransactionType;
+import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.HashMap;
@@ -30,7 +30,15 @@ public class StaffServiceImpl implements StaffService {
 
     AuctionRepository auctionRepository;
 
+    PaymentRepository paymentRepository;
+
+    WalletRepository walletRepository;
+
+    TransactionRepository transactionRepository;
+
     UserMapper userMapper;
+
+
 
     @Override
     public HashMap<Integer, UserResponse> getAllUser() {
@@ -83,35 +91,42 @@ public class StaffServiceImpl implements StaffService {
         return false;
     }
 
-//    @Override
-//    public Optional<Auction> getAuction(int id) {
-//
-//        return null;
-//    }
-//
-//    @Override
-//    public Auction addAuction(Auction auction) {
-//        return null;
-//    }
-//
-//    @Override
-//    public Auction updateAuction(Auction auction) {
-//        return null;
-//    }
-//
-//
-//    @Override
-//    public void deleteAuction(int id) {
-//
-//    }
-//
-//    @Override
-//    public void viewDetailAuction(int auctionId) {
-//
-//    }
-//
-//    @Override
-//    public HashMap<Integer, Bid> viewHistoryBidAuction(int auctionId) {
-//        return null;
-//    }
+
+    public String approveWithdrawRequest(int paymentId) throws Exception {
+        // Lấy thông tin payment cần phê duyệt
+        Optional<Payment> payment = paymentRepository.findById(paymentId);
+        if (payment.isEmpty() || payment.get().getPaymentStatus() != 0) {
+            throw new Exception("Payment request not found or already processed.");
+        }
+
+        // Lấy thông tin ví liên quan đến payment
+        Optional<Wallet> wallet = walletRepository.findByUserId(payment.get().getMember().getId());
+        if (wallet.isEmpty()) {
+            throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
+        }
+
+        // Trừ số tiền từ ví
+        if (wallet.get().getBalance() < payment.get().getAmount()) {
+            throw new Exception("Insufficient funds for withdrawal.");
+        }
+
+        wallet.get().setBalance(wallet.get().getBalance() - payment.get().getAmount());
+        walletRepository.save(wallet.get());
+
+        // Cập nhật trạng thái payment là thành công (1)
+        payment.get().setPaymentStatus(1); // 1: Success
+        paymentRepository.save(payment.get());
+
+        // Tạo transaction để ghi lại quá trình này
+        Transaction transaction = new Transaction();
+        transaction.setMember(wallet.get().getMember());
+        transaction.setWalletId(wallet.get().getId());
+        transaction.setPaymentId(payment.get().getId());
+        transaction.setTransactionFee(payment.get().getAmount());
+        transaction.setTransactionType(TransactionType.WITHDRAW); // Ghi nhận là đã duyệt rút tiền
+        transactionRepository.save(transaction);
+
+        return "Withdraw request approved and processed.";
+    }
+
 }

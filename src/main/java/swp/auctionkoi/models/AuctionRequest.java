@@ -12,7 +12,7 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "AuctionRequests")
+@Table(name = "Auction_Requests")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequest {
     @Id
