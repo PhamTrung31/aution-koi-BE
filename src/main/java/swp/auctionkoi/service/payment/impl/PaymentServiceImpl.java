@@ -11,6 +11,7 @@ import swp.auctionkoi.models.Payment;
 import swp.auctionkoi.models.Transaction;
 import swp.auctionkoi.models.Wallet;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.PaymentRepository;
 import swp.auctionkoi.repository.TransactionRepository;
 import swp.auctionkoi.repository.UserRepository;
@@ -37,7 +38,7 @@ public class PaymentServiceImpl {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public String withdrawMoney(int userId, double amount) throws Exception {
+    public String requestWithdrawMoney(int userId, double amount) throws Exception {
         // Check ví có tồn tại hay không
         Optional<Wallet> wallet = walletRepository.findByUserId(userId);
         if(wallet == null)
@@ -56,9 +57,6 @@ public class PaymentServiceImpl {
         payment.setPaymentStatus(0);
         paymentRepository.save(payment);
 
-        //update cái payment
-        wallet.get().setBalance(wallet.get().getBalance() - amount);
-        walletRepository.save(wallet.get());
 
         //tạo cái thông báo transaction
 
@@ -66,20 +64,17 @@ public class PaymentServiceImpl {
         transaction.setMember(wallet.get().getMember());
         transaction.setWalletId(wallet.get().getId());
         transaction.setPaymentId(payment.getId());
-        transaction.setTransactionFee(0.0);
-        transaction.setTransactionFloat(0);
-        transaction.setTransactionDate(Instant.now());
-        transaction.setAuction(null);
+        transaction.setTransactionFee(amount);
+        transaction.setTransactionType(TransactionType.WITHDRAW);
         transactionRepository.save(transaction);
 
-        //cập nhật trạng thái thành công
-        payment.setPaymentStatus(1); // 1 for success
-        paymentRepository.save(payment);
 
 
-        return "Withdraw successful";
+        return "Withdraw request submitted. Waiting for staff approval.";
 
     }
+
+
 
 
 

@@ -14,19 +14,7 @@ import swp.auctionkoi.service.payment.impl.PaymentServiceImpl;
 
 public class WalletController {
 
-    @Autowired
-    private PaymentServiceImpl paymentService;
 
-    @PostMapping("/withdraw")
-    public ResponseEntity<String> withdrawMoney(@RequestBody WithdrawPaymentRequest request) throws Exception {
-        Integer userId = request.getUserId();
-        Double amount = request.getAmount();
-
-        // Call withdraw method
-        String result = paymentService.withdrawMoney(userId, amount);
-        return ResponseEntity.ok(result);
-
-    }
 }
 
 

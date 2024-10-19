@@ -14,4 +14,5 @@ public interface StaffService {
     public Optional<UserResponse> addUser(UserCreateRequest request);
     public Optional<UserResponse> updateUser(int id, UserUpdateRequest user);
     public boolean deleteUser(int id);
+    public String approveWithdrawRequest(int paymentId) throws Exception;
 }

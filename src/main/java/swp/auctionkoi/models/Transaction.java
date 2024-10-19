@@ -41,11 +41,7 @@ public class Transaction {
 
     @Column(name = "transaction_fee")
     Double transactionFee;
-
-    @Column(name = "transaction_float")
-    Integer transactionFloat;
-
-
+    
     @Column(name = "transaction_date")
     Instant transactionDate;
 
