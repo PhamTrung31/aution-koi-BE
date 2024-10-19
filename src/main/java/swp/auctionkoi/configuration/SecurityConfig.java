@@ -43,6 +43,33 @@ public class SecurityConfig {
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     private final String[] PUBLIC_ENDPOINTS = {
+            "/users", "/staffs", "/auth/**", "/auctions/join","/auctions/end/{auctionId}",
+            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
+            "/deliveries/status", "/api/files/upload","/api/koifish/upload/{koiId}",
+            "v2/api-docs",
+            "v3/api-docs",
+            "v3/api-docs/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html"
+    };
+
+    @Value("${jwt.signerKey}")
+    private String signerKey;
+
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+
+        httpSecurity.authorizeHttpRequests(request ->
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
             "/users", "/staffs", "/auth/token", "/auth/introspect",
             "/auth/logout", "/auctions/join", "/auctions/end/{auctionId}",
             "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
@@ -84,13 +111,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
+                        .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(jwtDecoder())
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        jwtConfigurer.decoder(jwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
@@ -109,6 +137,7 @@ public class SecurityConfig {
 
         return converter;
     }
+
 
 
     @Bean
@@ -193,7 +222,7 @@ public class SecurityConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey, sb.toString());
+        return hmacSHA512(secretKey,sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {
