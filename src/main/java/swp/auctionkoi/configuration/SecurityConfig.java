@@ -43,10 +43,19 @@ public class SecurityConfig {
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auctions/join","/auctions/end/{auctionId}",
+            "/users", "/staffs", "/auth/**", "/auctions/join","/auctions/end/{auctionId}",
             "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
-            "/deliveries/status", "/auth/refresh", "/api/files/upload","/api/koifish/upload/{koiId}"
+            "/deliveries/status", "/api/files/upload","/api/koifish/upload/{koiId}",
+            "v2/api-docs",
+            "v3/api-docs",
+            "v3/api-docs/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html"
     };
 
     @Value("${jwt.signerKey}")
@@ -60,20 +69,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(
-                                "/api/v1/auth/**",
-                                "v2/api-docs",
-                                "v3/api-docs",
-                                "v3/api-docs/**",
-                                "/swagger-resources",
-                                "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
-                                "/swagger-ui/**",
-                                "/webjars/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
