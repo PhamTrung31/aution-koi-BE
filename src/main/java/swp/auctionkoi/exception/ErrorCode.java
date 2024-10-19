@@ -26,9 +26,11 @@ public enum ErrorCode {
     AUCTION_JOIN_CLOSED(1101, "Auction joined closed", HttpStatus.CONFLICT),
     ADMIN_NOT_FOUND(1102, "Admin not found", HttpStatus.NOT_FOUND),
     DELIVERY_NOT_EXISTED(1103, "Delivery not existed", HttpStatus.NOT_FOUND),
-    BREEDER_NOT_FOUND(1104, "Breeder not found", HttpStatus.NOT_FOUND);
-
-
+    BREEDER_NOT_FOUND(1104, "Breeder not found", HttpStatus.NOT_FOUND),
+    INVALID_AMOUNT(1105,"Invalid amount", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT(1106,"Payment request not found or already processed",HttpStatus.BAD_REQUEST),
+    INCORRECT_PASSWORD(1107,"Incorrect password",HttpStatus.BAD_REQUEST),
+    STAFF_NOT_FOUND(1108,"Staff not existed",HttpStatus.NOT_FOUND);
     int code;
     String message;
     HttpStatusCode statusCode;

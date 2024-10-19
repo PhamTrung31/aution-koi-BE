@@ -26,7 +26,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasRole('MANAGER')")
+@PreAuthorize("hasAuthority('ROLE_MANAGER')")
 public class ManagerServiceImpl implements ManagerService {
 
     UserMapper userMapper;
@@ -48,18 +48,19 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public Optional<UserResponse> getStaff(int id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user != null && user.getRole() == Role.STAFF) {
+    public UserResponse getStaff(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+        if (user.getRole() == Role.STAFF) {
             UserResponse userResponse = new UserResponse();
-            return Optional.of(userResponse);
+            return userResponse;
         }
-
-        return Optional.empty();
+        throw new AppException(ErrorCode.STAFF_NOT_FOUND);
     }
 
+
     @Override
-    public Optional<User> addStaff(UserCreateRequest request) {
+    public User addStaff(UserCreateRequest request) {
         // Check for existing username
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.STAFF_EXISTED);
@@ -69,39 +70,41 @@ public class ManagerServiceImpl implements ManagerService {
 
         User user = userMapper.toUser(request);
 
-        // Encode the password
-//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//         Encode the password
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Set the role for the user
         user.setRole(Role.STAFF);
 
         // Save and return the new user
-        return Optional.of(userRepository.save(user));
+        return userRepository.save(user);
     }
 
 
     @Override
-    public Optional<UserResponse> updateStaff(int id, UserUpdateRequest user) {
-        User user1 = userRepository.findById(id).orElse(null);
+    public UserResponse updateStaff(int id, UserUpdateRequest user) {
+        User user1 = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
         if (user != null && user1.getRole() == Role.STAFF) {
-            userMapper.updateStaff(user1 , user);
+            userMapper.updateStaff(user1, user);
             userRepository.save(user1);
             UserResponse userResponse = new UserResponse();
-            return Optional.of(userResponse);
-
-
+            return userResponse;
         }
-        return Optional.empty();
+        throw new AppException(ErrorCode.STAFF_NOT_FOUND);
     }
 
     @Override
     public boolean deleteStaff(int id) {
-        User user = userRepository.findById(id).get();
-        if (user != null && user.getRole() == Role.STAFF) {
-            userRepository.delete(user);
-            return true;
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+        if (user.getRole() != Role.STAFF) {
+            throw new AppException(ErrorCode.STAFF_NOT_FOUND);
         }
-        return false;
+
+        userRepository.delete(user);
+        return true;
+
     }
 
 }

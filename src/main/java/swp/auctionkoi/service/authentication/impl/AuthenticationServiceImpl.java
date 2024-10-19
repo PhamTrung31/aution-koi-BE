@@ -60,7 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
 
         if (!authenticated) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         }
 
         var token = generateToken(user);
@@ -83,6 +83,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
+                .claim("roles", user.getRole())
+
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

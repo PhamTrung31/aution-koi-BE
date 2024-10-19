@@ -44,10 +44,10 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/staffs", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auctions/join","/auctions/end/{auctionId}",
-            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
-            "/deliveries/status", "/auth/refresh", "/api/files/upload","/api/koifish/upload/{koiId}"
-            ,"/payment/requestwithdraw", "/staffs/withdraw/approve"
+            "/auth/logout", "/auctions/join", "/auctions/end/{auctionId}",
+            "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
+            "/deliveries/status", "/auth/refresh", "/api/files/upload", "/api/koifish/upload/{koiId}"
+            , "/payment/requestwithdraw", "/staffs/withdraw/approve"
     };
 
     @Value("${jwt.signerKey}")
@@ -61,6 +61,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request ->
+
                 request.requestMatchers(
                                 "/api/v1/auth/**",
                                 "v2/api-docs",
@@ -74,18 +75,22 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
+                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")
+
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                jwtConfigurer.decoder(jwtDecoder())
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
@@ -96,14 +101,14 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("ROLE_");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Nếu vai trò trong token có tiền tố "ROLE_"
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles"); // Tên trường trong token chứa vai trò
 
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return converter;
     }
-
 
 
     @Bean
@@ -188,7 +193,7 @@ public class SecurityConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

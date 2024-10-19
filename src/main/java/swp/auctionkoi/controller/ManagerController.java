@@ -41,45 +41,82 @@ public class ManagerController {
 
         return ApiResponse.<HashMap<Integer, User>>builder()
                 .result(activeStaff)
+                .code(200)
+                .message("Successfully")
                 .build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getStaff(Integer id) {
-        Optional<UserResponse> userResponse = managerService.getStaff(id);
-        if (userResponse.isPresent()) {
-            return ResponseEntity.ok(userResponse.get());
+    public ApiResponse<UserResponse> getStaff(@PathVariable Integer id) {
+        UserResponse userResponse = managerService.getStaff(id);
+
+        if (userResponse != null) {
+            return ApiResponse.<UserResponse>builder()
+                    .result(userResponse)
+                    .code(200)
+                    .message("Successfully")
+                    .build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ApiResponse.<UserResponse>builder()
+                .result(null)
+                .code(404)
+                .message("Staff not found")
+                .build();
     }
 
-    @PostMapping
-    public ResponseEntity<User> addStaff(@RequestBody UserCreateRequest request) {
 
-        Optional<User> user = managerService.addStaff(request);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
+    @PostMapping("/add")
+    public ApiResponse<User> addStaff(@RequestBody UserCreateRequest request) {
+
+        User user = managerService.addStaff(request);
+        if (user != null) {
+            return ApiResponse.<User>builder()
+                    .result(user)
+                    .code(200)
+                    .message("Successfully")
+                    .build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ApiResponse.<User>builder()
+                .result(null)
+                .code(404)
+                .message("Staff not found")
+                .build();
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<UserResponse> updateStaffStatus(@PathVariable int id,
+    public ApiResponse<UserUpdateRequest> updateStaff(@PathVariable int id,
                                                           @RequestBody UserUpdateRequest request) {
-        Optional<UserResponse> user = managerService.updateStaff(id, request);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
+        UserResponse user = managerService.updateStaff(id, request);
+        if (user != null) {
+            return ApiResponse.<UserUpdateRequest>builder()
+                    .result(request)
+                    .code(200)
+                    .message("Successfully")
+                    .build();
         }
-        return ResponseEntity.notFound().build();
+
+        return ApiResponse.<UserUpdateRequest>builder()
+                .result(null)
+                .code(404)
+                .message("Staff not found")
+                .build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteStaff(@PathVariable int id) {
+    @DeleteMapping("/{id}/delete")
+    public ApiResponse<Object> deleteStaff(@PathVariable int id) {
         boolean del = managerService.deleteStaff(id);
         if (del) {
-            return ResponseEntity.ok("Deleted Staff Successfully");
+            return ApiResponse.<Object>builder()
+                    .code(200)
+                    .message("Successfully")
+                    .build();
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found");
+            return ApiResponse.<Object>builder()
+                    .code(404)
+                    .message("Staff not found")
+                    .build();
         }
     }
 }

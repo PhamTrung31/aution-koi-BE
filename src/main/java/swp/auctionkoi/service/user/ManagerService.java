@@ -10,10 +10,8 @@ import java.util.Optional;
 
 public interface ManagerService {
     public HashMap<Integer, User> getAllStaff();
-    public Optional<UserResponse> getStaff(int id);
-    public Optional<User> addStaff(UserCreateRequest request);
-
-    public Optional<UserResponse> updateStaff(int id, UserUpdateRequest user);
-
+    public UserResponse getStaff(int id);
+    public User addStaff(UserCreateRequest request);
+    public UserResponse updateStaff(int id, UserUpdateRequest user);
     public boolean deleteStaff(int id);
 }

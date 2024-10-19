@@ -96,7 +96,7 @@ public class StaffServiceImpl implements StaffService {
         // Lấy thông tin payment cần phê duyệt
         Optional<Payment> payment = paymentRepository.findById(paymentId);
         if (payment.isEmpty() || payment.get().getPaymentStatus() != 0) {
-            throw new Exception("Payment request not found or already processed.");
+            throw new AppException(ErrorCode.INVALID_PAYMENT);
         }
 
         // Lấy thông tin ví liên quan đến payment
@@ -107,7 +107,7 @@ public class StaffServiceImpl implements StaffService {
 
         // Trừ số tiền từ ví
         if (wallet.get().getBalance() < payment.get().getAmount()) {
-            throw new Exception("Insufficient funds for withdrawal.");
+            throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
         }
 
         wallet.get().setBalance(wallet.get().getBalance() - payment.get().getAmount());

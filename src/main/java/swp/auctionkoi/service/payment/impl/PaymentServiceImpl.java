@@ -16,6 +16,7 @@ import swp.auctionkoi.repository.PaymentRepository;
 import swp.auctionkoi.repository.TransactionRepository;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.repository.WalletRepository;
+import swp.auctionkoi.service.payment.PaymentService;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -27,7 +28,7 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class PaymentServiceImpl {
+public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private WalletRepository walletRepository;
@@ -38,6 +39,7 @@ public class PaymentServiceImpl {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Override
     public String requestWithdrawMoney(int userId, double amount) throws Exception {
         // Check ví có tồn tại hay không
         Optional<Wallet> wallet = walletRepository.findByUserId(userId);
@@ -45,10 +47,10 @@ public class PaymentServiceImpl {
             throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
         //amount hợp lệ
         if(amount < 0 )
-            throw new Exception("Invalid amount");
+            throw new AppException(ErrorCode.INVALID_AMOUNT);
         // tiền rút phải nhỏ hơn hoặc bằng tiền đang có
         if(wallet.get().getBalance() <= amount)
-            throw new Exception("Insufficient funds");
+            throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
 
         // tạo cái payment
         Payment payment = new Payment();
