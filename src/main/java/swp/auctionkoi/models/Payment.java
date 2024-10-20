@@ -22,7 +22,7 @@ public class Payment {
     private swp.auctionkoi.models.User member;
 
     @Column(name = "amount")
-    private Double amount;
+    private float amount;
 
     @Column(name = "payment_status")
     private Integer paymentStatus;

@@ -4,28 +4,25 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import swp.auctionkoi.dto.request.AuctionDTO;
+import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
-import swp.auctionkoi.models.enums.DeliveryStatus;
-import swp.auctionkoi.models.enums.Role;
-import swp.auctionkoi.models.enums.TransactionType;
+import swp.auctionkoi.models.enums.*;
 import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.wallet.WalletService;
-import swp.auctionkoi.service.wallet.impl.WalletServiceImpl;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,21 +46,9 @@ public class AuctionServiceImpl implements AuctionService {
 
     DeliveryRepository deliveryRepository;
 
-    @Autowired
-    private AuctionRequestRepository auctionRequestRepository;
-
-    AuctionRepository auctionRepository;
-
     WalletService walletService;
 
-    @Autowired
-    private KoiFishRepository koiFishRepository;
-
-    @Autowired
-    private AuctionRepository auctionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    KoiFishRepository koiFishRepository;
 
 
     @Override
@@ -136,7 +121,7 @@ public class AuctionServiceImpl implements AuctionService {
                 .member(user)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(wallet.getId())
-                .transactionFee((double) depositAmount)
+                .transactionFee(depositAmount)
                 .build();
         transactionRepository.save(transaction);
 
@@ -145,7 +130,7 @@ public class AuctionServiceImpl implements AuctionService {
                 .member(admin)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(wallet.getId())
-                .transactionFee((double) depositAmount)
+                .transactionFee(depositAmount)
                 .build();
         transactionRepository.save(transaction1);
 
@@ -168,18 +153,41 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Transactional
     @Override
+    public void startAuction(int auctionId){
+        // Lấy thông tin auction
+        Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+        //Get auction request from auction id to get some info
+        AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
+        // Lấy danh sách những người tham gia phiên đấu giá
+        List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionId);
+
+        if(participants.size() >= 7 && auctionRequest.getStartTime().isAfter(Instant.now())) {
+            auction.setStatus(AuctionStatus.IN_PROGRESS);
+            auction.setWinner(null);
+            auction.setHighestPrice(0.0F);
+            auctionRepository.save(auction);
+        }
+    }
+
+    private List<AuctionRequest> getSortedAuctionRequestsWithAuctionsByStartTime() {
+        List<AuctionRequest> auctionRequests = auctionRequestRepository.findByAuctionIsNotNull();
+        return auctionRequests.stream()
+                .filter(ar -> ar.getStartTime() != null)  //start item in list have startTime is null
+                .sorted(Comparator.comparing(AuctionRequest::getStartTime))  //sort by startTime
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
     public void endAuction(int auctionId) {
         // Lấy thông tin auction
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
         // Lấy danh sách những người tham gia phiên đấu giá
-        List<AuctionParticipants> participants = auctionParticipantsRepository.findByAuctionId(auctionId);
-
-//        // Lấy thông tin bid cao nhất
-//        Optional<Bid> winningBidOpt = bidRepository.findTopByAuctionIdOrderByBidAmountDesc(auctionId);
-//        Bid winningBid = winningBidOpt.orElseThrow(() -> new RuntimeException("No bids found for the auction"));
+        List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionId);
 
         // Lấy thông tin người chiến thắng trực tiếp từ đấu giá
+
         User winner = auction.getWinner();
 
         //Lấy thông tin admin và wallet để hoàn tiền deposit và tiền bid
@@ -207,7 +215,7 @@ public class AuctionServiceImpl implements AuctionService {
                         .member(participantUser)
                         .transactionType(TransactionType.TRANSFER)
                         .walletId(userWallet.getId())
-                        .transactionFee((double) refundAmount)
+                        .transactionFee(refundAmount)
                         .build();
                 transactionRepository.save(transaction);
 
@@ -220,25 +228,23 @@ public class AuctionServiceImpl implements AuctionService {
                 walletRepository.save(adminWallet);
 
                 // Lấy bid cao nhất cuối cùng của người dùng trong phiên đấu giá
-                Optional<Bid> highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auctionId, participantUser.getId());
-                if (highestUserBid.isPresent()) {
-                    Bid highestBid = highestUserBid.get();
-
+                Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auctionId, participantUser.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_BID_HIGHEST));
+                if (highestUserBid != null) {
                     //Tạo transaction cho member thua thông báo hoàn tiền bid
                     Transaction transaction1 = Transaction.builder()
                             .member(participantUser)
                             .auction(auction)
                             .transactionType(TransactionType.TRANSFER)
                             .walletId(userWallet.getId())
-                            .transactionFee(highestBid.getBidAmount())
+                            .transactionFee(highestUserBid.getBidAmount())
                             .build();
                     transactionRepository.save(transaction1);
 
                     //hoàn tiền bid cho người thua
-                    userWallet.setBalance(userWallet.getBalance() + highestBid.getBidAmount());
+                    userWallet.setBalance(userWallet.getBalance() + highestUserBid.getBidAmount());
                     walletRepository.save(userWallet);
                     //trừ tiền từ ví admin từ việc hoàn tiền bid
-                    adminWallet.setBalance(adminWallet.getBalance() - highestBid.getBidAmount());
+                    adminWallet.setBalance(adminWallet.getBalance() - highestUserBid.getBidAmount());
                     walletRepository.save(adminWallet);
                 }
             }
@@ -256,7 +262,7 @@ public class AuctionServiceImpl implements AuctionService {
                 .auction(auction)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(winnerWallet.getId())
-                .transactionFee((double) winnerDepositRefund)
+                .transactionFee(winnerDepositRefund)
                 .build();
         transactionRepository.save(transaction);
 
@@ -283,6 +289,8 @@ public class AuctionServiceImpl implements AuctionService {
             String fromAddress = "123 Admin Street, Admin City";
             String toAddress = "456 Winner Avenue, Winner Town";
 
+            auction.setStatus(AuctionStatus.DELIVERED);
+
             // Create a delivery record with manually entered addresses
             Delivery delivery = Delivery.builder()
                     .transaction(transaction)
@@ -299,7 +307,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Optional<Auction> getAuction(int id) {
-        return Optional.empty();
+        return null;
     }
 
     @Override
@@ -327,10 +335,8 @@ public class AuctionServiceImpl implements AuctionService {
 
         Auction auction = new Auction();
         auction.setFish(auctionRequest.getFish());
-        auction.setStartTime(auctionDTO.getStartTime());
-        auction.setEndTime(auctionDTO.getEndTime());
-        auction.setCurrentPrice(auctionRequest.getStartPrice());  // Start price comes from auction request
-        auction.setStatus(KoiStatus.LISTED_FOR_AUCTION.ordinal()); // Enum representing scheduled auction status
+        auction.setCurrentPrice(auctionRequest.getStartPrice());
+        auction.setStatus(AuctionStatus.PENDING);
 
         auctionRepository.save(auction);
 
@@ -338,8 +344,6 @@ public class AuctionServiceImpl implements AuctionService {
                 .status("200")
                 .message("Auction created successfully")
                 .auctionId(auction.getId())
-                .startTime(auction.getStartTime())
-                .endTime(auction.getEndTime())
                 .build();
     }
 
@@ -363,16 +367,7 @@ public class AuctionServiceImpl implements AuctionService {
         return null;
     }
 
-    @Override
-    public Auction addAuction(Auction auction) {
-        return null;
-    }
 
-
-    @Override
-    public Auction startAuction(int auctionId) {
-        return null;
-    }
 
     @Override
     public void checkUserDepositBeforeBidding(int auctionId, int userId) {

@@ -1,9 +1,7 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
@@ -42,7 +40,7 @@ public class Bid {
     @Column(name = "increment_autobid")
     float incrementAutobid;
 
-    @Column(name = "bid_price")
-    float bidPrice;
+    @Column(name = "bid_amount")
+    float bidAmount;
 
 }

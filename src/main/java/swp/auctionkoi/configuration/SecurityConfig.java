@@ -41,18 +41,13 @@ public class SecurityConfig {
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
             "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
 
+    };
+
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:8081/auctionkoi/api/payment/vnpay-return";
     public static String vnp_TmnCode = "QCYQY77A";
     public static String secretKey = "ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
-
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auctions/join","/auctions/end/{auctionId}",
-            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
-            "/deliveries/status"
-    };
 
     @Value("${jwt.signerKey}")
     private String signerKey;

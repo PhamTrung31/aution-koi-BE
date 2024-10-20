@@ -18,8 +18,8 @@ public class Wallet {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    User member;
+    @JoinColumn(name = "user_id")
+    User user;
 
     @Column(name = "balance")
     float balance;

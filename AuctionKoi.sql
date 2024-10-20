@@ -85,7 +85,7 @@ CREATE TABLE AuctionParticipants (
 );
 GO
 
-CREATE TABLE AuctionRequests(
+CREATE TABLE Auction_Requests(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	fish_id int not null,

@@ -69,10 +69,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             Optional<Bid> highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), winner.getId());
             if (highestUserBid.isPresent()) {
                 Bid highestBid = highestUserBid.get();
-                double winningBid = highestBid.getBidAmount();
+                float winningBid = highestBid.getBidAmount();
 
                 // Calculate the breeder's amount (after 10% fee)
-                double amountForBreeder = winningBid * 0.90;
+                float amountForBreeder = winningBid * 0.90F;
                 adminWallet.setBalance(adminWallet.getBalance() - amountForBreeder);
                 breederWallet.setBalance(breederWallet.getBalance() + amountForBreeder);
                 walletRepository.save(adminWallet);

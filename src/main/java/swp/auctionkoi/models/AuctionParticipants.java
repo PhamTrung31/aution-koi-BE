@@ -1,36 +1,40 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@DynamicInsert
-@Table(name = "auction_participants")
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "Auction_Participants")
 public class AuctionParticipants {
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id")
-    swp.auctionkoi.models.Auction auction;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "auction_id", nullable = false)
+    private Auction auction;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    swp.auctionkoi.models.User user;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
+    @NotNull
+    @Column(name = "deposit_amount", nullable = false)
+    private float depositAmount;
+
+    @ColumnDefault("getdate()")
     @Column(name = "join_date")
-    Instant joinDate;
+    private Instant joinDate;
 }

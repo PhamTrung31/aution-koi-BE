@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.web.bind.annotation.*;
+import swp.auctionkoi.dto.request.user.UserLoginRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.UserService;
 
@@ -29,6 +32,17 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @PostMapping("/login")
+    @ExceptionHandler(AppException.class)
+    ApiResponse<UserResponse> login(@RequestBody @Valid UserLoginRequest userLoginRequest) {
+        UserResponse userResponse = userService.login(userLoginRequest);
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .message("Login successful")
+                .result(userResponse)
+                .build();
+    }
 
     @PostMapping("/create")
     ApiResponse<User> createAccount(@RequestBody @Valid UserCreateRequest request) {

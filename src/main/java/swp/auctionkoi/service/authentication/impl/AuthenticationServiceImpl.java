@@ -43,7 +43,7 @@ import java.util.UUID;
 public class AuthenticationServiceImpl  implements AuthenticationService {
 
     UserRepository userRepository;
-    private final InvalidatedTokenRepository invalidatedTokenRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
 
     @NonFinal
     @Value("${jwt.signerKey}")

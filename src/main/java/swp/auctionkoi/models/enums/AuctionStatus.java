@@ -1,7 +1,7 @@
 package swp.auctionkoi.models.enums;
 
 public enum AuctionStatus {
-    NEW,                // 0 - Đấu giá mới tạo
+    NEW,                // 0 - Mới tạo auction
     PENDING,            // 1 - Đang chờ bắt đầu (chưa đủ người tham gia hoặc chờ thời gian bắt đầu)
     IN_PROGRESS,        // 2 - Đấu giá đang diễn ra
     BUYOUT_TRIGGERED,    // 3 - Có người ra giá bằng với giá mua ngay

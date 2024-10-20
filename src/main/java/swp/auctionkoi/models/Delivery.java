@@ -17,8 +17,6 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
-@AllArgsConstructor
 @DynamicInsert
 @Builder
 @Table(name = "Deliveries")

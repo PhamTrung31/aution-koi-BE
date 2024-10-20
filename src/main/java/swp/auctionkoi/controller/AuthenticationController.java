@@ -43,10 +43,6 @@ public class AuthenticationController {
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping("/token")
-    @Autowired
-    UserRepository userRepository;
-
     @Value("${jwt.signerKey}")
 
     @NonFinal

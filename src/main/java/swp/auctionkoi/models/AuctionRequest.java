@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
+import swp.auctionkoi.models.enums.AuctionRequestStatus;
+import swp.auctionkoi.models.enums.AuctionType;
 
 import java.time.Instant;
 
@@ -13,7 +15,8 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "AuctionRequests")
+@Builder(toBuilder = true)
+@Table(name = "Auction_Requests")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequest {
     @Id
@@ -44,7 +47,8 @@ public class AuctionRequest {
     Float incrementPrice;
 
     @Column(name = "method_type")
-    Integer methodType;
+    @Enumerated(EnumType.ORDINAL)
+    AuctionType methodType;
 
     @ColumnDefault("getdate()")
     @Column(name = "request_created_date")
@@ -55,12 +59,12 @@ public class AuctionRequest {
     Instant requestUpdatedDate;
 
     @Column(name = "request_status")
-    Integer requestStatus;
+    @Enumerated(EnumType.ORDINAL)
+    AuctionRequestStatus requestStatus;
 
     @Column(name = "start_time")
     Instant startTime;
 
     @Column(name = "end_time")
     Instant endTime;
-
 }

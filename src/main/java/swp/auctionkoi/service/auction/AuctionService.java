@@ -3,6 +3,7 @@ package swp.auctionkoi.service.auction;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionDTO;
 import swp.auctionkoi.dto.respone.AuctionResponse;
+import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 
@@ -24,9 +25,7 @@ public interface AuctionService {
     public void viewDetailAuction(int auctionId);
     public HashMap<Integer, Bid> viewHistoryBidAuction(int auctionId);
 
-
-    public Auction startAuction(int auctionId);
-
+    public void startAuction(int auctionId);
 
     public void checkUserDepositBeforeBidding(int auctionId, int userId);
     public void handleBidDuringAuction(int auctionId, int userId, float bidAmount);

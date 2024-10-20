@@ -2,6 +2,9 @@ package swp.auctionkoi.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import swp.auctionkoi.models.KoiFish;
+import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 
 import java.time.Instant;
@@ -13,13 +16,15 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuctionRequestDTO {
-    int breederId;
-    int fishId;
+public class AuctionRequestResponseData {
+    int id;
+    User breeder;
+    KoiFish fish;
     float buyOut;
     float startPrice;
     float incrementPrice;
     AuctionType methodType;
-    Instant start_time;
-    Instant end_time;
+    Instant requestCreatedDate;
+    Instant requestUpdatedDate;
+    AuctionRequestStatus requestStatus;
 }

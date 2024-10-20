@@ -32,6 +32,7 @@ public class TraditionalAuctionService {
     TransactionRepository transactionRepository;
 
     AuctionRequestRepository auctionRequestRepository;
+    private final AuctionParticipantsRepository auctionParticipantsRepository;
 
     public void placeBid(int auctionId, BidRequest bidRequest) {
 
@@ -44,16 +45,22 @@ public class TraditionalAuctionService {
         //get user
         User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
+
+        if(auctionParticipants == null) {
+            throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
+        }
+
         //get user's wallet
-        Wallet wallet = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_IS_NOT_EXIST));
+        Wallet wallet = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
         //check type method
-        if (auctionRequest.getMethodType() != AuctionType.TRADITIONAL.ordinal()) {
+        if (auctionRequest.getMethodType() != AuctionType.TRADITIONAL) {
             throw new AppException(ErrorCode.INVALID_AUCTION_TYPE);
         }
 
         // check auction status
-        if (auction.getStatus() != AuctionStatus.IN_PROGRESS.ordinal()) {
+        if (auction.getStatus() != AuctionStatus.IN_PROGRESS) {
             throw new AppException(ErrorCode.AUCTION_NOT_STARTED);
         }
 
@@ -92,7 +99,7 @@ public class TraditionalAuctionService {
                 .member(user)
                 .transactionFee(0)
                 .walletId(wallet.getId())
-                .transactionType(TransactionType.BID.ordinal())
+                .transactionType(TransactionType.BID)
                 .build();
 
         auction.setCurrentPrice(bidAmount);
@@ -113,8 +120,8 @@ public class TraditionalAuctionService {
                 .user(user)
                 .isAutoBid(bidRequest.isAutoBid())
                 .autoBidMax(bidRequest.getMaxBidAmount())
-                .incrementAutobid(bidRequest.getIncrementAutobid().ordinal())
-                .bidPrice(bidAmount)
+                .incrementAutobid(bidRequest.getIncrementAutobid().getIncrement())
+                .bidAmount(bidAmount)
                 .build();
     }
 
@@ -123,7 +130,7 @@ public class TraditionalAuctionService {
             float maxBid = bidRequest.getMaxBidAmount();
             float autoBidAmount = currentPrice;
 
-            autoBidAmount += currentPrice * bidRequest.getIncrementAutobid().ordinal();
+            autoBidAmount += currentPrice * bidRequest.getIncrementAutobid().getIncrement();
 
             return autoBidAmount;
         } else {
@@ -131,7 +138,7 @@ public class TraditionalAuctionService {
             float bidAmount = bidRequest.getBidAmount();
 
             if(bidRequest.getIncrementAutobid() != null){
-                int fastIncre = bidRequest.getIncrementAutobid().ordinal();
+                float fastIncre = bidRequest.getIncrementAutobid().getIncrement();
 
                 bidAmount += currentPrice * fastIncre;
             }

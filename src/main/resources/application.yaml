@@ -26,11 +26,11 @@ springdoc:
   swagger-ui:
     path: /swagger-ui-custom.html
 
-vnpay:
-  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
-  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
-  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html  # URL sandbox của VNPAY
-  returnurl: http://localhost:8081/auctionkoi/api/payment/vnpay-return  # URL callback để nhận phản hồi
+#vnpay:
+#  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
+#  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
+#  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html  # URL sandbox của VNPAY
+#  returnurl: http://localhost:8081/auctionkoi/api/payment/vnpay-return  # URL callback để nhận phản hồi
 #  spring.thymeleaf.cache=false
 #  spring.thymeleaf.prefix=classpath:/templates/
 #  spring.thymeleaf.suffix=.html

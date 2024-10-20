@@ -12,6 +12,6 @@ public interface BidRepository extends JpaRepository<Bid, Integer> {
 
     List<Bid> findByAuctionIdAndUserId(int auctionId, Integer id);
     Optional<Bid> findTopByAuctionIdAndUserIdOrderByBidAmountDesc(int auctionId, Integer id);
-    boolean existsByAuctionAndBidder(Auction auction, User user);
-    Bid findByAuctionAndBidder(Auction auction, User user);
+    boolean existsByAuctionAndUser(Auction auction, User user);
+    Bid findByAuctionAndUser(Auction auction, User user);
 }

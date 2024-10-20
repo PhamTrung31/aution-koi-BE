@@ -23,7 +23,7 @@ public class WalletServiceImpl implements WalletService {
         if(userId <= 0){
             throw new AppException(ErrorCode.INVALID_USER_ID);
         }
-        Wallet wallet = walletRepository.findByUserId(userId);
+        Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return Optional.ofNullable(wallet);
     }
 }

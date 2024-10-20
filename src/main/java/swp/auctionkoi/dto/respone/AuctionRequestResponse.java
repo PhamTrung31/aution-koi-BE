@@ -1,25 +1,17 @@
 package swp.auctionkoi.dto.respone;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import swp.auctionkoi.models.AuctionRequest;
+import swp.auctionkoi.models.enums.AuctionType;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class AuctionRequestResponse {
-    private String status;
+    private boolean success;
     private String message;
-    private Integer id;
-    private swp.auctionkoi.models.User breeder;
-    private swp.auctionkoi.models.KoiFish fish;
-    private swp.auctionkoi.models.Auction auction;
-    private Double buyOut;
-    private Double startPrice;
-    private Double incrementPrice;
-
-    private Integer methodType;
-
+    private AuctionRequest data;
 }

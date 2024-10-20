@@ -9,11 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    int userId;
+public class UserLoginRequest {
+    String username;
     String password;
-    String fullname;
-    String phone;
-    String address;
-    Boolean isActive;
 }

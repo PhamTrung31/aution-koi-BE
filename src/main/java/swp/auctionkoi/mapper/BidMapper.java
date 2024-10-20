@@ -6,5 +6,5 @@ import swp.auctionkoi.models.Bid;
 
 @Mapper(componentModel = "spring")
 public interface BidMapper {
-    Bid toBid(BidRequest bidRequest);
+
 }

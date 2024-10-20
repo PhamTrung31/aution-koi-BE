@@ -24,8 +24,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
-@Slf4j
-@Service
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -39,12 +38,17 @@ import swp.auctionkoi.repository.PaymentRepository;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PreAuthorize("hasRole('STAFF')")
 public class PaymentServiceImpl {
-    private final PaymentRepository paymentRepository;
+
+    PaymentRepository paymentRepository;
+    TransactionRepository transactionRepository;
+    private final WalletRepository walletRepository;
+
 
     public HashMap<Integer, Payment> getAllPayment(){
         HashMap<Integer, Payment> payments = new HashMap<>();
@@ -58,50 +62,37 @@ public class PaymentServiceImpl {
         return payments;
     }
 
-    public Payment getPaymentById(int id){
 
-    }
-
-    @Autowired
-    private WalletRepository walletRepository;
-
-    @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    public String withdrawMoney(int userId, double amount) throws Exception {
+    public String withdrawMoney(int userId, float amount) throws Exception {
         // Check ví có tồn tại hay không
-        Optional<Wallet> wallet = walletRepository.findByUserId(userId);
+        Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
         if(wallet == null)
             throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
         //amount hợp lệ
         if(amount < 0 )
             throw new Exception("Invalid amount");
         // tiền rút phải nhỏ hơn hoặc bằng tiền đang có
-        if(wallet.get().getBalance() <= amount)
+        if(wallet.getBalance() <= amount)
             throw new Exception("Insufficient funds");
 
         // tạo cái payment
         Payment payment = new Payment();
-        payment.setMember(wallet.get().getMember());
+        payment.setMember(wallet.getUser());
         payment.setAmount(amount);
         payment.setPaymentStatus(0);
         paymentRepository.save(payment);
 
         //update cái payment
-        wallet.get().setBalance(wallet.get().getBalance() - amount);
-        walletRepository.save(wallet.get());
+        wallet.setBalance(wallet.getBalance() - amount);
+        walletRepository.save(wallet);
 
         //tạo cái thông báo transaction
 
         Transaction transaction = new Transaction();
-        transaction.setMember(wallet.get().getMember());
-        transaction.setWalletId(wallet.get().getId());
+        transaction.setMember(wallet.getUser());
+        transaction.setWalletId(wallet.getId());
         transaction.setPaymentId(payment.getId());
-        transaction.setTransactionFee(0.0);
-        transaction.setTransactionFloat(0);
+        transaction.setTransactionFee(0.0F);
         transaction.setTransactionDate(Instant.now());
         transaction.setAuction(null);
         transactionRepository.save(transaction);

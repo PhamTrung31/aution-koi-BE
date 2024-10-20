@@ -20,12 +20,11 @@ public class WalletController {
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdrawMoney(@RequestBody WithdrawPaymentRequest request) throws Exception {
         Integer userId = request.getUserId();
-        Double amount = request.getAmount();
+        float amount = request.getAmount();
 
         // Call withdraw method
         String result = paymentService.withdrawMoney(userId, amount);
         return ResponseEntity.ok(result);
-
     }
 }
 

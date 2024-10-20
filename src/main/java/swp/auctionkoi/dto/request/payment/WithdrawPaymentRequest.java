@@ -11,5 +11,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WithdrawPaymentRequest {
      Integer userId;
-     Double amount;
+     float amount;
 }
