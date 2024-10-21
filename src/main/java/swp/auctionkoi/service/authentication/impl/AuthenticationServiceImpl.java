@@ -83,6 +83,7 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
+                .claim("roles",user.getRole())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

@@ -29,7 +29,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("hasAuthority('ROLE_STAFF')")
 public class StaffServiceImpl implements StaffService {
 
     UserRepository userRepository;
