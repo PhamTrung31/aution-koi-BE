@@ -19,6 +19,7 @@ import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.ManagerService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -35,17 +36,27 @@ public class ManagerServiceImpl implements ManagerService {
 
     PasswordEncoder passwordEncoder;
 
-    @Override
-    public HashMap<Integer, User> getAllStaff() {
-
-        HashMap<Integer, User> staff = new HashMap<>();
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            if (user.getRole() == Role.STAFF)
-                staff.put(user.getId(), user);
+//    @Override
+//    public HashMap<Integer, User> getAllStaff() {
+//
+//        HashMap<Integer, User> staff = new HashMap<>();
+//        List<User> users = userRepository.findAll();
+//        for (User user : users) {
+//            if (user.getRole() == Role.STAFF)
+//                staff.put(user.getId(), user);
+//        }
+//        return staff;
+//    }
+public List<User> getAllStaff() {
+    List<User> staffList = new ArrayList<>();
+    List<User> users = userRepository.findAll();
+    for (User user : users) {
+        if (user.getRole() == Role.STAFF) {
+            staffList.add(user);
         }
-        return staff;
     }
+    return staffList;
+}
 
     @Override
     public UserResponse getStaff(int id) {

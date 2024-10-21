@@ -6,10 +6,11 @@ import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.models.User;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 public interface ManagerService {
-    public HashMap<Integer, User> getAllStaff();
+    public List<User> getAllStaff();
     public UserResponse getStaff(int id);
     public User addStaff(UserCreateRequest request);
     public UserResponse updateStaff(int id, UserUpdateRequest user);

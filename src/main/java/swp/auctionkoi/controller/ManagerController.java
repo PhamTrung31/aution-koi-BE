@@ -15,6 +15,7 @@ import swp.auctionkoi.service.user.ManagerService;
 import swp.auctionkoi.service.user.impl.ManagerServiceImpl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,18 +29,18 @@ public class ManagerController {
     private ManagerServiceImpl managerService;
 
     @GetMapping("/allstaff")
-    public ApiResponse<HashMap<Integer, User>> getAllStaff() {
+    public ApiResponse<List<User>> getAllStaff() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
         // Get all staff and filter out those who are not active
-        HashMap<Integer, User> activeStaff = managerService.getAllStaff().entrySet().stream()
-                .filter(entry -> entry.getValue().getIsActive())  // Only include active staff (isActive == true)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, HashMap::new));
+        List<User> activeStaff = managerService.getAllStaff().stream()
+                .filter(User::getIsActive)  // Chỉ bao gồm staff active
+                .collect(Collectors.toList());
 
-        return ApiResponse.<HashMap<Integer, User>>builder()
+        return ApiResponse.<List<User>>builder()
                 .result(activeStaff)
                 .code(200)
                 .message("Successfully")

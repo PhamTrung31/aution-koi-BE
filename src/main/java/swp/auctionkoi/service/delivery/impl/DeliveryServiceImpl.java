@@ -90,5 +90,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
     }
+
+    public Delivery getDeliveryById(int deliveryId) {
+        return deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new AppException(ErrorCode.DELIVERY_NOT_EXISTED));
+    }
 }
 
