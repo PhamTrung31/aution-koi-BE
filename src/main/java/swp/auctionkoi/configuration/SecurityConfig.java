@@ -58,24 +58,6 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
-    @Value("${jwt.signerKey}")
-    private String signerKey;
-
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-            "/users", "/staffs", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auctions/join", "/auctions/end/{auctionId}",
-            "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
-            "/deliveries/status", "/auth/refresh", "/api/files/upload", "/api/koifish/upload/{koiId}"
-            , "/payment/requestwithdraw", "/staffs/withdraw/approve"
-    };
 
     @Value("${jwt.signerKey}")
     private String signerKey;
