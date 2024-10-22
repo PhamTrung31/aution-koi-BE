@@ -46,7 +46,7 @@ public class SecurityConfig {
             "/users", "/staffs", "/auth/**", "/auctions/join","/auctions/end/{auctionId}",
             "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
             "/deliveries/status", "/api/files/upload","/api/koifish/upload/{koiId}",
-            "/deliveries/{deliveryId}",
+            "/deliveries/{deliveryId}", "/users/{id}/avatar",
             "v2/api-docs",
             "v3/api-docs",
             "v3/api-docs/**",

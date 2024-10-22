@@ -15,4 +15,5 @@ public class UserUpdateRequest {
     String phone;
     String address;
     Boolean isActive;
+    String avartarUrl;
 }
