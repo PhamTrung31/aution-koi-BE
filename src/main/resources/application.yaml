@@ -17,23 +17,18 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  thymeleaf:
+    prefix: classpath:/templates/    # Thư mục chứa các file HTML
+    suffix: .html                     # Phần mở rộng của file
+    cache: false
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-
-#vnpay:
-#  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
-#  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
-#  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html  # URL sandbox của VNPAY
-#  returnurl: http://localhost:8081/auctionkoi/api/payment/vnpay-return  # URL callback để nhận phản hồi
-#  spring.thymeleaf.cache=false
-#  spring.thymeleaf.prefix=classpath:/templates/
-#  spring.thymeleaf.suffix=.html
-
-
-#  thymeleaf:
-#    cache: false
-#    prefix: /templates/
+vnpay:
+  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
+  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html  # URL sandbox của VNPAY
+  returnurl: http://localhost:8081/auctionkoi/api/payment/vnpay-return  # URL callback để nhận phản hồi

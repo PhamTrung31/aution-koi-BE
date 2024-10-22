@@ -7,11 +7,11 @@ import swp.auctionkoi.models.Wallet;
 import java.util.Optional;
 
 public interface WalletService {
-    public Double getBalance(User user);
-    public void deduct(User user, Double amount);
-    public void refund(User user, Double amount);
-    public void transfer(User fromUser, User toUser, Double amount);
+//    public Double getBalance(User user);
+//    public void deduct(User user, Double amount);
+//    public void refund(User user, Double amount);
+//    public void transfer(User fromUser, User toUser, Double amount);
 
 
-
+     public void updateWalletBalance(Integer userId, Double amount);
 }
