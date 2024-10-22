@@ -11,7 +11,8 @@ public interface AuctionRequestService {
     AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
     HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequest();
     AuctionRequestResponseData viewAuctionRequestDetail(int auctionRequestId);
-    AuctionRequestResponse updateAuctionRequestForBreeder(int auctionRequestId, AuctionRequestDTO auctionRequestDTO);
+    HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequestsForBreeder(Integer breederId);
+    AuctionRequestResponse updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO);
     AuctionRequestResponse cancelAuctionRequest (int auctionRequestId, int breederID);
     AuctionRequestResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId);
     AuctionRequestResponse rejectAuctionRequestForStaff (int auctionRequestId, int staffId);

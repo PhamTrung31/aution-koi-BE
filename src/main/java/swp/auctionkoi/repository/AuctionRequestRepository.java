@@ -13,9 +13,9 @@ import java.util.Optional;
 
 public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, Integer> {
     Optional<AuctionRequest> findByAuctionId(int auctionId);
-    Optional<AuctionRequest> findById(int auctionId); // Existing method to find by auctionId
+    Optional<AuctionRequest> findById(int auctionId);
 
-    List<AuctionRequest> findListAuctionRequestByBreederId(int breederId);
+    List<AuctionRequest> findListAuctionRequestByUserId(int userId); //breeder
 
     List<AuctionRequest> findByAuctionIsNotNull();
 

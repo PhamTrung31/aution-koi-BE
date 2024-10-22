@@ -18,8 +18,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
         ddl-auto: update
-#        naming:
-#          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        cache:
+          use_second_level_cache: false
+          format_sql: true
+        naming:
+          physical-strategy=org:
+            hibernate:
+              boot:
+                model:
+                  naming:
+                      PhysicalNamingStrategyStandardImpl
+    show-sql: true
+
 springdoc:
   api-docs:
     path: /api-docs

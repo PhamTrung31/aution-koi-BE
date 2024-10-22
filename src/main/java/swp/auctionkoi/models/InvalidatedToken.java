@@ -1,6 +1,7 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +21,10 @@ public class InvalidatedToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    Integer id;
 
+    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "expiryTime")
-    private Instant expiryTime;
-
+    @Column(name = "expiryTime", nullable = false)
+    Instant expiryTime;
 }

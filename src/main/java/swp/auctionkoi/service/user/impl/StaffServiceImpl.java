@@ -3,6 +3,7 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -60,20 +62,25 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public UserResponse addUser(StaffCreateUserRequest request) {
-        User user;
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        user = userMapper.toUser(request);
+        User user = userMapper.toUser(request);
+
+        log.info("Request field isBreeder: " + request.isBreeder());
 
         if(request.isBreeder()){
             user.setRole(Role.BREEDER);
         } else{
             user.setRole(Role.MEMBER);
         }
+
+        log.info("User role: " + user.getRole());
+
+        user.setIsActive(true);
 
         userRepository.save(user);
 
@@ -83,13 +90,20 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public UserResponse updateUser(StaffUpdateUserRequest updateUser) {
         User user = userRepository.findById(updateUser.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
-        updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+        if(updateUser.getPassword() != null){
+            updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+        } else {
+            updateUser.setPassword(user.getPassword());
+        }
         userMapper.updateUser(user, updateUser);
         if(updateUser.getIsBreeder()){
             user.setRole(Role.BREEDER);
         } else {
             user.setRole(Role.MEMBER);
         }
+
+        userRepository.save(user);
+
         return userMapper.toUserResponse(user);
     }
 

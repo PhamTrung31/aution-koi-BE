@@ -3,6 +3,7 @@ package swp.auctionkoi.service.auction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequest;
+import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
@@ -11,7 +12,6 @@ import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.wallet.WalletService;
-import swp.auctionkoi.service.wallet.impl.WalletServiceImpl;
 
 @Service
 public class AnonymousAuctionService {

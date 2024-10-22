@@ -18,7 +18,7 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequestResponseData {
     int id;
-    User breeder;
+    User user;
     KoiFish fish;
     float buyOut;
     float startPrice;

@@ -31,7 +31,7 @@ BEGIN
 END;
 GO
 
-CREATE TABLE KoiFishs(
+CREATE TABLE Koi_Fish(
 	id int IDENTITY(1,1) primary key,
 	breeder_id int not null,
 	[name] varchar(250) not null,
@@ -49,14 +49,14 @@ CREATE TABLE KoiFishs(
 Go
 
 CREATE TRIGGER trg_UpdateFishUpdatedDate
-ON KoiFishs
+ON Koi_Fish
 AFTER UPDATE
 AS
 BEGIN
     -- Update the FishUpdatedDate to the current date/time when any field is updated
-    UPDATE KoiFishs
+    UPDATE Koi_Fish
     SET fish_updated_date = GETDATE()
-    FROM KoiFishs f
+    FROM Koi_Fish f
     INNER JOIN inserted i ON f.id = i.id;
 END;
 GO
@@ -69,7 +69,7 @@ CREATE TABLE Auctions(
 	end_time datetime not null,
 	current_price float not null,
 	[status] int,
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id),
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id),
 	FOREIGN KEY (winner_id) REFERENCES Users(id)
 );
 Go
@@ -99,8 +99,8 @@ CREATE TABLE Auction_Requests(
 	request_status int not null,
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY (breeder_id) REFERENCES Users(id),
-	FOREIGN KEY (fish_id) REFERENCES Koi_Fishs(id)
-	FOREIGN KEY (fish_id) REFERENCES KoiFishs(id)
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id)
+	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id)
 );
 Go
 
@@ -189,7 +189,7 @@ VALUES
 ('customer2', 'pass321', 2, 'Emily Davis', '456-789-0123', '101 Fish Rd, River City'),
 ('admin', 'adminpass', 0, 'Admin User', '567-890-1234', '999 Admin Lane, Aqua City');
 
-INSERT INTO Koi_Fishs (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
+INSERT INTO Koi_Fish (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
 VALUES
 (1, 'Kohaku', 1, 15.5, 3, 'Beautiful Kohaku koi with red and white patterns', 'kohaku.jpg', 'kohaku.mp4', 1),
 (1, 'Sanke', 2, 17.3, 2, 'High-quality Sanke koi with vibrant colors', 'sanke.jpg', 'sanke.mp4', 1),

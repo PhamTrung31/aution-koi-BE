@@ -49,8 +49,9 @@ public class AuctionScheduler {
 
         for (AuctionRequest request : approvedRequestsSortedByStartTime) {
             List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
-            if (request.getAuction() != null) {
+            if (request.getAuction() != null && auctionParticipants.size() > 2) {
                 auctionServiceImpl.startAuction(request.getAuction().getId());
+                log.info("Auction {} started", request.getAuction().getId());
             }
         }
 

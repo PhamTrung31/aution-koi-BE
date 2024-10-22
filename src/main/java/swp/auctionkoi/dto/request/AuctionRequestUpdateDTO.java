@@ -14,12 +14,12 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuctionRequestDTO {
+public class AuctionRequestUpdateDTO {
     int userId; //breeder
     Integer fishId;
     @JsonProperty("buyOut")
     Float buyOut;
-    Float  startPrice;
+    Float startPrice;
     AuctionType methodType;
     Instant start_time;
     Instant end_time;

@@ -1,5 +1,6 @@
 package swp.auctionkoi.dto.request.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,6 +18,6 @@ public class StaffUpdateUserRequest {
     String phone;
     String address;
     String avatar_url;
-    Boolean isActive;
+    @JsonProperty("isBreeder")
     Boolean isBreeder;
 }

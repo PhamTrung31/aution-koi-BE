@@ -3,9 +3,11 @@ package swp.auctionkoi.service.auctionrequest.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestResponseData;
+import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
@@ -21,10 +23,10 @@ import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Service
@@ -37,11 +39,18 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     AuctionRepository auctionRepository;
 
     UserRepository userRepository;
-    private final AuctionRequestMapper auctionRequestMapper;
+
+    AuctionRequestMapper auctionRequestMapper;
 
     public AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDTO) {
-        User user = userRepository.findById(auctionRequestDTO.getBreederId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(auctionRequestDTO.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         KoiFish fish = koiFishRepository.findById(auctionRequestDTO.getFishId()).orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
+
+        if (fish.getUser() != user) {
+            throw new AppException(ErrorCode.NOT_BELONG_TO_BREEDER);
+        }
+
         checkRequest(auctionRequestDTO, user, fish);
 
         AuctionRequest auctionRequest = saveRequest(auctionRequestDTO, user, fish);
@@ -55,29 +64,52 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return auctionRequestResponse;
     }
 
-    public AuctionRequestResponse updateAuctionRequestForBreeder(int auctionRequestId, AuctionRequestDTO auctionRequestDTO) {
+    public AuctionRequestResponse updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO) {
+
+        log.info(auctionRequestId.toString());
+
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
-        User user = userRepository.findById(auctionRequestDTO.getBreederId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        KoiFish fish = koiFishRepository.findById(auctionRequestDTO.getFishId()).orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
+
+        if (auctionRequest.getAuction() != null && !auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT)) {
+            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_STATE);
+        }
+
+        User user = userRepository.findById(auctionRequestDTO.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        KoiFish fish;
+
+        if (auctionRequestDTO.getFishId() != null) {
+            fish = koiFishRepository.findById(auctionRequestDTO.getFishId()).orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
+            if (fish.getUser() != user) {
+                throw new AppException(ErrorCode.NOT_BELONG_TO_BREEDER);
+            }
+
+        } else {
+            fish = auctionRequest.getFish();
+        }
+
+        checkFieldUpdate(auctionRequest, auctionRequestDTO);
 
         checkRequest(auctionRequestDTO, user, fish);
 
-        updateRequest(auctionRequest, auctionRequestDTO, user, fish);
+        AuctionRequest result = updateRequest(auctionRequest, auctionRequestDTO, fish);
+
+        auctionRequestRepository.save(result);
 
         AuctionRequestResponse auctionRequestResponse = AuctionRequestResponse.builder()
                 .success(true)
                 .message("Your request has been update successfully.")
-                .data(auctionRequest)
+                .data(result)
                 .build();
         return auctionRequestResponse;
     }
 
 
     @Override
-    public HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequest(){
+    public HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequest() {
         HashMap<Integer, AuctionRequestResponseData> auctionRequests = new HashMap<>();
         List<AuctionRequest> auctionRequestList = auctionRequestRepository.findAll();
-        for (AuctionRequest auctionRequest : auctionRequestList){
+        for (AuctionRequest auctionRequest : auctionRequestList) {
             auctionRequests.put(auctionRequest.getId(), auctionRequestMapper.toAuctionRequestResponseData(auctionRequest));
         }
         return auctionRequests;
@@ -91,7 +123,17 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return auctionRequestResponse;
     }
 
-    public AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID){
+    @Override
+    public HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequestsForBreeder(Integer userId) {
+        HashMap<Integer, AuctionRequestResponseData> auctionRequests = new HashMap<>();
+        List<AuctionRequest> auctionRequestList = auctionRequestRepository.findListAuctionRequestByUserId(userId);
+        for (AuctionRequest auctionRequest : auctionRequestList) {
+            auctionRequests.put(auctionRequest.getId(), auctionRequestMapper.toAuctionRequestResponseData(auctionRequest));
+        }
+        return auctionRequests;
+    }
+
+    public AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID) {
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
@@ -130,7 +172,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
 
-        if(auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT) && auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)){
+        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT) && auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
 
             auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
             auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
@@ -139,8 +181,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         } else {
             throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_AND_FISH_STATE);
         }
-
-
 
         return AuctionRequestResponse.builder()
                 .success(true)
@@ -181,45 +221,40 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
     private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
 
-        if(!user.getRole().equals(Role.BREEDER)){
+        if (!user.getRole().equals(Role.BREEDER)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-
-        if(!fish.getStatus().equals(KoiStatus.NEW)){
+        if (!fish.getStatus().equals(KoiStatus.NEW) && !fish.getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
             throw new AppException(ErrorCode.FISH_NOT_AVAILABLE);
         }
 
-        if(auctionRequestDTO.getStartPrice() <= 0){
+        if (auctionRequestDTO.getStartPrice() <= 0) {
             throw new AppException(ErrorCode.INVALID_START_PRICE);
-        }
-
-        if(auctionRequestDTO.getIncrementPrice() <= 0){
-            throw new AppException(ErrorCode.INVALID_INCREMENT_PRICE);
         }
 
         Instant start_time = auctionRequestDTO.getStart_time();
         Instant end_time = auctionRequestDTO.getEnd_time();
         Instant now = Instant.now();
 
-        if(start_time.isAfter(end_time)){
+        if (start_time.isAfter(end_time)) {
             throw new AppException(ErrorCode.INVALID_START_TIME);
         }
 
-        Duration duration = Duration.between(start_time, now);
-
-        if(duration.toDays() < 1){
-            throw new AppException(ErrorCode.START_TIME_TOO_CLOSED);
-        }
+//        Duration duration = Duration.between(start_time, now);
+//
+//        if(duration.toDays() < 1){
+//            throw new AppException(ErrorCode.START_TIME_TOO_CLOSED);
+//        }
     }
 
     private AuctionRequest saveRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
         fish.setStatus(KoiStatus.PENDING_APPROVAL);
         AuctionRequest auctionRequest = AuctionRequest.builder()
-                .breeder(user)
+                .user(user)
                 .fish(fish)
                 .startPrice(auctionRequestDTO.getStartPrice())
-                .incrementPrice(auctionRequestDTO.getIncrementPrice())
+                .buyOut(auctionRequestDTO.getBuyOut())
                 .methodType(auctionRequestDTO.getMethodType())
                 .startTime(auctionRequestDTO.getStart_time())
                 .endTime(auctionRequestDTO.getEnd_time())
@@ -231,18 +266,35 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return auctionRequest;
     }
 
-    private AuctionRequest updateRequest(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
-        auctionRequest = auctionRequest.toBuilder()
-                .fish(fish)
-                .startPrice(auctionRequestDTO.getStartPrice())
-                .incrementPrice(auctionRequestDTO.getIncrementPrice())
-                .methodType(auctionRequestDTO.getMethodType())
-                .startTime(auctionRequestDTO.getStart_time())
-                .endTime(auctionRequestDTO.getEnd_time())
-                .build();
-
+    private AuctionRequest updateRequest(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO, KoiFish fish) {
+        fish.setStatus(KoiStatus.PENDING_APPROVAL);
+        auctionRequest.setFish(fish);
+        auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
+        auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
+        auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
+        auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
+        auctionRequest.setEndTime(auctionRequestDTO.getEnd_time());
         auctionRequestRepository.save(auctionRequest);
 
         return auctionRequest;
+    }
+
+    //get field from original object
+    private void checkFieldUpdate(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO) {
+        if (auctionRequestDTO.getBuyOut() == null) {
+            auctionRequestDTO.setBuyOut(auctionRequest.getBuyOut());
+        }
+        if (auctionRequestDTO.getStartPrice() == null) {
+            auctionRequestDTO.setStartPrice(auctionRequest.getStartPrice());
+        }
+        if (auctionRequestDTO.getStart_time() == null) {
+            auctionRequestDTO.setStart_time(auctionRequest.getStartTime());
+        }
+        if (auctionRequestDTO.getEnd_time() == null) {
+            auctionRequestDTO.setEnd_time(auctionRequest.getEndTime());
+        }
+        if (auctionRequestDTO.getMethodType() == null) {
+            auctionRequestDTO.setMethodType(auctionRequest.getMethodType());
+        }
     }
 }

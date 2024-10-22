@@ -54,7 +54,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
             // Get the breeder from the AuctionRequest
-            User breeder = auctionRequest.getBreeder();
+            User breeder = auctionRequest.getUser();
             Wallet breederWallet = walletRepository.findByUserId(breeder.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 

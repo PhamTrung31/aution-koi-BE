@@ -3,10 +3,9 @@ package swp.auctionkoi.service.auction;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.bid.BidRequest;
+import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
@@ -34,7 +33,7 @@ public class TraditionalAuctionService {
     AuctionRequestRepository auctionRequestRepository;
     private final AuctionParticipantsRepository auctionParticipantsRepository;
 
-    public void placeBid(int auctionId, BidRequest bidRequest) {
+    public void placeBid(int auctionId, BidRequestTraditional bidRequestTraditional) {
 
         // get auction
         Auction auction = auctionRepository.findById(auctionId)
@@ -43,7 +42,7 @@ public class TraditionalAuctionService {
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
 
         //get user
-        User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(bidRequestTraditional.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
@@ -65,14 +64,12 @@ public class TraditionalAuctionService {
         }
 
         // check value
-        if (bidRequest.getBidAmount() <= 0) {
+        if (bidRequestTraditional.getBidAmount() <= 0) {
             throw new AppException(ErrorCode.INVALID_BID_AMOUNT);
         }
 
-
-
         //get bidAmount
-        float bidAmount = calBidAmount(user, auction.getCurrentPrice(), bidRequest);
+        float bidAmount = calBidAmount(user, auction.getCurrentPrice(), bidRequestTraditional);
 
         if(bidAmount < auction.getCurrentPrice()){
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
@@ -84,13 +81,13 @@ public class TraditionalAuctionService {
         }
 
         //check bid amount out of max auto amount
-        if(bidRequest.isAutoBid()) {
-            if (bidAmount > bidRequest.getMaxBidAmount()) {
+        if(bidRequestTraditional.isAutoBid()) {
+            if (bidAmount > bidRequestTraditional.getMaxBidAmount()) {
                 throw new AppException(ErrorCode.AUCTION_AUTO_BID_EXCEEDS_MAX);
             }
         }
 
-        Bid bid = buildBid(auction, user, bidRequest, bidAmount);
+        Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
 
         wallet.setBalance(wallet.getBalance() - bidAmount);
 
@@ -114,31 +111,31 @@ public class TraditionalAuctionService {
     /**
      *  For build a new bid
      * */
-    private Bid buildBid(Auction auction, User user, BidRequest bidRequest, float bidAmount) {
+    private Bid buildBid(Auction auction, User user, BidRequestTraditional bidRequestTraditional, float bidAmount) {
         return Bid.builder()
                 .auction(auction)
                 .user(user)
-                .isAutoBid(bidRequest.isAutoBid())
-                .autoBidMax(bidRequest.getMaxBidAmount())
-                .incrementAutobid(bidRequest.getIncrementAutobid().getIncrement())
+                .isAutoBid(bidRequestTraditional.isAutoBid())
+                .autoBidMax(bidRequestTraditional.getMaxBidAmount())
+                .incrementAutobid(bidRequestTraditional.getIncrementAutobid().getIncrement())
                 .bidAmount(bidAmount)
                 .build();
     }
 
-    private float calBidAmount(User user, float currentPrice, BidRequest bidRequest) {
-        if(bidRequest.isAutoBid()){
-            float maxBid = bidRequest.getMaxBidAmount();
+    private float calBidAmount(User user, float currentPrice, BidRequestTraditional bidRequestTraditional) {
+        if(bidRequestTraditional.isAutoBid()){
+            float maxBid = bidRequestTraditional.getMaxBidAmount();
             float autoBidAmount = currentPrice;
 
-            autoBidAmount += currentPrice * bidRequest.getIncrementAutobid().getIncrement();
+            autoBidAmount += currentPrice * bidRequestTraditional.getIncrementAutobid().getIncrement();
 
             return autoBidAmount;
         } else {
 
-            float bidAmount = bidRequest.getBidAmount();
+            float bidAmount = bidRequestTraditional.getBidAmount();
 
-            if(bidRequest.getIncrementAutobid() != null){
-                float fastIncre = bidRequest.getIncrementAutobid().getIncrement();
+            if(bidRequestTraditional.getIncrementAutobid() != null){
+                float fastIncre = bidRequestTraditional.getIncrementAutobid().getIncrement();
 
                 bidAmount += currentPrice * fastIncre;
             }

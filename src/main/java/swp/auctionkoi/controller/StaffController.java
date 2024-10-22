@@ -21,7 +21,6 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/staffs")
-
 public class StaffController {
 
     @Autowired
@@ -31,7 +30,6 @@ public class StaffController {
     public ApiResponse<HashMap<Integer, UserResponse>> getAllUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
         return ApiResponse.<HashMap<Integer, UserResponse>>builder()
@@ -60,7 +58,7 @@ public class StaffController {
                 .build();
     }
 
-    @PostMapping("/ban")
+    @PostMapping("/ban/{userId}")
     public ApiResponse<String> banUser(@PathVariable int userId) {
         staffService.banUser(userId);
 
@@ -70,7 +68,7 @@ public class StaffController {
                 .build();
     }
 
-    @PostMapping("/unban")
+    @PostMapping("/unban/{userId}")
     public ApiResponse<String> unbanUser(@PathVariable int userId) {
         staffService.unBanUser(userId);
 

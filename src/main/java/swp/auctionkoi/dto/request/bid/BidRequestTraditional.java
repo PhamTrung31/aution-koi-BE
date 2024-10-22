@@ -10,8 +10,11 @@ import swp.auctionkoi.models.enums.AutoBidIncrement;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BidRequest {
+public class BidRequestTraditional {
     int auctionId;
     int userId;
     float bidAmount;
+    boolean isAutoBid;
+    AutoBidIncrement incrementAutobid;
+    float maxBidAmount;
 }

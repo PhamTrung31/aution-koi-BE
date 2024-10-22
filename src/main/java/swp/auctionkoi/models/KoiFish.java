@@ -1,6 +1,7 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,30 +18,35 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "KoiFishs")
+@Table(name = "Koi_Fish")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class KoiFish {
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "breeder_id")
-    swp.auctionkoi.models.User breeder;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "breeder_id", nullable = false)
+    User user;
 
     @Size(max = 250)
-    @Column(name = "name", length = 250)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 250)
     String name;
 
-    @Column(name = "sex")
+    @NotNull
+    @Column(name = "sex", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     Sex sex;
 
-    @Column(name = "\"size\"")
+    @NotNull
+    @Column(name = "\"size\"", nullable = false)
     Double size;
 
-    @Column(name = "age")
+    @NotNull
+    @Column(name = "age", nullable = false)
     Integer age;
 
     @Size(max = 2000)
@@ -48,24 +54,29 @@ public class KoiFish {
     @Column(name = "description", length = 2000)
     String description;
 
-    @Size(max = 255)
-    @Column(name = "image_Url")
-    String image_Url;
+    @Size(max = 2000)
+    @NotNull
+    @Column(name = "image_url", nullable = false, length = 2000)
+    String imageUrl;
 
-    @Size(max = 255)
-    @Column(name = "video_Url")
-    String video_Url;
+    @Size(max = 2000)
+    @NotNull
+    @Column(name = "video_url", nullable = false, length = 2000)
+    String videoUrl;
 
-    @Column(name = "status")
+    @NotNull
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     KoiStatus status;
 
+    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "fish_created_date")
+    @Column(name = "fish_created_date", nullable = false)
     Instant fishCreatedDate;
 
+    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "fish_updated_date")
+    @Column(name = "fish_updated_date", nullable = false)
     Instant fishUpdatedDate;
 
 }

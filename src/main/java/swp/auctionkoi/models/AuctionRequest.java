@@ -1,6 +1,7 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
@@ -25,11 +26,13 @@ public class AuctionRequest {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "breeder_id")
-    swp.auctionkoi.models.User breeder;
+    @JoinColumn(name = "user_id")
+    @NotNull
+    swp.auctionkoi.models.User user; //breeder
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fish_id")
+    @NotNull
     swp.auctionkoi.models.KoiFish fish;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,33 +41,45 @@ public class AuctionRequest {
     swp.auctionkoi.models.Auction auction;
 
     @Column(name = "buy_out")
+    @NotNull
     Float buyOut;
 
     @Column(name = "start_price")
+    @NotNull
     Float startPrice;
-
-    @Column(name = "increment_price")
-    Float incrementPrice;
 
     @Column(name = "method_type")
     @Enumerated(EnumType.ORDINAL)
+    @NotNull
     AuctionType methodType;
 
-    @ColumnDefault("getdate()")
     @Column(name = "request_created_date")
     Instant requestCreatedDate;
 
-    @ColumnDefault("getdate()")
     @Column(name = "request_updated_date")
     Instant requestUpdatedDate;
 
     @Column(name = "request_status")
     @Enumerated(EnumType.ORDINAL)
+    @NotNull
     AuctionRequestStatus requestStatus;
 
     @Column(name = "start_time")
+    @NotNull
     Instant startTime;
 
     @Column(name = "end_time")
+    @NotNull
     Instant endTime;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.requestCreatedDate = Instant.now();
+        this.requestUpdatedDate = Instant.now();
+    }
+//
+//    @PreUpdate
+//    public void onPreUpdate() {
+//        this.requestUpdatedDate = Instant.now();
+//    }
 }
