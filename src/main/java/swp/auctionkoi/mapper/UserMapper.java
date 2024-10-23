@@ -15,6 +15,7 @@ public interface UserMapper {
     User toUser(UserCreateRequest request);
     User toUser(StaffCreateUserRequest request);
     UserResponse toUserResponse(User user);
+    User toUser (User user);
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
     void updateUser(@MappingTarget User user, StaffUpdateUserRequest request);
     void updateStaff(@MappingTarget User user, UserUpdateRequest request);

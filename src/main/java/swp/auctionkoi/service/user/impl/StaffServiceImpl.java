@@ -47,6 +47,7 @@ public class StaffServiceImpl implements StaffService {
         HashMap<Integer, UserResponse> users = new HashMap<>();
         List<User> userList = userRepository.findAll();
         for (User user : userList) {
+            if(user.getRole() == Role.BREEDER || user.getRole() == Role.MEMBER)
             users.put(user.getId(), userMapper.toUserResponse(user));
         }
         return users;
@@ -61,7 +62,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public UserResponse addUser(StaffCreateUserRequest request) {
+    public User addUser(StaffCreateUserRequest request) {
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
@@ -84,7 +85,7 @@ public class StaffServiceImpl implements StaffService {
 
         userRepository.save(user);
 
-        return userMapper.toUserResponse(user);
+        return userMapper.toUser(user);
     }
 
     @Override

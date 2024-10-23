@@ -4,7 +4,7 @@ server:
     context-path: /auctionkoi
 
 jwt:
-  signerKey: ${SIGNER_KEY}
+  signerKey: "vh80+feiL6FITFH3Wg5L9h9T0RqbwRUqIFo0Zw9j0JkQrSvFyxjwzDRCIFNjnKyZ"
 
 spring:
   profiles:

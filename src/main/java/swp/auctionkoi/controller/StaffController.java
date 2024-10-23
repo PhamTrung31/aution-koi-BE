@@ -48,12 +48,12 @@ public class StaffController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<UserResponse> addUser(@RequestBody StaffCreateUserRequest request) {
-        UserResponse userResponse = staffService.addUser(request);
+    public ApiResponse<User> addUser(@RequestBody StaffCreateUserRequest request) {
+        User user = staffService.addUser(request);
 
-        return ApiResponse.<UserResponse>builder()
+        return ApiResponse.<User>builder()
                 .code(200)
-                .result(userResponse)
+                .result(user)
                 .message("Add user successfully!")
                 .build();
     }
