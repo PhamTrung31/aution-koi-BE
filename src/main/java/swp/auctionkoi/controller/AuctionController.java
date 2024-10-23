@@ -32,6 +32,7 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 @RequestMapping("/auctions")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@CrossOrigin("*")
 public class AuctionController {
 
     AuctionRequestService auctionRequestService;

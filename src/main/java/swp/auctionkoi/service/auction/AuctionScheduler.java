@@ -16,7 +16,7 @@ import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.repository.AuctionParticipantsRepository;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.AuctionRequestRepository;
-import swp.auctionkoi.service.auction.impl.AuctionServiceImpl;
+import swp.auctionkoi.service.auction.AuctionService;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -32,7 +32,7 @@ public class AuctionScheduler {
     AuctionRepository auctionRepository;
     AuctionRequestRepository auctionRequestRepository;
     AuctionParticipantsRepository auctionParticipantsRepository;
-    AuctionServiceImpl auctionServiceImpl;
+    AuctionService auctionService;
 
     @Scheduled(fixedRate = 60000)
     @Transactional
@@ -48,10 +48,13 @@ public class AuctionScheduler {
         List<AuctionRequest> approvedRequestsSortedByStartTime  = getSortedAuctionRequestsWithAuctionsByStartTime();
 
         for (AuctionRequest request : approvedRequestsSortedByStartTime) {
+            //get list bidder in this auction
             List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
-            if (request.getAuction() != null && auctionParticipants.size() > 2) {
-                auctionServiceImpl.startAuction(request.getAuction().getId());
-                log.info("Auction {} started", request.getAuction().getId());
+            //double-check that the auction request was approve and the list bidder in auction is bigger than 1 (real run will be 7)
+            if (request.getAuction() != null && auctionParticipants.size() > 1 && request.getAuction().getStatus().equals(AuctionStatus.PENDING)) { //real is 7
+                //call the fuction to start
+                auctionService.startAuction(request.getAuction().getId());
+                log.info("Auction ID: {} started", request.getAuction().getId());
             }
         }
 
@@ -63,7 +66,9 @@ public class AuctionScheduler {
                     && request.getAuction().getWinner() != null && request.getAuction().getHighestPrice() != null
                     && request.getAuction().getCurrentPrice() != null) {
 
-                auctionServiceImpl.endAuction(request.getAuction().getId());
+                auctionService.endAuction(request.getAuction().getId());
+
+                log.info("Auction ID: {} ended", request.getAuction().getId());
             }
         }
     }

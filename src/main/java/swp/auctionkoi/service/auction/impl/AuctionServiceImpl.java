@@ -52,7 +52,7 @@ public class AuctionServiceImpl implements AuctionService {
 
 
     @Override
-    public AuctionJoinResponse JoinAuction(int userId, int auctionId) {
+    public AuctionJoinResponse joinAuction(int userId, int auctionId) {
         // Lấy thông tin user
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -160,8 +160,8 @@ public class AuctionServiceImpl implements AuctionService {
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
         // Lấy danh sách những người tham gia phiên đấu giá
         List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionId);
-
-        if(participants.size() >= 7 && auctionRequest.getStartTime().isAfter(Instant.now())) {
+        //bidder in auction must bigger than 1 (real run will be 7). Check the start time is after now or not
+        if(participants.size() > 1 && auctionRequest.getStartTime().isAfter(Instant.now())) {
             auction.setStatus(AuctionStatus.IN_PROGRESS);
             auction.setWinner(null);
             auction.setHighestPrice(0.0F);

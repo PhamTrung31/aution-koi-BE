@@ -17,7 +17,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@Table(name = "Auction_Requests")
+@Table(name = "AuctionRequests")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequest {
     @Id

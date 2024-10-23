@@ -36,7 +36,7 @@ public class Auction {
     @JoinColumn(name = "winner_id")
     User winner;
 
-    @Column(name = "highest_price", nullable = true)
+    @Column(name = "highest_prices", nullable = true)
     Float  highestPrice;
 
     @ColumnDefault("60")

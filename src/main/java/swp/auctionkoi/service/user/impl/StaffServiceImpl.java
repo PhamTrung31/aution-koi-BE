@@ -118,12 +118,14 @@ public class StaffServiceImpl implements StaffService {
     public void banUser(int userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsActive(false);
+        userRepository.save(user);
     }
 
     @Override
     public void unBanUser(int userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsActive(true);
+        userRepository.save(user);
     }
 
 }

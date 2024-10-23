@@ -30,10 +30,6 @@ public class AuctionParticipants {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull
-    @Column(name = "deposit_amount", nullable = false)
-    private float depositAmount;
-
     @ColumnDefault("getdate()")
     @Column(name = "join_date")
     private Instant joinDate;

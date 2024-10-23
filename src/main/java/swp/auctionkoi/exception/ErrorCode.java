@@ -57,7 +57,9 @@ public enum ErrorCode {
     USER_NOT_IN_AUCTION(1042, "You not in auction", HttpStatus.NOT_FOUND),
     INVALID_FISH_STATE(1043, "Fish's state is invalid", HttpStatus.BAD_REQUEST),
     INVALID_AUCTION_REQUEST_STATE(1044, "Auction's state is invalid", HttpStatus.BAD_REQUEST),
-    NOT_BELONG_TO_BREEDER(1045, "Fish not belong to breeder!", HttpStatus.BAD_REQUEST)
+    NOT_BELONG_TO_BREEDER(1045, "Fish not belong to breeder!", HttpStatus.BAD_REQUEST),
+    ERROR_UPDATE(1046, "Update failed!", HttpStatus.BAD_REQUEST),
+
     ;
 
     int code;

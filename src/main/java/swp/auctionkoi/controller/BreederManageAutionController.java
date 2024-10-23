@@ -38,6 +38,7 @@ public class BreederManageAutionController {
         HashMap<Integer, AuctionRequestResponseData> auctionRequestResponseDataHashMap = auctionRequestService.viewAllAuctionRequestsForBreeder(breederId);
         return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
                 .code(200)
+                .message("")
                 .result(auctionRequestResponseDataHashMap)
                 .build();
     }
@@ -45,14 +46,18 @@ public class BreederManageAutionController {
     @PutMapping("/update/{auctionRequestId}")
     public ApiResponse<AuctionRequestResponse> updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestDTO auctionRequestDTO){
         AuctionRequestResponse auctionRequestResponse = auctionRequestService.updateAuctionRequestForBreeder(auctionRequestId, auctionRequestDTO);
+
+        log.info(auctionRequestResponse.getMessage());
+
         return ApiResponse.<AuctionRequestResponse>builder()
                 .code(200)
+                .message(auctionRequestResponse.getMessage())
                 .result(auctionRequestResponse)
                 .build();
     }
 
-    @PutMapping("/cancel/{auctionRequestId}")
-    public ApiResponse<AuctionRequestResponse> cancelAuctionRequest(@PathVariable Integer auctionRequestId, Integer breederID){
+    @PutMapping("/cancel/{auctionRequestId}/{breederID}")
+    public ApiResponse<AuctionRequestResponse> cancelAuctionRequest(@PathVariable Integer auctionRequestId, @PathVariable Integer breederID){
         AuctionRequestResponse auctionRequestResponse = auctionRequestService.cancelAuctionRequest(auctionRequestId, breederID);
         return  ApiResponse.<AuctionRequestResponse>builder()
                 .code(200)

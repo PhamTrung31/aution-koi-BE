@@ -100,7 +100,6 @@ CREATE TABLE Auction_Requests(
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY (breeder_id) REFERENCES Users(id),
 	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id)
-	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id)
 );
 Go
 
@@ -110,10 +109,24 @@ AFTER UPDATE
 AS
 BEGIN
     -- Update the RequestUpdatedDate to the current date/time when any field is updated
-    UPDATE AuctionRequests
+    UPDATE Auction_Requests
     SET request_updated_date = GETDATE()
-    FROM AuctionRequests r
+    FROM Auction_Requests r
     INNER JOIN inserted i ON r.id = i.id;
+END;
+GO
+
+CREATE TRIGGER trg_update_deposit_amount
+ON Auction_Requests
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Update the deposit_amount in Auctions
+    UPDATE Auctions
+    SET deposit_amount = i.buy_out * 0.15
+    FROM Auctions a
+    INNER JOIN inserted i ON a.id = i.auction_id
+    WHERE i.request_status = 1 AND i.auction_id IS NOT NULL;
 END;
 GO
 
@@ -189,7 +202,7 @@ VALUES
 ('customer2', 'pass321', 2, 'Emily Davis', '456-789-0123', '101 Fish Rd, River City'),
 ('admin', 'adminpass', 0, 'Admin User', '567-890-1234', '999 Admin Lane, Aqua City');
 
-INSERT INTO Koi_Fish (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
+INSERT INTO Koi_Fishs (breeder_id, [name], sex, size, age, [description], image_Url, video_Url, [status])
 VALUES
 (1, 'Kohaku', 1, 15.5, 3, 'Beautiful Kohaku koi with red and white patterns', 'kohaku.jpg', 'kohaku.mp4', 1),
 (1, 'Sanke', 2, 17.3, 2, 'High-quality Sanke koi with vibrant colors', 'sanke.jpg', 'sanke.mp4', 1),

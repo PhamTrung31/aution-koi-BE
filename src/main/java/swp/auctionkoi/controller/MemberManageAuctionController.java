@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 import swp.auctionkoi.dto.request.bid.BidRequest;
 import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
@@ -22,21 +19,27 @@ import swp.auctionkoi.repository.AuctionRequestRepository;
 import swp.auctionkoi.service.auction.AnonymousAuctionService;
 import swp.auctionkoi.service.auction.FixedPriceAuctionService;
 import swp.auctionkoi.service.auction.TraditionalAuctionService;
+import swp.auctionkoi.service.auction.impl.AuctionServiceImpl;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auctions")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserManageAuctionController {
+public class MemberManageAuctionController {
     TraditionalAuctionService traditionalAuctionService;
     AuctionRequestRepository auctionRequestRepository;
     FixedPriceAuctionService fixedPriceAuctionService;
     AnonymousAuctionService anonymousAuctionService;
+    private final AuctionServiceImpl auctionServiceImpl;
 
-    @PostMapping("/join")
-    public ResponseEntity<AuctionJoinResponse> joinAuction(@RequestBody AuctionJoinRequest request) {
-        return null;
+    @PostMapping("/join/{userId}/{auctionId}")
+    public ApiResponse<String> joinAuction(@PathVariable int userId, @PathVariable int auctionId) {
+        auctionServiceImpl.joinAuction(userId, auctionId);
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Join auction successfully!")
+                .build();
     }
 
     @PostMapping("/placebid/traditional")
