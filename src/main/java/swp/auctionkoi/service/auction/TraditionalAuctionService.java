@@ -69,9 +69,9 @@ public class TraditionalAuctionService {
         }
 
         //get bidAmount
-        float bidAmount = calBidAmount(user, auction.getCurrentPrice(), bidRequestTraditional);
+        float bidAmount = bidRequestTraditional.getBidAmount();
 
-        if(bidAmount < auction.getCurrentPrice()){
+        if(bidAmount < auction.getHighestPrice()){
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
         }
 
@@ -93,13 +93,14 @@ public class TraditionalAuctionService {
 
         Transaction transaction = Transaction.builder()
                 .auction(auction)
-                .member(user)
+                .user(user)
                 .transactionFee(0)
                 .walletId(wallet.getId())
                 .transactionType(TransactionType.BID)
+                .amount(bidAmount)
                 .build();
 
-        auction.setCurrentPrice(bidAmount);
+        auction.setHighestPrice(bidAmount);
         auction.setWinner(user);
 
         walletRepository.save(wallet);
@@ -117,30 +118,33 @@ public class TraditionalAuctionService {
                 .user(user)
                 .isAutoBid(bidRequestTraditional.isAutoBid())
                 .autoBidMax(bidRequestTraditional.getMaxBidAmount())
-                .incrementAutobid(bidRequestTraditional.getIncrementAutobid().getIncrement())
                 .bidAmount(bidAmount)
                 .build();
     }
 
-    private float calBidAmount(User user, float currentPrice, BidRequestTraditional bidRequestTraditional) {
-        if(bidRequestTraditional.isAutoBid()){
-            float maxBid = bidRequestTraditional.getMaxBidAmount();
-            float autoBidAmount = currentPrice;
-
-            autoBidAmount += currentPrice * bidRequestTraditional.getIncrementAutobid().getIncrement();
-
-            return autoBidAmount;
-        } else {
-
-            float bidAmount = bidRequestTraditional.getBidAmount();
-
-            if(bidRequestTraditional.getIncrementAutobid() != null){
-                float fastIncre = bidRequestTraditional.getIncrementAutobid().getIncrement();
-
-                bidAmount += currentPrice * fastIncre;
-            }
-
-            return bidAmount;
-        }
-    }
+//    private float calBidAmount(User user, float currentPrice, BidRequestTraditional bidRequestTraditional) {
+//        if(bidRequestTraditional.isAutoBid()){
+//            float maxBid = bidRequestTraditional.getMaxBidAmount();
+//            float autoBidAmount = currentPrice;
+//
+//            autoBidAmount += currentPrice * bidRequestTraditional.getIncrementAutobid().getIncrement();
+//
+//            if(autoBidAmount > maxBid){
+//                autoBidAmount = maxBid;
+//            }
+//
+//            return autoBidAmount;
+//        } else {
+//
+//            float bidAmount = bidRequestTraditional.getBidAmount();
+//
+//            if(bidRequestTraditional.getIncrementAutobid() != null){
+//                float fastIncre = bidRequestTraditional.getIncrementAutobid().getIncrement();
+//
+//                bidAmount += currentPrice * fastIncre;
+//            }
+//
+//            return bidAmount;
+//        }
+//    }
 }

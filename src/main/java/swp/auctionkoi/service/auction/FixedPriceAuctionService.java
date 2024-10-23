@@ -15,20 +15,13 @@ import swp.auctionkoi.repository.*;
 @Service
 public class FixedPriceAuctionService {
 
-    @Autowired
-    private AuctionRepository auctionRepository;
-    @Autowired
-    private AuctionRequestRepository auctionRequestRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private WalletRepository walletRepository;
-    @Autowired
-    private TransactionRepository transactionRepository;
-    @Autowired
-    private BidRepository bidRepository;
-    @Autowired
-    private AuctionParticipantsRepository auctionParticipantsRepository;
+    AuctionRepository auctionRepository;
+    AuctionRequestRepository auctionRequestRepository;
+    UserRepository userRepository;
+    WalletRepository walletRepository;
+    TransactionRepository transactionRepository;
+    BidRepository bidRepository;
+    AuctionParticipantsRepository auctionParticipantsRepository;
 
 
     public void placeBid(int auctionId, BidRequest bidRequest) {
@@ -53,26 +46,25 @@ public class FixedPriceAuctionService {
 
         AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
-        if(auctionParticipants == null) {
+        if (auctionParticipants == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
 
         Wallet wallet = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
 
-
         //check value bid
-        if(bidRequest.getBidAmount() <= 0){
+        if (bidRequest.getBidAmount() <= 0) {
             throw new AppException(ErrorCode.INVALID_BID_AMOUNT);
         }
 
         //check bid lower than start price
-        if(bidRequest.getBidAmount() < auctionRequest.getStartPrice()){
+        if (bidRequest.getBidAmount() < auctionRequest.getStartPrice()) {
             throw new AppException(ErrorCode.INVALID_BID_AMOUNT);
         }
 
         //check money in wallet can pay bid or not
-        if(bidRequest.getBidAmount() > wallet.getBalance()){
+        if (bidRequest.getBidAmount() > wallet.getBalance()) {
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
         }
 
@@ -87,7 +79,7 @@ public class FixedPriceAuctionService {
 
         Transaction transaction = Transaction.builder()
                 .auction(auction)
-                .member(user)
+                .user(user)
                 .walletId(wallet.getId())
                 .transactionType(TransactionType.BID)
                 .build();

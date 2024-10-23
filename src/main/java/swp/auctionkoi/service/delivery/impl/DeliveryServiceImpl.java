@@ -66,10 +66,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                     .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
             // Get the highest bid from the winner
-            Optional<Bid> highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), winner.getId());
-            if (highestUserBid.isPresent()) {
-                Bid highestBid = highestUserBid.get();
-                float winningBid = highestBid.getBidAmount();
+            Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), winner.getId());
+            if (highestUserBid != null) {
+                float winningBid = highestUserBid.getBidAmount();
 
                 // Calculate the breeder's amount (after 10% fee)
                 float amountForBreeder = winningBid * 0.90F;
@@ -80,7 +79,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 // Log the transfer transaction
                 Transaction paymentTransaction = Transaction.builder()
-                        .member(breeder)
+                        .user(breeder)
                         .auction(auction)
                         .transactionType(TransactionType.TRANSFER)
                         .walletId(breederWallet.getId())

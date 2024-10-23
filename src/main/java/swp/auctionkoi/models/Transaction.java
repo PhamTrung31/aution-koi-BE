@@ -30,8 +30,8 @@ public class Transaction {
     Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    swp.auctionkoi.models.User member;
+    @JoinColumn(name = "user_id")
+    swp.auctionkoi.models.User user;
 
     @Column(name = "payment_id")
     Integer paymentId;
@@ -42,14 +42,13 @@ public class Transaction {
     @Column(name = "transaction_fee")
     float transactionFee;
 
-    @Column(name = "bid_price")
-    float bidPrice;
+    @Column(name = "amount")
+    float amount;
 
     @Column(name = "transaction_type")
     @Enumerated(EnumType.ORDINAL)
     TransactionType transactionType;
 
-    @ColumnDefault("getdate()")
     @Column(name = "transaction_date")
     Instant transactionDate;
 

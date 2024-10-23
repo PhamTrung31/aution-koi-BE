@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     List<Transaction> findByAuctionId(int auctionId);
+    Transaction findTopByAuctionIdAndUserIdOrderByAmountDesc(int auctionId, int userId);
 }

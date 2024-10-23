@@ -128,5 +128,4 @@ public class StaffServiceImpl implements StaffService {
         user.setIsActive(true);
         userRepository.save(user);
     }
-
 }

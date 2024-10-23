@@ -89,7 +89,7 @@ public class PaymentServiceImpl {
         //tạo cái thông báo transaction
 
         Transaction transaction = new Transaction();
-        transaction.setMember(wallet.getUser());
+        transaction.setUser(wallet.getUser());
         transaction.setWalletId(wallet.getId());
         transaction.setPaymentId(payment.getId());
         transaction.setTransactionFee(0.0F);

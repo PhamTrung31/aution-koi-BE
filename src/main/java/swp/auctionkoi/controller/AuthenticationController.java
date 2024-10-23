@@ -39,8 +39,6 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
-
-    @Autowired
     UserRepository userRepository;
 
     @Value("${jwt.signerKey}")

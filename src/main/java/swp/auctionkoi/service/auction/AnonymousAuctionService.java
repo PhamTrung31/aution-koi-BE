@@ -1,5 +1,8 @@
 package swp.auctionkoi.service.auction;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequest;
@@ -14,24 +17,25 @@ import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.wallet.WalletService;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AnonymousAuctionService {
 
-    @Autowired
-    private AuctionRepository auctionRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BidRepository bidRepository;
-    @Autowired
-    private WalletRepository walletRepository;
-    @Autowired
-    private AuctionRequestRepository auctionRequestRepository;
-    @Autowired
-    private TransactionRepository transactionRepository;
-    @Autowired
-    private WalletService walletService;
-    @Autowired
-    private AuctionParticipantsRepository auctionParticipantsRepository;
+    AuctionRepository auctionRepository;
+
+    UserRepository userRepository;
+
+    BidRepository bidRepository;
+
+    WalletRepository walletRepository;
+
+    AuctionRequestRepository auctionRequestRepository;
+
+    TransactionRepository transactionRepository;
+
+    WalletService walletService;
+
+    AuctionParticipantsRepository auctionParticipantsRepository;
 
 
     public void placeBid(int auctionId, BidRequest bidRequest) {
@@ -100,7 +104,7 @@ public class AnonymousAuctionService {
         //create transaction
         Transaction transaction = Transaction.builder()
                 .auction(auction)
-                .member(user)
+                .user(user)
                 .walletId(wallet.getId())
                 .transactionType(TransactionType.BID)
                 .build();
