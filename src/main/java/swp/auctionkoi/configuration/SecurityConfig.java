@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -43,11 +45,11 @@ public class SecurityConfig {
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs", "/auth/**", "/auctions/join","/auctions/end/{auctionId}",
-            "/users/create", "/api/payment/vnpay-return","/api/wallet/withdraw",
-            "/deliveries/status", "/api/files/upload","/api/koifish/upload/{koiId}",
-            "/deliveries/{deliveryId}", "/users/{id}/avatar","/submitOrder","/", "/vnpay-payment-return" ,
-            "v2/api-docs",
+            "/users", "/staffs", "/auth/**", "/auctions/join", "/auctions/end/{auctionId}",
+            "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
+            "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
+            "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder", "/vnpay/", "/vnpay/vnpay-payment-return",
+            "v2/api-docs", "/payment/requestwithdraw",
             "v3/api-docs",
             "v3/api-docs/**",
             "/swagger-resources",
@@ -72,41 +74,58 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(request ->
 
-                request.requestMatchers(
-                                "/api/v1/auth/**",
-                                "v2/api-docs",
-                                "v3/api-docs",
-                                "v3/api-docs/**",
-                                "/swagger-resources",
-                                "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
-                                "/swagger-ui/**",
-                                "/webjars/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")
-                        .anyRequest().authenticated());
+                        request.requestMatchers(
+                                        "/api/v1/auth/**",
+                                        "/vnpay/submitOrder" , // Thêm vào đây
+                                        "v2/api-docs",
+                                        "v3/api-docs",
+                                        "v3/api-docs/**",
+                                        "/swagger-resources",
+                                        "/swagger-resources/**",
+                                        "/configuration/ui",
+                                        "/configuration/security",
+                                        "/swagger-ui/**",
+                                        "/webjars/**",
+                                        "/swagger-ui.html"
+
+
+                                ).permitAll()
+                                .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
+                                .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
+                                .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
+                                .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
+                                .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
+                                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
+                                .requestMatchers(HttpMethod.GET, "/manager").hasAnyAuthority("ROLE_MANAGER")
+                                .anyRequest().authenticated());
+
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                jwtConfigurer.decoder(jwtDecoder())
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedNewlineHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedPercent(true);  // Cho phép ký tự %
+        firewall.setAllowUrlEncodedSlash(true);    // Cho phép dấu /
+        firewall.setAllowBackSlash(true);          // Cho phép dấu \
+        firewall.setAllowSemicolon(true);          // Cho phép dấu ;
+        firewall.setAllowUrlEncodedDoubleSlash(true); // Cho phép //
+        firewall.setAllowUrlEncodedPeriod(true);   // Cho phép dấu .ấu :
+        firewall.setAllowUrlEncodedLineFeed(true);  // Cho phép ký tự xuống dòng
+        return firewall;
     }
 
     @Bean
@@ -120,7 +139,6 @@ public class SecurityConfig {
 
         return converter;
     }
-
 
 
     @Bean
@@ -205,7 +223,7 @@ public class SecurityConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

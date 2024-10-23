@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -14,9 +14,10 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <img th:src="@{/vnpay-logo.png}" style="width: 200px">
+                    <img src="/vnpay-logo.png" style="width: 200px">
                     <h2 class="card-title">Tạo Đơn Hàng</h2>
-                    <form th:action="@{/submitOrder}" method="post">
+                    <!-- Form for sending POST request -->
+                    <form id="submitOrderForm" method="post">
                         <div class="form-group">
                             <label for="amount">Số tiền:</label>
                             <input type="number" class="form-control" id="amount" name="amount" required value="299999">
@@ -25,7 +26,7 @@
                             <label for="memberId">Member ID:</label>
                             <input type="text" class="form-control" id="memberId" name="memberId" required value="Thanh toan don hang 2923">
                         </div>
-                        <button type="submit" class="btn btn-primary">Thanh toán</button>
+                        <button type="button" id="submitBtn" class="btn btn-primary">Thanh toán</button>
                     </form>
                 </div>
             </div>
@@ -33,9 +34,36 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!-- jQuery is needed to handle the form submission via AJAX -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#submitBtn').click(function() {
+            var amount = $('#amount').val();
+            var memberId = $('#memberId').val();
+
+            // Sending POST request to API
+            $.ajax({
+                url: 'http://localhost:8081/auctionkoi/vnpay/submitOrder',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    amount: amount,
+                    memberId: memberId
+                }),
+                success: function(response) {
+                    // If the response contains vnpayUrl, redirect to that URL
+                    var vnpayUrl = JSON.parse(response).vnpayUrl;
+                    window.location.href = vnpayUrl;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error occurred:', error);
+                    alert('Có lỗi xảy ra trong quá trình tạo đơn hàng.');
+                }
+            });
+        });
+    });
+</script>
 </body>
 
 </html>

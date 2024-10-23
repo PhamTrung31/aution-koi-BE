@@ -18,9 +18,13 @@ import java.util.*;
 
 @Service
 public class VNPAYService {
+    public String createOrder(HttpServletRequest request, Long amount, String memberId, String urlReturn) {
 
-    public String createOrder(HttpServletRequest request, int amount, String memberId, String urlReturn){
-        //Các bạn có thể tham khảo tài liệu hướng dẫn và điều chỉnh các tham số
+        // Loại bỏ ký tự xuống dòng và mã hóa URL (%0A)
+        memberId = memberId.replaceAll("[\\n\\r]", "").replace("%0A", "").trim();
+        urlReturn = urlReturn.replaceAll("[\\n\\r]", "").replace("%0A", "").trim();
+
+
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
@@ -32,7 +36,7 @@ public class VNPAYService {
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount*100));
+        vnp_Params.put("vnp_Amount", String.valueOf(amount * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
 
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
@@ -42,6 +46,7 @@ public class VNPAYService {
         String locate = "vn";
         vnp_Params.put("vnp_Locale", locate);
 
+        // Gắn URL return với vnp_ReturnUrl
         urlReturn += VNPAYConfig.vnp_Returnurl;
         vnp_Params.put("vnp_ReturnUrl", urlReturn);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
@@ -55,38 +60,51 @@ public class VNPAYService {
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-        List fieldNames = new ArrayList(vnp_Params.keySet());
+
+        // In thông tin để debug
+        System.out.println("Amount: " + amount);
+        System.out.println("Member ID: " + memberId);
+        System.out.println("URL Return: " + urlReturn);
+
+        // Xử lý dữ liệu để tạo query và hash
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        Iterator<String> itr = fieldNames.iterator();
+
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
-                hashData.append(fieldName);
-                hashData.append('=');
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+
+            if (fieldValue != null && !fieldValue.isEmpty()) {
                 try {
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    //Build query
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
-                    query.append('=');
-                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    hashData.append(fieldName).append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+
+                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()))
+                            .append('=')
+                            .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
+
                 if (itr.hasNext()) {
                     query.append('&');
                     hashData.append('&');
                 }
             }
         }
-        String queryUrl = query.toString();
+
+        // Tạo vnp_SecureHash
         String salt = VNPAYConfig.vnp_HashSecret;
         String vnp_SecureHash = VNPAYConfig.hmacSHA512(salt, hashData.toString());
-        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = VNPAYConfig.vnp_PayUrl + "?" + queryUrl;
+        query.append("&vnp_SecureHash=").append(vnp_SecureHash);
+
+        // Tạo URL thanh toán
+        String paymentUrl = VNPAYConfig.vnp_PayUrl + "?" + query.toString();
+        System.out.println("Payment URL: " + paymentUrl);
         return paymentUrl;
     }
 
