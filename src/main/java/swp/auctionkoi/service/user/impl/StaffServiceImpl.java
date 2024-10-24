@@ -23,6 +23,7 @@ import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.StaffService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -43,13 +44,15 @@ public class StaffServiceImpl implements StaffService {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public HashMap<Integer, UserResponse> getAllUser() {
-        HashMap<Integer, UserResponse> users = new HashMap<>();
+    public List<UserResponse> getAllMemberAndBreeder() {
         List<User> userList = userRepository.findAll();
+        List<UserResponse> result = new ArrayList<>();
         for (User user : userList) {
-            users.put(user.getId(), userMapper.toUserResponse(user));
+            if(user.getRole().equals(Role.MEMBER) || user.getRole().equals(Role.BREEDER)) {
+                result.add(userMapper.toUserResponse(user));
+            }
         }
-        return users;
+        return result;
     }
 
 
