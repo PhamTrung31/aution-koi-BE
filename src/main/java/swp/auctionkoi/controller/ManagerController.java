@@ -73,9 +73,9 @@ public class ManagerController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UserResponse> updateStaff(
+    public ApiResponse<UserResponse> updateStaff( @PathVariable Integer id,
             @RequestBody UserUpdateRequest request) {
-        UserResponse user = managerService.updateStaff(request);
+        UserResponse user = managerService.updateStaff(id, request);
         return ApiResponse.<UserResponse>builder()
                 .result(user)
                 .code(200)

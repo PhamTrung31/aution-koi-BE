@@ -32,7 +32,7 @@ public class ManagerServiceImpl implements ManagerService {
 
     PasswordEncoder passwordEncoder;
 
-//    @Override
+    //    @Override
 //    public HashMap<Integer, User> getAllStaff() {
 //
 //        HashMap<Integer, User> staff = new HashMap<>();
@@ -43,16 +43,16 @@ public class ManagerServiceImpl implements ManagerService {
 //        }
 //        return staff;
 //    }
-public List<User> getAllStaff() {
-    List<User> staffList = new ArrayList<>();
-    List<User> users = userRepository.findAll();
-    for (User user : users) {
-        if (user.getRole() == Role.STAFF) {
-            staffList.add(user);
+    public List<User> getAllStaff() {
+        List<User> staffList = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getRole() == Role.STAFF) {
+                staffList.add(user);
+            }
         }
+        return staffList;
     }
-    return staffList;
-}
 
     @Override
     public UserResponse getStaff(int id) {
@@ -77,10 +77,13 @@ public List<User> getAllStaff() {
 
         User user = userMapper.toUser(request);
 
+
         user.setIsActive(true);
 
         // Set the role for the user
         user.setRole(Role.STAFF);
+
+        userRepository.save(user);
 
         // Save and return the new user
         return userMapper.toUser(user);
@@ -88,16 +91,18 @@ public List<User> getAllStaff() {
 
 
     @Override
-    public UserResponse updateStaff(UserUpdateRequest user) {
-        User user1 = userRepository.findById(user.getUserId())
+    public UserResponse updateStaff(int id, UserUpdateRequest user) {
+        User user1 = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
         if (user != null && user1.getRole() == Role.STAFF) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userMapper.updateStaff(user1, user);
-
+            if (user.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            } else {
+                user.setPassword(user1.getPassword());
+            }
+            userMapper.updateUser(user1, user);
             userRepository.save(user1);
-            UserResponse userResponse = new UserResponse();
-            return userResponse;
+            return userMapper.toUserResponse(user1);
         }
         throw new AppException(ErrorCode.STAFF_NOT_FOUND);
     }
@@ -116,14 +121,14 @@ public List<User> getAllStaff() {
     }
 
     @Override
-    public void banUser(int userId){
+    public void banUser(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsActive(false);
         userRepository.save(user);
     }
 
     @Override
-    public void unBanUser(int userId){
+    public void unBanUser(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsActive(true);
         userRepository.save(user);
