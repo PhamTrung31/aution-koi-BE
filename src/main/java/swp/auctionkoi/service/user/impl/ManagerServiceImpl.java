@@ -3,11 +3,9 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
@@ -20,9 +18,7 @@ import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.ManagerService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -77,27 +73,28 @@ public List<User> getAllStaff() {
             throw new AppException(ErrorCode.STAFF_EXISTED);
         }
 
-//        User user = new User();
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User user = userMapper.toUser(request);
 
-//         Encode the password
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setIsActive(true);
 
         // Set the role for the user
         user.setRole(Role.STAFF);
 
         // Save and return the new user
-        return userRepository.save(user);
+        return userMapper.toUser(user);
     }
 
 
     @Override
-    public UserResponse updateStaff(int id, UserUpdateRequest user) {
-        User user1 = userRepository.findById(id)
+    public UserResponse updateStaff(UserUpdateRequest user) {
+        User user1 = userRepository.findById(user.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
         if (user != null && user1.getRole() == Role.STAFF) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userMapper.updateStaff(user1, user);
+
             userRepository.save(user1);
             UserResponse userResponse = new UserResponse();
             return userResponse;
@@ -117,5 +114,20 @@ public List<User> getAllStaff() {
         return true;
 
     }
+
+    @Override
+    public void banUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unBanUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
+
 
 }
