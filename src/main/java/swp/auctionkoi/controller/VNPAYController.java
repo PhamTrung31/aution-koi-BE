@@ -2,7 +2,9 @@ package swp.auctionkoi.controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -75,54 +77,65 @@ public class VNPAYController {
     }
 
 
-
-
-
-
-
-
     // Sau khi hoàn tất thanh toán, VNPAY sẽ chuyển hướng trình duyệt về URL này
-@GetMapping("/vnpay-payment-return")
-public String paymentCompleted(HttpServletRequest request, Model model) {
-    int paymentStatus = vnPayService.orderReturn(request);
-    System.out.println("Payment Status: " + paymentStatus);
+    @GetMapping("/vnpay-payment-return")
+    public ResponseEntity<String> paymentCompleted(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // Gọi phương thức xử lý thanh toán từ service
+            vnPayService.orderReturn(request, response);
 
-    String memberId = request.getParameter("vnp_OrderInfo");
-    String paymentTime = request.getParameter("vnp_PayDate");
-    String transactionId = request.getParameter("vnp_TransactionNo");
-    String totalPrice = request.getParameter("vnp_Amount");
-    System.out.println("Member ID: " + memberId);
-    System.out.println("Payment Time: " + paymentTime);
-    System.out.println("Transaction ID: " + transactionId);
-    System.out.println("Total Price: " + totalPrice);
+            // Các thông tin giao dịch từ request
+            String memberId = request.getParameter("vnp_OrderInfo");
+            String paymentTime = request.getParameter("vnp_PayDate");
+            String transactionId = request.getParameter("vnp_TransactionNo");
+            String totalPrice = request.getParameter("vnp_Amount");
 
-    Double amount = Double.valueOf(totalPrice) / 100;  // Chia giá trị cho 100
+            // Kiểm tra các giá trị cần thiết
+            if (memberId == null || paymentTime == null || transactionId == null || totalPrice == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing required parameters");
+            }
 
-    if (paymentStatus == 1) {
-        Wallet wallet = walletRepository.findByUserId(Integer.valueOf(memberId))
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
-        if (wallet != null) {
-            wallet.setBalance(wallet.getBalance() + amount);
-            walletRepository.save(wallet);
+            System.out.println("Member ID: " + memberId);
+            System.out.println("Payment Time: " + paymentTime);
+            System.out.println("Transaction ID: " + transactionId);
+            System.out.println("Total Price: " + totalPrice);
 
-            Transaction transaction = new Transaction();
-            transaction.setMember(wallet.getMember());
-            transaction.setWalletId(wallet.getId());
-            transaction.setTransactionType(TransactionType.TOP_UP);
-            transaction.setTransactionFee(0.0);
-            transaction.setPaymentId(Integer.valueOf(transactionId));
+            // Chuyển đổi số tiền từ chuỗi thành số và chia cho 100
+            Double amount = Double.valueOf(totalPrice) / 100;
 
-            transactionRepository.save(transaction);
+            // Tìm kiếm ví của thành viên
+            Wallet wallet = walletRepository.findByUserId(Integer.valueOf(memberId))
+                    .orElseThrow(() -> new RuntimeException("Wallet not found"));
+
+            // Kiểm tra trạng thái thanh toán
+            if ("00".equals(request.getParameter("vnp_TransactionStatus"))) { // Giao dịch thành công
+                // Cập nhật số dư trong ví
+                wallet.setBalance(wallet.getBalance() + amount);
+                walletRepository.save(wallet);
+
+                // Tạo giao dịch mới
+                Transaction transaction = new Transaction();
+                transaction.setMember(wallet.getMember());
+                transaction.setWalletId(wallet.getId());
+                transaction.setTransactionType(TransactionType.TOP_UP);
+                transaction.setTransactionFee(0.0); // Không có phí giao dịch
+                transaction.setPaymentId(Integer.valueOf(transactionId));
+
+                transactionRepository.save(transaction);
+
+                // Trả về thông báo thành công
+                return ResponseEntity.ok("Payment successful");
+
+            } else { // Giao dịch thất bại
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment failed");
+            }
+
+        } catch (Exception e) {
+            // Xử lý lỗi chung
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
-
-        model.addAttribute("orderId", memberId);
-        model.addAttribute("totalPrice", totalPrice);
-        model.addAttribute("paymentTime", paymentTime);
-        model.addAttribute("transactionId", transactionId);
-
-        return "orderSuccess";
-    } else {
-        return "orderFail";
     }
+
 }
-}
+

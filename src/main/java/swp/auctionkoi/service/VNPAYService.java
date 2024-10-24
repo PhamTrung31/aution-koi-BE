@@ -2,12 +2,14 @@ package swp.auctionkoi.service;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.configuration.VNPAYConfig;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -46,7 +48,7 @@ public class VNPAYService {
         String locate = "vn";
         vnp_Params.put("vnp_Locale", locate);
 
-        // Gắn URL return với vnp_ReturnUrl
+//         Gắn URL return với vnp_ReturnUrl
         urlReturn += VNPAYConfig.vnp_Returnurl;
         vnp_Params.put("vnp_ReturnUrl", urlReturn);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
@@ -108,13 +110,13 @@ public class VNPAYService {
         return paymentUrl;
     }
 
-    public int orderReturn(HttpServletRequest request){
-        Map fields = new HashMap();
-        for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
+    public void  orderReturn(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> fields = new HashMap<>();
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = null;
             String fieldValue = null;
             try {
-                fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
+                fieldName = URLEncoder.encode(params.nextElement(), StandardCharsets.US_ASCII.toString());
                 fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -132,15 +134,24 @@ public class VNPAYService {
             fields.remove("vnp_SecureHash");
         }
         String signValue = VNPAYConfig.hashAllFields(fields);
-        if (signValue.equals(vnp_SecureHash)) {
-            if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                return 1;
+
+        try {
+            if (signValue.equals(vnp_SecureHash)) {
+                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                    // Giao dịch thành công, cập nhật DB, sau đó chuyển hướng
+                    response.sendRedirect("https://fap.fpt.edu.vn/");
+                } else {
+                    // Giao dịch thất bại
+                    response.sendRedirect("https://fap.fpt.edu.vn/error");
+                }
             } else {
-                return 0;
+                // Xử lý trường hợp chữ ký không hợp lệ
+                response.sendRedirect("https://fap.fpt.edu.vn/invalid-signature");
             }
-        } else {
-            return -1;
+
+        } catch (IOException e) {
+            e.printStackTrace();  // Xử lý ngoại lệ thích hợp
         }
     }
-
 }
+

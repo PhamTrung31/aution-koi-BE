@@ -30,7 +30,7 @@ public class Transaction {
     Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     swp.auctionkoi.models.User member;
 
     @Column(name = "payment_id")
