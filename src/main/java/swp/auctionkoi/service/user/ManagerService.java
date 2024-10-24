@@ -13,6 +13,11 @@ public interface ManagerService {
     public List<User> getAllStaff();
     public UserResponse getStaff(int id);
     public User addStaff(UserCreateRequest request);
+
+
     public UserResponse updateStaff(int id, UserUpdateRequest user);
+
     public boolean deleteStaff(int id);
+    public void banUser(int userId);
+    public void unBanUser(int userId);
 }

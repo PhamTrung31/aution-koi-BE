@@ -35,13 +35,13 @@ public class ManagerController {
         log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
-        // Get all staff and filter out those who are not active
-        List<User> activeStaff = managerService.getAllStaff().stream()
-                .filter(User::getIsActive)  // Chỉ bao gồm staff active
-                .collect(Collectors.toList());
+//        // Get all staff and filter out those who are not active
+//        List<User> activeStaff = managerService.getAllStaff().stream()
+//                .filter(User::getIsActive)  // Chỉ bao gồm staff active
+//                .collect(Collectors.toList());
 
         return ApiResponse.<List<User>>builder()
-                .result(activeStaff)
+                .result(managerService.getAllStaff())
                 .code(200)
                 .message("Successfully")
                 .build();
@@ -51,18 +51,10 @@ public class ManagerController {
     public ApiResponse<UserResponse> getStaff(@PathVariable Integer id) {
         UserResponse userResponse = managerService.getStaff(id);
 
-        if (userResponse != null) {
-            return ApiResponse.<UserResponse>builder()
-                    .result(userResponse)
-                    .code(200)
-                    .message("Successfully")
-                    .build();
-        }
-
         return ApiResponse.<UserResponse>builder()
-                .result(null)
-                .code(404)
-                .message("Staff not found")
+                .result(userResponse)
+                .code(200)
+                .message("Successfully")
                 .build();
     }
 
@@ -71,53 +63,61 @@ public class ManagerController {
     public ApiResponse<User> addStaff(@RequestBody UserCreateRequest request) {
 
         User user = managerService.addStaff(request);
-        if (user != null) {
-            return ApiResponse.<User>builder()
-                    .result(user)
-                    .code(200)
-                    .message("Successfully")
-                    .build();
-        }
 
         return ApiResponse.<User>builder()
-                .result(null)
-                .code(404)
-                .message("Staff not found")
+                .result(user)
+                .code(200)
+                .message("Successfully")
                 .build();
+
     }
 
-    @PutMapping("/{id}/status")
-    public ApiResponse<UserUpdateRequest> updateStaff(@PathVariable int id,
-                                                          @RequestBody UserUpdateRequest request) {
+    @PutMapping("/{id}")
+    public ApiResponse<UserResponse> updateStaff( @PathVariable Integer id,
+            @RequestBody UserUpdateRequest request) {
         UserResponse user = managerService.updateStaff(id, request);
-        if (user != null) {
-            return ApiResponse.<UserUpdateRequest>builder()
-                    .result(request)
-                    .code(200)
-                    .message("Successfully")
-                    .build();
-        }
-
-        return ApiResponse.<UserUpdateRequest>builder()
-                .result(null)
-                .code(404)
-                .message("Staff not found")
+        return ApiResponse.<UserResponse>builder()
+                .result(user)
+                .code(200)
+                .message("Successfully")
                 .build();
+
+
     }
 
     @DeleteMapping("/{id}/delete")
-    public ApiResponse<Object> deleteStaff(@PathVariable int id) {
+    public ApiResponse<String> deleteStaff(@PathVariable int id) {
         boolean del = managerService.deleteStaff(id);
         if (del) {
-            return ApiResponse.<Object>builder()
+            return ApiResponse.<String>builder()
                     .code(200)
-                    .message("Successfully")
+                    .message("Deleted successfully!")
                     .build();
         } else {
-            return ApiResponse.<Object>builder()
+            return ApiResponse.<String>builder()
                     .code(404)
-                    .message("Staff not found")
+                    .message("Delete failed!")
                     .build();
         }
+    }
+
+    @PostMapping("/ban/{userId}")
+    public ApiResponse<String> banUser(@PathVariable int userId) {
+        managerService.banUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Ban staff successfully!")
+                .build();
+    }
+
+    @PostMapping("/unban/{userId}")
+    public ApiResponse<String> unbanUser(@PathVariable int userId) {
+        managerService.unBanUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Unban staff successfully!")
+                .build();
     }
 }
