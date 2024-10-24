@@ -16,6 +16,7 @@ import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -28,13 +29,13 @@ public class StaffController {
     private StaffService staffService;
 
     @GetMapping("/all")
-    public ApiResponse<HashMap<Integer, UserResponse>> getAllUser() {
+    public ApiResponse<List<UserResponse>> getAllUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
-        return ApiResponse.<HashMap<Integer, UserResponse>>builder()
+        return ApiResponse.<List<UserResponse>>builder()
                 .result(staffService.getAllUser())
                 .build();
     }

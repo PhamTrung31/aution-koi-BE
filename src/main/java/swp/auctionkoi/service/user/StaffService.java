@@ -8,10 +8,11 @@ import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.service.auction.AuctionService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 public interface StaffService {
-    public HashMap<Integer, UserResponse> getAllUser();
+    public List<UserResponse> getAllUser();
     public UserResponse getUserById(int id);
     public UserResponse addUser(StaffCreateUserRequest request);
     public UserResponse updateUser(StaffUpdateUserRequest user);

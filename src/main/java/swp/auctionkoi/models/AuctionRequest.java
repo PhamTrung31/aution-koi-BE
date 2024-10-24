@@ -25,7 +25,7 @@ public class AuctionRequest {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "breeder_id")
+    @JoinColumn(name = "user_id")
     swp.auctionkoi.models.User breeder;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
             "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
+            "/staffs/all","/staffs/create","/staffs/update/{userId}","/staffs/{userId}",
 
     };
 
@@ -61,6 +62,7 @@ public class SecurityConfig {
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")

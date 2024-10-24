@@ -22,6 +22,7 @@ import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.StaffService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -41,11 +42,12 @@ public class StaffServiceImpl implements StaffService {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public HashMap<Integer, UserResponse> getAllUser() {
-        HashMap<Integer, UserResponse> users = new HashMap<>();
+    public List<UserResponse>  getAllUser() {
+        List<UserResponse>  users = new ArrayList<>();
         List<User> userList = userRepository.findAll();
         for (User user : userList) {
-            users.put(user.getId(), userMapper.toUserResponse(user));
+            if(user.getRole() == Role.BREEDER || user.getRole() == Role.MEMBER)
+            users.add(userMapper.toUserResponse(user));
         }
         return users;
     }
@@ -75,6 +77,7 @@ public class StaffServiceImpl implements StaffService {
             user.setRole(Role.MEMBER);
         }
 
+        user.setIsActive(true);
         userRepository.save(user);
 
         return userMapper.toUserResponse(user);
@@ -90,6 +93,8 @@ public class StaffServiceImpl implements StaffService {
         } else {
             user.setRole(Role.MEMBER);
         }
+
+        userRepository.save(user);
         return userMapper.toUserResponse(user);
     }
 
