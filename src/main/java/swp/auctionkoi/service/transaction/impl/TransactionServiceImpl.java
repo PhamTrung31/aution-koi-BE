@@ -1,6 +1,7 @@
 package swp.auctionkoi.service.transaction.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.models.Transaction;
 import swp.auctionkoi.models.Wallet;
@@ -11,6 +12,7 @@ import swp.auctionkoi.repository.WalletRepository;
 import swp.auctionkoi.service.transaction.TransactionService;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -44,4 +46,13 @@ public class TransactionServiceImpl implements TransactionService {
             throw new RuntimeException("Không tìm thấy ví của người dùng này.");
         }
     }
+
+    // Hàm chung để sắp xếp theo bất kỳ cột nào
+    public List<Transaction> getSortedTransactions(String sortBy, String order) {
+        Sort sort = order.equalsIgnoreCase("asc")
+                ? Sort.by(Sort.Order.asc(sortBy))
+                : Sort.by(Sort.Order.desc(sortBy));
+        return transactionRepository.findAll(sort);
+    }
+
 }

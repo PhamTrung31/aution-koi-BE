@@ -1,5 +1,6 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,10 +28,12 @@ public class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")
+    @JsonIgnore // Thêm vào để bỏ qua thuộc tính này khi trả về JSON
     Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore // Thêm vào để bỏ qua thuộc tính này khi trả về JSON
     swp.auctionkoi.models.User member;
 
     @Column(name = "payment_id")
@@ -44,7 +47,7 @@ public class Transaction {
 
     @Column(name = "transaction_fee")
     Float transactionFee;
-    
+
     @Column(name = "transaction_date")
     Instant transactionDate;
 
@@ -52,4 +55,13 @@ public class Transaction {
     @Enumerated(EnumType.ORDINAL)
     TransactionType transactionType;
 
+
+    // Getter riêng cho auctionId và memberId để hiển thị chúng trong JSON
+    public Integer getAuctionId() {
+        return auction != null ? auction.getId() : null;
+    }
+
+    public Integer getMemberId() {
+        return member != null ? member.getId() : null;
+    }
 }
