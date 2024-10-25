@@ -122,8 +122,9 @@ public class StaffServiceImpl implements StaffService {
         transaction.setMember(wallet.get().getMember());
         transaction.setWalletId(wallet.get().getId());
         transaction.setPaymentId(payment.get().getId());
-        transaction.setTransactionFee(payment.get().getAmount());
-        transaction.setTransactionType(TransactionType.WITHDRAW); // Ghi nhận là đã duyệt rút tiền
+        transaction.setAmount(payment.get().getAmount());
+        transaction.setTransactionFee(0.0F);
+        transaction.setTransactionType(TransactionType.APPROVED_WITHDRAW); // Ghi nhận là đã duyệt rút tiền
         transactionRepository.save(transaction);
 
         return "Withdraw request approved and processed.";

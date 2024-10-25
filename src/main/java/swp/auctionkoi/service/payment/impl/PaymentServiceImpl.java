@@ -66,8 +66,9 @@ public class PaymentServiceImpl implements PaymentService {
         transaction.setMember(wallet.get().getMember());
         transaction.setWalletId(wallet.get().getId());
         transaction.setPaymentId(payment.getId());
-        transaction.setTransactionFee((float) amount);
-        transaction.setTransactionType(TransactionType.WITHDRAW);
+        transaction.setTransactionFee(0.0F);
+        transaction.setAmount((float) amount);
+        transaction.setTransactionType(TransactionType.REQUEST_WITHDRAW);
         transactionRepository.save(transaction);
 
 

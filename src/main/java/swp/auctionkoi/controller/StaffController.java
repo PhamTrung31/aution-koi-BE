@@ -75,8 +75,8 @@ public class StaffController {
         }
     }
 
-    @PostMapping("/withdraw/approve")
-    public ApiResponse<String> approveWithdrawRequest(@RequestParam int paymentId) throws Exception {
+    @PostMapping("/withdraw/approve/{paymentId}")
+    public ApiResponse<String> approveWithdrawRequest(@PathVariable int paymentId) throws Exception {
             String response = staffService.approveWithdrawRequest(paymentId);
             return ApiResponse.<String>builder()
                     .result(response)
