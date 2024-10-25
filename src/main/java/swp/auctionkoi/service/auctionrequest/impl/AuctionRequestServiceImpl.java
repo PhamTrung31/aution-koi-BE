@@ -23,6 +23,7 @@ import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,14 +124,14 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
     @Override
     public HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequestsForBreeder(Integer userId) {
-        HashMap<Integer, AuctionRequestResponseData> auctionRequests = new HashMap<>();
+        HashMap<Integer, AuctionRequestResponseData> result = new HashMap<>();
         List<AuctionRequest> auctionRequestList = auctionRequestRepository.findListAuctionRequestByUserId(userId);
-        for (AuctionRequest auctionRequest : auctionRequestList) {
-            auctionRequests.put(auctionRequest.getId(), auctionRequestMapper.toAuctionRequestResponseData(auctionRequest));
-            log.info(auctionRequest.getBuyOut().toString());
+
+        for(AuctionRequest auctionRequest : auctionRequestList) {
+            result.put(auctionRequest.getId(), auctionRequestMapper.toAuctionRequestResponseData(auctionRequest));
         }
 
-        return auctionRequests;
+        return result;
     }
 
     public AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID) {

@@ -1,12 +1,13 @@
 package swp.auctionkoi.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import swp.auctionkoi.dto.respone.ApiResponse;
-
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -43,5 +44,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<String> handlingValidation(MethodArgumentNotValidException exception){
         return ResponseEntity.badRequest().body(exception.getFieldError().getDefaultMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
+        log.error("An error occurred: {}", ex.getMessage(), ex);
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
 }

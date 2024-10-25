@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.exception.AppException;
@@ -12,13 +13,18 @@ import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.AuctionParticipants;
 import swp.auctionkoi.models.AuctionRequest;
+import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionStatus;
+import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.repository.AuctionParticipantsRepository;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.AuctionRequestRepository;
+import swp.auctionkoi.repository.BidRepository;
 import swp.auctionkoi.service.auction.AuctionService;
+//import swp.auctionkoi.service.bid.BidService;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +40,7 @@ public class AuctionScheduler {
     AuctionRequestRepository auctionRequestRepository;
     AuctionParticipantsRepository auctionParticipantsRepository;
     AuctionService auctionService;
+//    BidService bidService;
 
     @Scheduled(fixedRate = 60000)
     @Transactional
@@ -42,68 +49,86 @@ public class AuctionScheduler {
         processAuctions();
     }
 
+//    @Scheduled(fixedRate = 60000)
+//    @Transactional
+//    public void getTop5Traditional(){
+//        bidService.updateTop5TraditionalBids();
+//    }
+
+    //OffsetDateTime currentTimeInOffset = currentTime.atOffset(ZoneOffset.ofHours(7));
+
     private void processAuctions() {
-        //get current time
-        Instant currentTime = Instant.now();
 
         List<AuctionRequest> approvedRequestsSortedByStartTime  = getSortedAuctionRequestsWithAuctionsByStartTime();
 
         for (AuctionRequest request : approvedRequestsSortedByStartTime) {
-            log.info("Checking AuctionRequest ID: {}, StartTime: {}, Status: {}",
-                    request.getId(),
-                    request.getStartTime(),
-                    request.getAuction() != null ? request.getAuction().getStatus() : "No Auction");
-            //get list bidder in this auction
-            List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
-            log.info("Number of participants for Auction ID {}: {}",
-                    request.getAuction().getId(),
-                    auctionParticipants.size());
+            if(request.getAuction().getStatus().equals(AuctionStatus.PENDING) || request.getAuction().getStatus().equals(AuctionStatus.UNSOLD)){
+                //get current time
+                Instant currentTime = Instant.now();
+                // Add 7 hours to Instant
+                Instant updatedInstant = currentTime.plus(Duration.ofHours(7));
+                log.info("Checking AuctionRequest ID: {}, StartTime: {}, Status: {}",
+                        request.getId(),
+                        request.getStartTime(),
+                        request.getAuction() != null ? request.getAuction().getStatus() : "No Auction");
+                //get list bidder in this auction
+                List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
+                log.info("Number of participants for Auction ID {}: {}",
+                        request.getAuction().getId(),
+                        auctionParticipants.size());
 
-            log.info("Auction ID {}: is before now {} , ", request.getAuction().getId(), request.getStartTime().isBefore(currentTime));
-            if (request.getStartTime().isAfter(currentTime) || request.getStartTime().equals(currentTime)) {
-                // Ensure the auction request status is APPROVED
-                if (request.getRequestStatus().equals(AuctionRequestStatus.APPROVE) && request.getAuction().getStatus().equals(AuctionStatus.PENDING)) {
-                    // Mark the auction as started
-                    auctionService.startAuction(request.getAuction().getId());
-                    log.info("Auction ID: {} started", request.getAuction().getId());
+                log.info("Auction ID {}: is before now {} , ", request.getAuction().getId(), request.getStartTime().isBefore(updatedInstant));
+                if (request.getStartTime().isBefore(updatedInstant) || request.getStartTime().equals(updatedInstant)) {
+                    // Ensure the auction request status is APPROVED
+                    if (request.getRequestStatus().equals(AuctionRequestStatus.APPROVE) && request.getAuction().getStatus().equals(AuctionStatus.PENDING)) {
+                        // Mark the auction as started
+                        auctionService.startAuction(request.getAuction().getId());
+                        log.info("Auction ID: {} started", request.getAuction().getId());
+                    } else {
+                        log.info("Auction ID: {} cannot start yet. Status: {}", request.getAuction().getId(), request.getAuction().getStatus());
+                    }
                 } else {
-                    log.info("Auction ID: {} cannot start yet. Status: {}", request.getAuction().getId(), request.getAuction().getStatus());
+                    log.info("Auction ID: {} cannot start yet. CurrentTime: {}, StartTime: {}",
+                            request.getAuction().getId(), updatedInstant, request.getStartTime());
                 }
-            } else {
-                log.info("Auction ID: {} cannot start yet. CurrentTime: {}, StartTime: {}",
-                        request.getAuction().getId(), currentTime, request.getStartTime());
             }
         }
 
         List<AuctionRequest> approvedRequestsSortedByEndTime = getSortedAuctionRequestsWithAuctionsByEndTime();
 
-        endTimeButWasNotStart(approvedRequestsSortedByEndTime, currentTime);
+        endTimeButWasNotStart(approvedRequestsSortedByEndTime);
 
         for (AuctionRequest request : approvedRequestsSortedByEndTime) {
-            log.info("Checking AuctionRequest ID: {}, EndTime: {}, Status: {}",
-                    request.getId(),
-                    request.getEndTime(),
-                    request.getAuction() != null ? request.getAuction().getStatus() : "No Auction");
+            if(request.getAuction().getStatus().equals(AuctionStatus.IN_PROGRESS) || request.getAuction().getStatus().equals(AuctionStatus.BUYOUT_TRIGGERED)){
+                //get current time
+                Instant currentTime = Instant.now();
+                // Add 7 hours to Instant
+                Instant updatedInstant = currentTime.plus(Duration.ofHours(7));
+                log.info("Checking AuctionRequest ID: {}, EndTime: {}, Status: {}",
+                        request.getId(),
+                        request.getEndTime(),
+                        request.getAuction() != null ? request.getAuction().getStatus() : "No Auction");
 
-            if (request.getEndTime().isAfter(currentTime)
-                    && request.getAuction() != null
-                    && request.getAuction().getStatus().equals(AuctionStatus.IN_PROGRESS)) {
+                if (request.getEndTime().isBefore(updatedInstant)) {
 
-                log.info("Ending Auction ID: {}, Winner: {}, Highest Price: {}",
-                        request.getAuction().getId(),
-                        request.getAuction().getWinner(),
-                        request.getAuction().getHighestPrice());
+                    log.info("Ending Auction ID: {}, Winner: {}, Highest Price: {}",
+                            request.getAuction().getId(),
+                            request.getAuction().getWinner(),
+                            request.getAuction().getHighestPrice());
 
-                auctionService.endAuction(request.getAuction().getId());
+                    auctionService.endAuction(request.getAuction().getId());
 
-                log.info("Auction ID: {} ended", request.getAuction().getId());
-            } else {
-                // Log why the auction didn't end
-                log.info("Auction ID: {} not ended - either not in progress, no winner, or not past end time",
-                        request.getAuction().getId());
+                    log.info("Auction ID: {} ended", request.getAuction().getId());
+                } else {
+                    // Log why the auction didn't end
+                    log.info("Auction ID: {} not ended - either not in progress, no winner, or not past end time",
+                            request.getAuction().getId());
+                }
             }
         }
     }
+
+
 
     private List<AuctionRequest> getSortedAuctionRequestsWithAuctionsByStartTime() {
         List<AuctionRequest> auctionRequests = auctionRequestRepository.findByAuctionIsNotNull();
@@ -122,8 +147,12 @@ public class AuctionScheduler {
     }
 
 
-    private void endTimeButWasNotStart(List<AuctionRequest> approvedRequestsSortedByEndTime, Instant currentTime){
+    private void endTimeButWasNotStart(List<AuctionRequest> approvedRequestsSortedByEndTime){
         for (AuctionRequest request : approvedRequestsSortedByEndTime) {
+            //get current time
+            Instant currentTime = Instant.now();
+            // Add 7 hours to Instant
+            Instant updatedInstant = currentTime.plus(Duration.ofHours(7));
             List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
             log.info("Checking AuctionRequest ID: {}, EndTime: {}, Status: {}, Number of Participants: {}",
                     request.getId(),
@@ -131,9 +160,9 @@ public class AuctionScheduler {
                     request.getRequestStatus(),
                     auctionParticipants.size());
 
-            if (request.getRequestStatus().equals(AuctionRequestStatus.APPROVE) && request.getEndTime().isBefore(currentTime)
+            if (request.getRequestStatus().equals(AuctionRequestStatus.APPROVE) && request.getEndTime().isBefore(updatedInstant)
                     && request.getAuction() != null && request.getAuction().getStatus().equals(AuctionStatus.PENDING)
-                    && auctionParticipants.size() < 2){ //real run will be 7
+                    && auctionParticipants.size() > 2){ //real run will be 7
 
 
                 request.getAuction().setStatus(AuctionStatus.UNSOLD);

@@ -1,6 +1,8 @@
 package swp.auctionkoi.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.User;
@@ -10,8 +12,8 @@ import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Integer> {
 
-    List<Bid> findByAuctionIdAndUserId(int auctionId, Integer id);
     Bid findTopByAuctionIdAndUserIdOrderByBidAmountDesc(int auctionId, Integer id);
     boolean existsByAuctionAndUser(Auction auction, User user);
-    Bid findByAuctionAndUser(Auction auction, User user);
+    @Query(value = "SELECT * FROM Bids WHERE auction_id = :auctionId ORDER BY bid_amount DESC LIMIT 5", nativeQuery = true)
+    List<Bid> findTop5HighestBidsByAuctionId(@Param("auctionId") Integer auctionId);
 }

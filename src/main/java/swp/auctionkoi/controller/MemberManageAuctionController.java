@@ -33,7 +33,7 @@ public class MemberManageAuctionController {
     AnonymousAuctionService anonymousAuctionService;
     private final AuctionServiceImpl auctionServiceImpl;
 
-    @PostMapping("/join/{userId}/{auctionId}")
+    @PostMapping("/join/{auctionId}/{userId}")
     public ApiResponse<String> joinAuction(@PathVariable int userId, @PathVariable int auctionId) {
         auctionServiceImpl.joinAuction(userId, auctionId);
         return ApiResponse.<String>builder()

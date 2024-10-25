@@ -13,6 +13,7 @@ import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,6 +37,14 @@ public class BreederManageAutionController {
     @GetMapping("/view-all-requests/{breederId}")
     public ApiResponse<HashMap<Integer, AuctionRequestResponseData>> viewAllAuctionRequestsForBreeder(@PathVariable Integer breederId) {
         HashMap<Integer, AuctionRequestResponseData> auctionRequestResponseDataHashMap = auctionRequestService.viewAllAuctionRequestsForBreeder(breederId);
+        log.info("Check size auctionRequestResponseDataHashMap: {}", auctionRequestResponseDataHashMap.size());
+        if (auctionRequestResponseDataHashMap.isEmpty()) {
+            log.warn("No auction requests found for breederId: {}", breederId);
+            return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
+                    .code(204)  // No Content
+                    .message("No auction requests found")
+                    .build();
+        }
         return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
                 .code(200)
                 .message("")

@@ -30,7 +30,6 @@ public class AuctionParticipants {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ColumnDefault("getdate()")
-    @Column(name = "join_date")
+    @Column(name = "join_date", insertable = false, updatable = false)
     private Instant joinDate;
 }

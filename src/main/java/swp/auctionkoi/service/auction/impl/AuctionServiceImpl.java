@@ -160,12 +160,11 @@ public class AuctionServiceImpl implements AuctionService {
         // Lấy danh sách những người tham gia phiên đấu giá
         List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionId);
         //bidder in auction must bigger than 1 (real run will be 7). Check the start time is after now or not
-        if (participants.size() > 1 && auctionRequest.getStartTime().isAfter(Instant.now())) {
-            auction.setStatus(AuctionStatus.IN_PROGRESS);
-            auction.setWinner(null);
-            auction.setHighestPrice(0.0F);
-            auctionRepository.save(auction);
-        }
+
+        auction.setStatus(AuctionStatus.IN_PROGRESS);
+        auction.setWinner(null);
+        auction.setHighestPrice(0.0F);
+        auctionRepository.save(auction);
     }
 
     private List<AuctionRequest> getSortedAuctionRequestsWithAuctionsByStartTime() {
@@ -182,6 +181,9 @@ public class AuctionServiceImpl implements AuctionService {
         // Lấy thông tin auction
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
+        auction.setStatus(AuctionStatus.COMPLETED); //staff will update after finish delivery
+        auctionRepository.save(auction);
+
         //get list participant in this auction
         List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auction.getId());
 
@@ -190,11 +192,9 @@ public class AuctionServiceImpl implements AuctionService {
         User admin = userRepository.findByUsername("admin")
                 .orElseThrow(() -> new AppException(ErrorCode.ADMIN_NOT_FOUND));
 
-        backDepositAmount(auction, participants,admin);
-        backMoneyBid(auction, participants,admin);
+        backDepositAmount(auction, participants, admin);
+        backMoneyBid(auction, participants, admin);
         createDeliveryKoiForWinner(auction);
-        auction.setStatus(AuctionStatus.COMPLETED); //staff will update after finish delivery
-        auctionRepository.save(auction);
     }
 
     private void backDepositAmount(Auction auction, List<AuctionParticipants> participants, User admin) {
@@ -226,41 +226,43 @@ public class AuctionServiceImpl implements AuctionService {
                     .walletId(userWallet.getId())
                     .transactionFee(0)
                     .amount(refundAmount)
-			        .build();
+                    .build();
             transactionRepository.save(transaction);
         }
     }
 
-    private void backMoneyBid(Auction auction, List<AuctionParticipants> participants,  User admin) {
-        for(AuctionParticipants participant : participants) {
+    private void backMoneyBid(Auction auction, List<AuctionParticipants> participants, User admin) {
+        for (AuctionParticipants participant : participants) {
             Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), participant.getId());
-            Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
-            Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
-            if (highestUserBid != null) {
-                //transaction backmoney when user have bid
-                Transaction transaction = Transaction.builder()
-                        .user(participant.getUser())
-                        .auction(auction)
-                        .transactionType(TransactionType.TRANSFER)
-                        .walletId(userWallet.getId())
-                        .transactionFee(0)
-                        .amount(highestUserBid.getBidAmount())
-                        .build();
-                transactionRepository.save(transaction);
+            if(highestUserBid != null){
+                Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+                Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+                if (highestUserBid != null) {
+                    //transaction backmoney when user have bid
+                    Transaction transaction = Transaction.builder()
+                            .user(participant.getUser())
+                            .auction(auction)
+                            .transactionType(TransactionType.TRANSFER)
+                            .walletId(userWallet.getId())
+                            .transactionFee(0)
+                            .amount(highestUserBid.getBidAmount())
+                            .build();
+                    transactionRepository.save(transaction);
 
-                //back money
-                userWallet.setBalance(userWallet.getBalance() + highestUserBid.getBidAmount());
-                walletRepository.save(userWallet);
-                //minus money from system wallet
-                adminWallet.setBalance(adminWallet.getBalance() - highestUserBid.getBidAmount());
-                walletRepository.save(adminWallet);
+                    //back money
+                    userWallet.setBalance(userWallet.getBalance() + highestUserBid.getBidAmount());
+                    walletRepository.save(userWallet);
+                    //minus money from system wallet
+                    adminWallet.setBalance(adminWallet.getBalance() - highestUserBid.getBidAmount());
+                    walletRepository.save(adminWallet);
+                }
             }
         }
     }
 
     private void createDeliveryKoiForWinner(Auction auction) {
         User winner = auction.getWinner();
-        if(winner != null) {
+        if (winner != null) {
             // Example of calling endAuction with manual addresses
             String fromAddress = "123 Admin Street, Admin City";
             String toAddress = "456 Winner Avenue, Winner Town";

@@ -20,9 +20,9 @@ public class AuctionRequestResponseData {
     int id;
     User user;
     KoiFish fish;
-    float buyOut;
-    float startPrice;
-    float incrementPrice;
+    Float buyOut;
+    Float startPrice;
+    Float incrementPrice;
     AuctionType methodType;
     Instant requestCreatedDate;
     Instant requestUpdatedDate;

@@ -13,6 +13,7 @@ import java.util.Optional;
 
 public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, Integer> {
     Optional<AuctionRequest> findByAuctionId(int auctionId);
+//    AuctionRequest findByAuctionIdForLeaderBoard(int auctionId);
     Optional<AuctionRequest> findById(int auctionId);
 
     List<AuctionRequest> findListAuctionRequestByUserId(int userId); //breeder
