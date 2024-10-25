@@ -32,7 +32,7 @@ public class PaymentController {
     @PostMapping("/requestwithdraw")
     public ApiResponse<String> requestWithdrawMoney(@RequestBody WithdrawPaymentRequest request) throws Exception {
         Integer userId = request.getUserId();
-        Double amount = request.getAmount();
+        Float amount = request.getAmount();
 
         // Call withdraw method
         String result = paymentService.requestWithdrawMoney(userId, amount);

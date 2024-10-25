@@ -40,7 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
     private TransactionRepository transactionRepository;
 
     @Override
-    public String requestWithdrawMoney(int userId, double amount) throws Exception {
+    public String requestWithdrawMoney(int userId, float amount) throws Exception {
         // Check ví có tồn tại hay không
         Optional<Wallet> wallet = walletRepository.findByUserId(userId);
         if(wallet == null)
@@ -66,7 +66,7 @@ public class PaymentServiceImpl implements PaymentService {
         transaction.setMember(wallet.get().getMember());
         transaction.setWalletId(wallet.get().getId());
         transaction.setPaymentId(payment.getId());
-        transaction.setTransactionFee(amount);
+        transaction.setTransactionFee((float) amount);
         transaction.setTransactionType(TransactionType.WITHDRAW);
         transactionRepository.save(transaction);
 

@@ -28,7 +28,7 @@ public class Bid {
     swp.auctionkoi.models.User user;
 
     @Column(name = "bid_amount")
-    Double bidAmount;
+    Float bidAmount;
 
     @Column(name = "bid_created_date")
     Instant bidCreatedDate;

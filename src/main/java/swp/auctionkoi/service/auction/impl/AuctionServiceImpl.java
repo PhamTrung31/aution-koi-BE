@@ -119,7 +119,7 @@ public class AuctionServiceImpl implements AuctionService {
                 .member(user)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(wallet.getId())
-                .transactionFee((double) depositAmount)
+                .transactionFee( depositAmount)
                 .build();
         transactionRepository.save(transaction);
 
@@ -127,8 +127,8 @@ public class AuctionServiceImpl implements AuctionService {
                 .auction(auction)
                 .member(admin)
                 .transactionType(TransactionType.TRANSFER)
-                .walletId(wallet.getId())
-                .transactionFee((double) depositAmount)
+                .walletId(adminWallet.getId())
+                .transactionFee( depositAmount)
                 .build();
         transactionRepository.save(transaction1);
 
@@ -190,7 +190,7 @@ public class AuctionServiceImpl implements AuctionService {
                         .member(participantUser)
                         .transactionType(TransactionType.TRANSFER)
                         .walletId(userWallet.getId())
-                        .transactionFee((double) refundAmount)
+                        .transactionFee( refundAmount)
                         .build();
                 transactionRepository.save(transaction);
 
@@ -239,7 +239,7 @@ public class AuctionServiceImpl implements AuctionService {
                 .auction(auction)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(winnerWallet.getId())
-                .transactionFee((double) winnerDepositRefund)
+                .transactionFee( winnerDepositRefund)
                 .build();
         transactionRepository.save(transaction);
 

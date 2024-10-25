@@ -72,7 +72,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 double winningBid = highestBid.getBidAmount();
 
                 // Calculate the breeder's amount (after 10% fee)
-                double amountForBreeder = winningBid * 0.90;
+                float amountForBreeder = (float) (winningBid * 0.90);
                 adminWallet.setBalance(adminWallet.getBalance() - amountForBreeder);
                 breederWallet.setBalance(breederWallet.getBalance() + amountForBreeder);
                 walletRepository.save(adminWallet);

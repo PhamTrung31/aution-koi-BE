@@ -101,7 +101,7 @@ public class VNPAYController {
             System.out.println("Total Price: " + totalPrice);
 
             // Chuyển đổi số tiền từ chuỗi thành số và chia cho 100
-            Double amount = Double.valueOf(totalPrice) / 100;
+            float amount = Float.valueOf(totalPrice) / 100;
 
             // Tìm kiếm ví của thành viên
             Wallet wallet = walletRepository.findByUserId(Integer.valueOf(memberId))
@@ -118,7 +118,8 @@ public class VNPAYController {
                 transaction.setMember(wallet.getMember());
                 transaction.setWalletId(wallet.getId());
                 transaction.setTransactionType(TransactionType.TOP_UP);
-                transaction.setTransactionFee(0.0); // Không có phí giao dịch
+                transaction.setAmount(amount);
+                transaction.setTransactionFee(0.0F); // Không có phí giao dịch
                 transaction.setPaymentId(Integer.valueOf(transactionId));
 
                 transactionRepository.save(transaction);

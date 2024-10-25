@@ -39,8 +39,11 @@ public class Transaction {
     @Column(name = "wallet_id")
     Integer walletId;
 
+    @Column(name = "amount")
+    Float amount;
+
     @Column(name = "transaction_fee")
-    Double transactionFee;
+    Float transactionFee;
     
     @Column(name = "transaction_date")
     Instant transactionDate;

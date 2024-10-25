@@ -36,7 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .member(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại")))
                     .transactionDate(Instant.now())
                     .transactionType(TransactionType.TOP_UP)  // Kiểu giao dịch là nạp tiền
-                    .transactionFee(0.0)  // Miễn phí giao dịch cho nạp tiền
+                    .transactionFee(0.0F)  // Miễn phí giao dịch cho nạp tiền
                     .walletId(wallet.getId())  // Liên kết giao dịch với ví người dùng
                     .build();
             transactionRepository.save(transaction);
