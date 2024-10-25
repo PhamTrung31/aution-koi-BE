@@ -18,9 +18,11 @@ import swp.auctionkoi.mapper.UserMapper;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.Wallet;
 import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.UserRepository;
+import swp.auctionkoi.repository.WalletRepository;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class StaffServiceImpl implements StaffService {
     UserMapper userMapper;
 
     PasswordEncoder passwordEncoder;
+    private final WalletRepository walletRepository;
 
     @Override
     public List<UserResponse> getAllMemberAndBreeder() {
@@ -86,6 +89,13 @@ public class StaffServiceImpl implements StaffService {
         user.setIsActive(true);
 
         userRepository.save(user);
+
+        Wallet wallet = Wallet.builder()
+                .user(user)
+                .balance(100000) //temp, real will be 0
+                .build();
+
+        walletRepository.save(wallet);
 
         return userMapper.toUserResponse(user);
     }
