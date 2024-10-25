@@ -17,7 +17,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@Table(name = "AuctionRequests")
+@Table(name = "auction_requests")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequest {
     @Id
@@ -29,6 +29,18 @@ public class AuctionRequest {
     @JoinColumn(name = "user_id")
     @NotNull
     swp.auctionkoi.models.User user; //breeder
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "approved_staff_id")
+    @Nullable
+    swp.auctionkoi.models.User approvedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
+
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "initiated_by_id")
+//    // Thêm trường này để lưu nhân viên đã khởi tạo yêu cầu
+//    @Nullable
+//    swp.auctionkoi.models.User initiatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fish_id")

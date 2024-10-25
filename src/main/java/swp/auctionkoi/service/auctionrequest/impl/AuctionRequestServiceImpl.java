@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestResponseData;
-import swp.auctionkoi.dto.request.AuctionRequestUpdateDTO;
+import swp.auctionkoi.dto.request.KoiFishDTO;
+import swp.auctionkoi.dto.request.UserDTO;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
+import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.AuctionRequestMapper;
@@ -21,7 +23,6 @@ import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 import swp.auctionkoi.models.enums.KoiStatus;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,65 +161,231 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .build();
     }
 
-    public AuctionRequestResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId) {
+    @Override
+    public AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager) {
 
+//        System.out.println("Received auctionRequestId: " + auctionRequestId);
+//        System.out.println("Received staffId: " + staffId);
+//        System.out.println("isSendToManager: " + isSendToManager);
+
+        // Kiểm tra staff tồn tại
         User staff = userRepository.findById(staffId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        // Xác thực quyền của staff
         if (!staff.getRole().equals(Role.STAFF)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        // Lấy thông tin yêu cầu đấu giá
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
 
+        // Kiểm tra trạng thái yêu cầu và trạng thái cá
+        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT) &&
+                auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
 
-        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT) && auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
+            // Nếu staff gửi yêu cầu lên cho manager để xem xét
+            if (isSendToManager) {
+                auctionRequest.setRequestStatus(AuctionRequestStatus.MANAGER_REVIEW);
+                auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL);
+            } else {
+                // Nếu staff duyệt thẳng yêu cầu
+                auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
+                auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+            }
 
+            // Gán thông tin staff chịu trách nhiệm hoặc khởi tạo
+            auctionRequest.setApprovedStaff(staff);
+
+
+            // Lưu thay đổi vào repository
+            auctionRequestRepository.save(auctionRequest);
+
+            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
+
+
+            return new AuctionRequestUpdateResponse(
+                    auctionRequest.getId(),
+                    userDTO,
+                    auctionRequest.getApprovedStaff().getId(),
+                    auctionRequest.getRequestStatus(),
+                    koiFishDTO,
+                    auctionRequest.getBuyOut(),
+                    auctionRequest.getStartPrice(),
+                    auctionRequest.getMethodType(),
+                    auctionRequest.getRequestCreatedDate(),
+                    auctionRequest.getRequestUpdatedDate(),
+                    auctionRequest.getStartTime(),
+                    auctionRequest.getEndTime()
+            );
+
+        } else {
+            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_AND_FISH_STATE);
+        }
+    }
+
+
+//    public AuctionRequestResponse rejectAuctionRequestForStaff(int auctionRequestId, int staffId) {
+//
+//        User staff = userRepository.findById(staffId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//
+//        if (!staff.getRole().equals(Role.STAFF)) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
+//
+//        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+//                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+//
+//        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT)
+//                && auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
+//
+//            auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
+//            auctionRequest.getFish().setStatus(KoiStatus.REJECTED);
+//
+//            auctionRequestRepository.save(auctionRequest);
+//        } else {
+//            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_AND_FISH_STATE);
+//        }
+//
+//        return AuctionRequestResponse
+//                .builder()
+//                .success(true)
+//                .message("Request has been rejected successfully.")
+//                .build();
+//
+//    }
+
+    @Override
+    public AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, boolean isApproved, boolean assignToStaff) {
+
+        // Kiểm tra manager tồn tại
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Xác thực quyền của manager
+        if (!manager.getRole().equals(Role.MANAGER)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Lấy thông tin yêu cầu đấu giá
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+
+        // Kiểm tra trạng thái yêu cầu phải ở MANAGER_REVIEW
+        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.MANAGER_REVIEW)) {
+
+            if (isApproved) {
+                // Manager đồng ý duyệt
+                auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
+                auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+            } else if (assignToStaff) {
+                // Manager yêu cầu staff đã gửi đi xem cá trước
+                auctionRequest.setRequestStatus(AuctionRequestStatus.ASSIGNED_TO_STAFF);
+                auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL); // Hoặc giữ nguyên
+
+                // Lấy lại thông tin Staff đã gửi yêu cầu ban đầu
+                User staff = auctionRequest.getApprovedStaff();
+                auctionRequest.setApprovedStaff(staff); // Gán lại staff vào yêu cầu
+
+
+            } else {
+                // Manager từ chối yêu cầu đấu giá
+                auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
+                auctionRequest.getFish().setStatus(KoiStatus.REJECTED);
+            }
+
+            // Lưu lại thông tin
+            auctionRequestRepository.save(auctionRequest);
+
+            // Trả về kết quả
+
+            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
+
+            return new AuctionRequestUpdateResponse(
+                    auctionRequest.getId(),
+                    userDTO,
+                    auctionRequest.getApprovedStaff().getId(),
+                    auctionRequest.getRequestStatus(),
+                    koiFishDTO,
+                    auctionRequest.getBuyOut(),
+                    auctionRequest.getStartPrice(),
+                    auctionRequest.getMethodType(),
+                    auctionRequest.getRequestCreatedDate(),
+                    auctionRequest.getRequestUpdatedDate(),
+                    auctionRequest.getStartTime(),
+                    auctionRequest.getEndTime()
+            );
+
+        } else {
+            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_STATE);
+        }
+    }
+
+
+    @Override
+    public AuctionRequestUpdateResponse reviewAuctionRequestByStaff(int auctionRequestId, int staffId, boolean isApproved) {
+
+        // Kiểm tra staff tồn tại
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Xác thực quyền của staff
+        if (!staff.getRole().equals(Role.STAFF)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Lấy thông tin yêu cầu đấu giá
+        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
+
+        // Kiểm tra trạng thái yêu cầu phải là ASSIGNED_TO_STAFF
+        if (!auctionRequest.getRequestStatus().equals(AuctionRequestStatus.ASSIGNED_TO_STAFF)) {
+            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_STATE);
+        }
+
+        // Kiểm tra staff có phải là người được assign không
+        if (!auctionRequest.getApprovedStaff().getId().equals(staffId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Nếu staff đồng ý duyệt yêu cầu sau khi xem cá
+        if (isApproved) {
             auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
             auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
-
-            auctionRequestRepository.save(auctionRequest);
         } else {
-            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_AND_FISH_STATE);
-        }
-
-        return AuctionRequestResponse.builder()
-                .success(true)
-                .message("Request has been approved successfully.")
-                .data(auctionRequest)
-                .build();
-    }
-
-    public AuctionRequestResponse rejectAuctionRequestForStaff(int auctionRequestId, int staffId) {
-
-        User staff = userRepository.findById(staffId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        if (!staff.getRole().equals(Role.STAFF)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-
-        AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
-                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
-
-        if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT)
-                && auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
-
+            // Nếu staff từ chối yêu cầu sau khi xem cá
             auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
             auctionRequest.getFish().setStatus(KoiStatus.REJECTED);
-
-            auctionRequestRepository.save(auctionRequest);
-        } else {
-            throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_AND_FISH_STATE);
         }
 
-        return AuctionRequestResponse
-                .builder()
-                .success(true)
-                .message("Request has been rejected successfully.")
-                .build();
+        // Lưu lại thông tin
+        auctionRequestRepository.save(auctionRequest);
 
+        // Trả về kết quả
+
+        UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+        KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
+
+        return new AuctionRequestUpdateResponse(
+                auctionRequest.getId(),
+                userDTO,
+                auctionRequest.getApprovedStaff().getId(),
+                auctionRequest.getRequestStatus(),
+                koiFishDTO,
+                auctionRequest.getBuyOut(),
+                auctionRequest.getStartPrice(),
+                auctionRequest.getMethodType(),
+                auctionRequest.getRequestCreatedDate(),
+                auctionRequest.getRequestUpdatedDate(),
+                auctionRequest.getStartTime(),
+                auctionRequest.getEndTime()
+        );
     }
+
+
 
     private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
 

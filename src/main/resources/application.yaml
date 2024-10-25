@@ -4,7 +4,7 @@ server:
     context-path: /auctionkoi
 
 jwt:
-  signerKey: ${SIGNER_KEY}
+  signerKey: "gALmgB8xj1CTwY8cnVfZ2RyhZEAKWGyusf/E1UBwCRFWJeqDpDYwQ6cfDTgn+6Uc"
 
 spring:
   profiles:
@@ -27,8 +27,13 @@ spring:
               boot:
                 model:
                   naming:
-                      PhysicalNamingStrategyStandardImpl
+                    PhysicalNamingStrategyStandardImpl
     show-sql: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG      # Hiển thị câu lệnh SQL
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Hiển thị giá trị tham số
 
 springdoc:
   api-docs:
