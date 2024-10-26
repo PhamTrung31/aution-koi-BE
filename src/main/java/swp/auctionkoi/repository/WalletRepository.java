@@ -9,10 +9,10 @@ import swp.auctionkoi.models.Wallet;
 
 import java.util.Optional;
 
-@Repository
 public interface WalletRepository extends JpaRepository<Wallet, Integer> {
-    @Query("SELECT w FROM Wallet w WHERE w.member.id = :userId")
-    Optional<Wallet> findByUserId(@Param("userId") int userId); // Query to find a wallet by user ID
+//    @Query("SELECT w FROM Wallet w WHERE w.member.id = :userId")
+//    Optional<Wallet> findByUserId(@Param("userId") int userId); // Query to find a wallet by user ID
+    Optional<Wallet> findByUserId(int userId);
 }
 
 

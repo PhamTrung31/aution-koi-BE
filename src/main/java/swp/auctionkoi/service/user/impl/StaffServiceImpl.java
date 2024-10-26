@@ -3,23 +3,32 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import swp.auctionkoi.dto.request.user.StaffCreateUserRequest;
+import swp.auctionkoi.dto.request.user.StaffUpdateUserRequest;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.UserMapper;
-import swp.auctionkoi.models.*;
-import swp.auctionkoi.models.enums.TransactionType;
-import swp.auctionkoi.repository.*;
+import swp.auctionkoi.models.Auction;
+import swp.auctionkoi.models.Bid;
+import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.repository.AuctionRepository;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.StaffService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,104 +39,95 @@ public class StaffServiceImpl implements StaffService {
 
     AuctionRepository auctionRepository;
 
-    PaymentRepository paymentRepository;
-
-    WalletRepository walletRepository;
-
-    TransactionRepository transactionRepository;
-
     UserMapper userMapper;
 
-
+    PasswordEncoder passwordEncoder;
 
     @Override
-    public HashMap<Integer, UserResponse> getAllUser() {
-        HashMap<Integer, UserResponse> users = new HashMap<>();
+    public List<UserResponse> getAllMemberAndBreeder() {
         List<User> userList = userRepository.findAll();
+        List<UserResponse> result = new ArrayList<>();
         for (User user : userList) {
-            users.put(user.getId(), userMapper.toUserResponse(user));
+            if(user.getRole().equals(Role.MEMBER) || user.getRole().equals(Role.BREEDER)) {
+                result.add(userMapper.toUserResponse(user));
+            }
         }
-        return users;
+        return result;
     }
 
 
 
     @Override
-    public Optional<UserResponse> getUser(int id) {
-        User user =  userRepository.findById(id).get();
-        return Optional.ofNullable(userMapper.toUserResponse(user));
+    public UserResponse getUserById(int id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
     }
 
     @Override
-    public Optional<UserResponse> addUser(UserCreateRequest request) {
-        User user = new User();
+    public UserResponse addUser(StaffCreateUserRequest request) {
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
 
-        user = userMapper.toUser(request);
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        User user = userMapper.toUser(request);
+
+        log.info("Request field isBreeder: " + request.isBreeder());
+
+        if(request.isBreeder()){
+            user.setRole(Role.BREEDER);
+        } else{
+            user.setRole(Role.MEMBER);
+        }
+
+        log.info("User role: " + user.getRole());
+
+        user.setIsActive(true);
 
         userRepository.save(user);
-        return Optional.ofNullable(userMapper.toUserResponse(user));
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
-    public Optional<UserResponse> updateUser(int id, UserUpdateRequest tryUpdateUser) {
-        User user = userRepository.findById(id).get();
-        if(user != null) {
-            userMapper.updateUser(user, tryUpdateUser);
-            return Optional.of(userMapper.toUserResponse(userRepository.save(user)));
+    public UserResponse updateUser(StaffUpdateUserRequest updateUser) {
+        User user = userRepository.findById(updateUser.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        if(updateUser.getPassword() != null){
+            updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+        } else {
+            updateUser.setPassword(user.getPassword());
         }
-        return null;
+        userMapper.updateUser(user, updateUser);
+        if(updateUser.getIsBreeder()){
+            user.setRole(Role.BREEDER);
+        } else {
+            user.setRole(Role.MEMBER);
+        }
+
+        userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
     public boolean deleteUser(int id) {
-        User user = userRepository.findById(id).get();
-        if(user != null) {
-            userRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.deleteById(user.getId());
+        return true;
     }
 
-//
-//    public String approveWithdrawRequest(int paymentId) throws Exception {
-//        // Lấy thông tin payment cần phê duyệt
-//        Optional<Payment> payment = paymentRepository.findById(paymentId);
-//        if (payment.isEmpty() || payment.get().getPaymentStatus() != 0) {
-//            throw new AppException(ErrorCode.INVALID_PAYMENT);
-//        }
-//
-//        // Lấy thông tin ví liên quan đến payment
-//        Optional<Wallet> wallet = walletRepository.findByUserId(payment.get().getMember().getId());
-//        if (wallet.isEmpty()) {
-//            throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
-//        }
-//
-//        // Trừ số tiền từ ví
-//        if (wallet.get().getBalance() < payment.get().getAmount()) {
-//            throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
-//        }
-//
-//        wallet.get().setBalance(wallet.get().getBalance() - payment.get().getAmount());
-//        walletRepository.save(wallet.get());
-//
-//        // Cập nhật trạng thái payment là thành công (1)
-//        payment.get().setPaymentStatus(1); // 1: Success
-//        paymentRepository.save(payment.get());
-//
-//        // Tạo transaction để ghi lại quá trình này
-//        Transaction transaction = new Transaction();
-//        transaction.setMember(wallet.get().getMember());
-//        transaction.setWalletId(wallet.get().getId());
-//        transaction.setPaymentId(payment.get().getId());
-//        transaction.setAmount(payment.get().getAmount());
-//        transaction.setTransactionFee(0.0F);
-//        transaction.setTransactionType(TransactionType.APPROVED_WITHDRAW); // Ghi nhận là đã duyệt rút tiền
-//        transactionRepository.save(transaction);
-//
-//        return "Withdraw request approved and processed.";
-//    }
+    @Override
+    public void banUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        userRepository.save(user);
+    }
 
+    @Override
+    public void unBanUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
 }

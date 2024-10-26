@@ -3,11 +3,11 @@ package swp.auctionkoi.service.wallet.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.models.User;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.Wallet;
-import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.repository.WalletRepository;
 import swp.auctionkoi.service.wallet.WalletService;
 
@@ -17,25 +17,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WalletServiceImpl implements WalletService {
+    private final WalletRepository walletRepository;
 
-
-    @Autowired
-    WalletRepository walletRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Override
-    public void updateWalletBalance(Integer userId, Double amount) {
-        // Tìm ví của người dùng dựa trên userId
-        Wallet wallet = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
-        if (wallet != null) {
-            // Cập nhật số dư
-            wallet.setBalance(wallet.getBalance() + amount);
-            walletRepository.save(wallet);
-        } else {
-            throw new RuntimeException("Không tìm thấy ví của người dùng này.");
+    public Optional<Wallet> getWalletByUserId(int userId){
+        if(userId <= 0){
+            throw new AppException(ErrorCode.INVALID_USER_ID);
         }
+        Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return Optional.ofNullable(wallet);
     }
 }

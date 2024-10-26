@@ -18,11 +18,11 @@ public class Payment {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     private swp.auctionkoi.models.User member;
 
     @Column(name = "amount")
-    private Float amount;
+    private float amount;
 
     @Column(name = "payment_status")
     private Integer paymentStatus;

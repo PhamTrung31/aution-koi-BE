@@ -54,7 +54,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
 
             // Get the breeder from the AuctionRequest
-            User breeder = auctionRequest.getBreeder();
+            User breeder = auctionRequest.getUser();
             Wallet breederWallet = walletRepository.findByUserId(breeder.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
@@ -66,13 +66,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                     .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
             // Get the highest bid from the winner
-            Optional<Bid> highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), winner.getId());
-            if (highestUserBid.isPresent()) {
-                Bid highestBid = highestUserBid.get();
-                double winningBid = highestBid.getBidAmount();
+            Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), winner.getId());
+            if (highestUserBid != null) {
+                float winningBid = highestUserBid.getBidAmount();
 
                 // Calculate the breeder's amount (after 10% fee)
-                float amountForBreeder = (float) (winningBid * 0.90);
+                float amountForBreeder = winningBid * 0.90F;
                 adminWallet.setBalance(adminWallet.getBalance() - amountForBreeder);
                 breederWallet.setBalance(breederWallet.getBalance() + amountForBreeder);
                 walletRepository.save(adminWallet);
@@ -80,7 +79,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 // Log the transfer transaction
                 Transaction paymentTransaction = Transaction.builder()
-                        .member(breeder)
+                        .user(breeder)
                         .auction(auction)
                         .transactionType(TransactionType.TRANSFER)
                         .walletId(breederWallet.getId())

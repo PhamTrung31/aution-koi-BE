@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserLoginRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
@@ -16,7 +17,9 @@ import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.UserService;
 
+import javax.swing.text.html.Option;
 import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +33,14 @@ public class UserServiceImpl implements UserService {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public void login() {
-
+    public UserResponse login(UserLoginRequest userLoginRequest) {
+        User user = userRepository.findByUsername(userLoginRequest.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(user.getPassword().equals(passwordEncoder.encode(userLoginRequest.getPassword()))){
+            UserResponse userResponse = userMapper.toUserResponse(user);
+            return userResponse;
+        } else {
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
+        }
     }
 
     @Override

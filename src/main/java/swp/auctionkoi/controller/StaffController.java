@@ -6,73 +6,102 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import swp.auctionkoi.dto.request.user.StaffCreateUserRequest;
+import swp.auctionkoi.dto.request.user.StaffUpdateUserRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
-import swp.auctionkoi.service.transaction.TransactionService;
+import swp.auctionkoi.models.User;
 import swp.auctionkoi.service.user.StaffService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/staffs")
-
 public class StaffController {
 
     @Autowired
     private StaffService staffService;
 
-
     @GetMapping("/all")
-    public ApiResponse<HashMap<Integer, UserResponse>> getAllUser() {
+    public ApiResponse<List<UserResponse>> getAllUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
-        return ApiResponse.<HashMap<Integer, UserResponse>>builder()
-                .result(staffService.getAllUser())
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(staffService.getAllMemberAndBreeder())
                 .build();
     }
 
-
-
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable int userId) {
-        Optional<UserResponse> userOptional = staffService.getUser(userId);
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ApiResponse<UserResponse> getUser(@PathVariable int userId) {
+        UserResponse userResponse = staffService.getUserById(userId);
+
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .result(userResponse)
+                .build();
     }
-    @PostMapping
-    public ResponseEntity<UserResponse> addUser(@RequestBody UserCreateRequest request) {
-        Optional<UserResponse> userOptional = staffService.addUser(request);
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
-        }
-        return ResponseEntity.notFound().build();
+
+    @PostMapping("/create")
+    public ApiResponse<UserResponse> addUser(@RequestBody StaffCreateUserRequest request) {
+        UserResponse userResponse = staffService.addUser(request);
+
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .result(userResponse)
+                .message("Add user successfully!")
+                .build();
+    }
+
+    @PostMapping("/ban/{userId}")
+    public ApiResponse<String> banUser(@PathVariable int userId) {
+        staffService.banUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Ban user successfully!")
+                .build();
+    }
+
+    @PostMapping("/unban/{userId}")
+    public ApiResponse<String> unbanUser(@PathVariable int userId) {
+        staffService.unBanUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Unban user successfully!")
+                .build();
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable int userId, UserUpdateRequest tryUpdateUser) {
-        Optional<UserResponse> userOptional = staffService.updateUser(userId, tryUpdateUser);
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ApiResponse<UserResponse> updateUser(@RequestBody StaffUpdateUserRequest tryUpdateUser) {
+        UserResponse userResponse = staffService.updateUser(tryUpdateUser);
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .result(userResponse)
+                .message("Update successfully!")
+                .build();
     }
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable int userId) {
+    public ApiResponse<String> deleteUser(@PathVariable int userId) {
         boolean deleteSuccess = staffService.deleteUser(userId);
         if (deleteSuccess) {
-            return ResponseEntity.ok("User deleted successfully");
+            return ApiResponse.<String>builder()
+                    .code(200)
+                    .message("Deleted successfully!")
+                    .build();
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ApiResponse.<String>builder()
+                    .code(404)
+                    .message("Delete failed!")
+                    .build();
         }
     }
-
 }
+

@@ -37,6 +37,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final String[] PUBLIC_ENDPOINTS = {"/users","/staffs",
+            "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
+            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
+            "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
+            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
+
+    };
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:8081/auctionkoi/api/payment/vnpay-return";
@@ -111,6 +118,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
@@ -139,6 +147,7 @@ public class SecurityConfig {
 
         return converter;
     }
+
 
 
     @Bean

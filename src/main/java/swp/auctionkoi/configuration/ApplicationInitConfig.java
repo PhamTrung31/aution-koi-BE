@@ -31,6 +31,7 @@ public class ApplicationInitConfig {
                         .password(passwordEncoder.encode("swp391"))
                         .fullname("Admin")
                         .role(Role.MANAGER)
+                        .isActive(true)
                         .build();
 
                 userRepository.save(user);

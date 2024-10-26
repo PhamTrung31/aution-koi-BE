@@ -28,6 +28,32 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.security: DEBUG
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        ddl-auto: update
+        cache:
+          use_second_level_cache: false
+          format_sql: true
+        naming:
+          physical-strategy=org:
+            hibernate:
+              boot:
+                model:
+                  naming:
+                    PhysicalNamingStrategyStandardImpl
+    show-sql: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG      # Hiển thị câu lệnh SQL
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Hiển thị giá trị tham số
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html
 
 vnpay:
   tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp

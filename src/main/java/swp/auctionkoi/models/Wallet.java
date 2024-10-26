@@ -19,9 +19,8 @@ public class Wallet {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    User member;
+    User user;
 
     @Column(name = "balance")
-    Double balance;
-
+    float balance;
 }

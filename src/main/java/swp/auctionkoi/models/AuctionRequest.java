@@ -1,9 +1,13 @@
 package swp.auctionkoi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.lang.Nullable;
+import swp.auctionkoi.models.enums.AuctionRequestStatus;
+import swp.auctionkoi.models.enums.AuctionType;
 
 import java.time.Instant;
 
@@ -12,7 +16,8 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Auction_Requests")
+@Builder(toBuilder = true)
+@Table(name = "auction_requests")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequest {
     @Id
@@ -21,44 +26,72 @@ public class AuctionRequest {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "breeder_id")
-    swp.auctionkoi.models.User breeder;
+    @JoinColumn(name = "user_id")
+    @NotNull
+    swp.auctionkoi.models.User user; //breeder
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "approved_staff_id")
+    @Nullable
+    swp.auctionkoi.models.User approvedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
+
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "initiated_by_id")
+//    // Thêm trường này để lưu nhân viên đã khởi tạo yêu cầu
+//    @Nullable
+//    swp.auctionkoi.models.User initiatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fish_id")
-    swp.auctionkoi.models.KoiFishs fish;
+    @NotNull
+    swp.auctionkoi.models.KoiFish fish;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")
+    @Nullable
     swp.auctionkoi.models.Auction auction;
 
     @Column(name = "buy_out")
+    @NotNull
     Float buyOut;
 
     @Column(name = "start_price")
+    @NotNull
     Float startPrice;
 
-    @Column(name = "increment_price")
-    Float incrementPrice;
-
     @Column(name = "method_type")
-    Integer methodType;
+    @Enumerated(EnumType.ORDINAL)
+    @NotNull
+    AuctionType methodType;
 
-    @ColumnDefault("getdate()")
     @Column(name = "request_created_date")
     Instant requestCreatedDate;
 
-    @ColumnDefault("getdate()")
     @Column(name = "request_updated_date")
     Instant requestUpdatedDate;
 
     @Column(name = "request_status")
-    Integer requestStatus;
+    @Enumerated(EnumType.ORDINAL)
+    @NotNull
+    AuctionRequestStatus requestStatus;
 
     @Column(name = "start_time")
+    @NotNull
     Instant startTime;
 
     @Column(name = "end_time")
+    @NotNull
     Instant endTime;
 
+    @PrePersist
+    public void onPrePersist() {
+        this.requestCreatedDate = Instant.now();
+        this.requestUpdatedDate = Instant.now();
+    }
+//
+//    @PreUpdate
+//    public void onPreUpdate() {
+//        this.requestUpdatedDate = Instant.now();
+//    }
 }

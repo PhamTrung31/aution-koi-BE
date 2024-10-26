@@ -3,6 +3,8 @@ package swp.auctionkoi.models;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.ColumnDefault;
+import swp.auctionkoi.models.enums.AuctionStatus;
 
 import java.time.Instant;
 
@@ -27,14 +29,20 @@ public class Auction {
     Float currentPrice;
 
     @Column(name = "status")
-    Integer status;
-
-    @Column(name = "deposit_amount")
-    Float depositAmount;
-
+    @Enumerated(EnumType.ORDINAL)
+    AuctionStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "winner_id")
-    private User winner;
+    User winner;
 
+    @Column(name = "highest_prices", nullable = true)
+    Float  highestPrice;
+
+    @ColumnDefault("60")
+    @Column(name = "extension_seconds")
+    int extensionSeconds;
+
+    @Column(name = "deposit_amount")
+    Float depositAmount;
 }

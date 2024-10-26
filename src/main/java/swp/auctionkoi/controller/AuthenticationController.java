@@ -15,6 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.RefreshRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import swp.auctionkoi.dto.request.LogoutRequest;
+import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;
@@ -34,8 +40,6 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
-
-    @Autowired
     UserRepository userRepository;
 
     @Value("${jwt.signerKey}")
@@ -59,6 +63,14 @@ public class AuthenticationController {
 
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 
