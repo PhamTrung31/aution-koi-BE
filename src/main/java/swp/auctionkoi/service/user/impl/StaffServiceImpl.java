@@ -91,43 +91,43 @@ public class StaffServiceImpl implements StaffService {
         return false;
     }
 
-
-    public String approveWithdrawRequest(int paymentId) throws Exception {
-        // Lấy thông tin payment cần phê duyệt
-        Optional<Payment> payment = paymentRepository.findById(paymentId);
-        if (payment.isEmpty() || payment.get().getPaymentStatus() != 0) {
-            throw new AppException(ErrorCode.INVALID_PAYMENT);
-        }
-
-        // Lấy thông tin ví liên quan đến payment
-        Optional<Wallet> wallet = walletRepository.findByUserId(payment.get().getMember().getId());
-        if (wallet.isEmpty()) {
-            throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
-        }
-
-        // Trừ số tiền từ ví
-        if (wallet.get().getBalance() < payment.get().getAmount()) {
-            throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
-        }
-
-        wallet.get().setBalance(wallet.get().getBalance() - payment.get().getAmount());
-        walletRepository.save(wallet.get());
-
-        // Cập nhật trạng thái payment là thành công (1)
-        payment.get().setPaymentStatus(1); // 1: Success
-        paymentRepository.save(payment.get());
-
-        // Tạo transaction để ghi lại quá trình này
-        Transaction transaction = new Transaction();
-        transaction.setMember(wallet.get().getMember());
-        transaction.setWalletId(wallet.get().getId());
-        transaction.setPaymentId(payment.get().getId());
-        transaction.setAmount(payment.get().getAmount());
-        transaction.setTransactionFee(0.0F);
-        transaction.setTransactionType(TransactionType.APPROVED_WITHDRAW); // Ghi nhận là đã duyệt rút tiền
-        transactionRepository.save(transaction);
-
-        return "Withdraw request approved and processed.";
-    }
+//
+//    public String approveWithdrawRequest(int paymentId) throws Exception {
+//        // Lấy thông tin payment cần phê duyệt
+//        Optional<Payment> payment = paymentRepository.findById(paymentId);
+//        if (payment.isEmpty() || payment.get().getPaymentStatus() != 0) {
+//            throw new AppException(ErrorCode.INVALID_PAYMENT);
+//        }
+//
+//        // Lấy thông tin ví liên quan đến payment
+//        Optional<Wallet> wallet = walletRepository.findByUserId(payment.get().getMember().getId());
+//        if (wallet.isEmpty()) {
+//            throw new AppException(ErrorCode.WALLET_NOT_EXISTED);
+//        }
+//
+//        // Trừ số tiền từ ví
+//        if (wallet.get().getBalance() < payment.get().getAmount()) {
+//            throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
+//        }
+//
+//        wallet.get().setBalance(wallet.get().getBalance() - payment.get().getAmount());
+//        walletRepository.save(wallet.get());
+//
+//        // Cập nhật trạng thái payment là thành công (1)
+//        payment.get().setPaymentStatus(1); // 1: Success
+//        paymentRepository.save(payment.get());
+//
+//        // Tạo transaction để ghi lại quá trình này
+//        Transaction transaction = new Transaction();
+//        transaction.setMember(wallet.get().getMember());
+//        transaction.setWalletId(wallet.get().getId());
+//        transaction.setPaymentId(payment.get().getId());
+//        transaction.setAmount(payment.get().getAmount());
+//        transaction.setTransactionFee(0.0F);
+//        transaction.setTransactionType(TransactionType.APPROVED_WITHDRAW); // Ghi nhận là đã duyệt rút tiền
+//        transactionRepository.save(transaction);
+//
+//        return "Withdraw request approved and processed.";
+//    }
 
 }
