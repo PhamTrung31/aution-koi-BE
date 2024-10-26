@@ -34,7 +34,7 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore // Thêm vào để bỏ qua thuộc tính này khi trả về JSON
-    swp.auctionkoi.models.User member;
+    swp.auctionkoi.models.User user;
 
     @Column(name = "payment_id")
     Integer paymentId;
@@ -56,12 +56,12 @@ public class Transaction {
     TransactionType transactionType;
 
 
-    // Getter riêng cho auctionId và memberId để hiển thị chúng trong JSON
-    public Integer getAuctionId() {
-        return auction != null ? auction.getId() : null;
-    }
+//    // Getter riêng cho auctionId và memberId để hiển thị chúng trong JSON
+//    public Integer getAuctionId() {
+//        return auction != null ? auction.getId() : null;
+//    }
 
-    public Integer getMemberId() {
-        return member != null ? member.getId() : null;
-    }
+//    public Integer getUserId() {
+//        return user != null ? user.getId() : null;
+//    }
 }

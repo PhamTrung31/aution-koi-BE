@@ -115,7 +115,7 @@ public class VNPAYController {
 
                 // Tạo giao dịch mới
                 Transaction transaction = new Transaction();
-                transaction.setMember(wallet.getMember());
+                transaction.setUser(wallet.getUser());
                 transaction.setWalletId(wallet.getId());
                 transaction.setTransactionType(TransactionType.TOP_UP);
                 transaction.setAmount(amount);

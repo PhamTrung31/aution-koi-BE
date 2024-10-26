@@ -154,53 +154,53 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
-//        int jwtIdHash = signToken.getJWTClaimsSet().getJWTID().hashCode();
+        int jwtIdHash = signToken.getJWTClaimsSet().getJWTID().hashCode();
 
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                .id(jit)
+                .id(jwtIdHash)
                 .expiryTime(expiryTime.toInstant())
                 .build();
 
         invalidatedTokenRepository.save(invalidatedToken);
     }
 
-    @Override
-    public AuthenticationResponse refreshToken(RefreshRequest request)
-            throws ParseException, JOSEException {
-        var signedJWT = verifyToken(request.getToken());
-        // Sử dụng hash của JWT ID (jit) để làm unique key cho token
-        String jit = signedJWT.getJWTClaimsSet().getJWTID();
-        var expirytime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
-//        // Kiểm tra xem token này đã bị vô hiệu hóa hay chưa
-        if (invalidatedTokenRepository.existsById(jit)) {
-            // Nếu token đã bị làm mới (có trong bảng invalidated), trả về lỗi 401
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-
-        // Nếu token chưa bị vô hiệu hóa, lưu token này vào bảng invalidated tokens
-        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                .id(jit)
-                .expiryTime(expirytime.toInstant())
-                .build();
-
-        // Lưu token vào bảng invalidated để ngăn việc refresh lần nữa
-        invalidatedTokenRepository.save(invalidatedToken);
-
-        // Lấy thông tin người dùng từ token đã được xác thực
-        var username = signedJWT.getJWTClaimsSet().getSubject();
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        // Tạo token mới cho người dùng
-        var token = generateToken(user);
-
-        // Trả về token mới và thông tin xác thực
-        return AuthenticationResponse.builder()
-                .token(token)
-                .authenticated(true)
-                .build();
-    }
+//    @Override
+//    public AuthenticationResponse refreshToken(RefreshRequest request)
+//            throws ParseException, JOSEException {
+//        var signedJWT = verifyToken(request.getToken());
+//        // Sử dụng hash của JWT ID (jit) để làm unique key cho token
+//        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+//        var expirytime = signedJWT.getJWTClaimsSet().getExpirationTime();
+//
+////        // Kiểm tra xem token này đã bị vô hiệu hóa hay chưa
+//        if (invalidatedTokenRepository.existsById(jit)) {
+//            // Nếu token đã bị làm mới (có trong bảng invalidated), trả về lỗi 401
+//            throw new AppException(ErrorCode.UNAUTHENTICATED);
+//        }
+//
+//        // Nếu token chưa bị vô hiệu hóa, lưu token này vào bảng invalidated tokens
+//        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+//                .id(jit)
+//                .expiryTime(expirytime.toInstant())
+//                .build();
+//
+//        // Lưu token vào bảng invalidated để ngăn việc refresh lần nữa
+//        invalidatedTokenRepository.save(invalidatedToken);
+//
+//        // Lấy thông tin người dùng từ token đã được xác thực
+//        var username = signedJWT.getJWTClaimsSet().getSubject();
+//        var user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//
+//        // Tạo token mới cho người dùng
+//        var token = generateToken(user);
+//
+//        // Trả về token mới và thông tin xác thực
+//        return AuthenticationResponse.builder()
+//                .token(token)
+//                .authenticated(true)
+//                .build();
+//    }
 
 
 }

@@ -94,7 +94,7 @@ public class TraditionalAuctionService {
         Transaction transaction = Transaction.builder()
                 .auction(auction)
                 .user(user)
-                .transactionFee(0)
+                .transactionFee((float) 0)
                 .walletId(wallet.getId())
                 .transactionType(TransactionType.BID)
                 .amount(bidAmount)

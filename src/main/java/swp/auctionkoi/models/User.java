@@ -69,6 +69,6 @@ public class User {
     @Column(name = "user_updated_date")
     Instant userUpdatedDate;
 
-    @Column(name = "avatar_url")
-    String avatarUrl;
+//    @Column(name = "avatar_url")
+//    String avatarUrl;
 }

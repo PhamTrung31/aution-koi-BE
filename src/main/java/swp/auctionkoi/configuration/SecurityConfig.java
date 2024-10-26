@@ -37,14 +37,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users","/staffs",
-            "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
-            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
-            "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
-            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
-
-    };
-
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:8081/auctionkoi/api/payment/vnpay-return";
     public static String vnp_TmnCode = "QCYQY77A";
@@ -52,10 +44,17 @@ public class SecurityConfig {
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs", "/auth/**", "/auctions/join", "/auctions/end/{auctionId}",
+            "/users", "/staffs", "/auth/**", "/auth/token","/auth/introspect",
+            "/auth/logout", "/auction/send-request", "/auctions/join",
+            "/auctions/end/{auctionId}",  "/auction/update/{auctionRequestId}",
+            "/auction/cancel/{auctionRequestId}","/users/create",
             "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
+            "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
+            "/auction/view-request-detail/{auctionRequestId}",
+            "/auction/view-all-breeder-requests/{breederId}",
             "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
-            "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder", "/vnpay/", "/vnpay/vnpay-payment-return",
+            "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
+            "/vnpay/", "/vnpay/vnpay-payment-return",
             "v2/api-docs", "/payment/requestwithdraw",
             "v3/api-docs",
             "v3/api-docs/**",
