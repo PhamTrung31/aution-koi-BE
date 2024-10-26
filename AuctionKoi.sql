@@ -103,6 +103,7 @@ CREATE TABLE Auction_Requests(
 	fish_id int not null,
 	auction_id int,
 	buy_out float not null,
+	increment_step float not null,
 	start_price float not null,
 	method_type int not null,
 	start_time datetime not null,
