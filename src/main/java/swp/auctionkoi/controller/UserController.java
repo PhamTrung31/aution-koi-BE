@@ -11,6 +11,8 @@ import swp.auctionkoi.dto.request.user.UserLoginRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import org.springframework.web.bind.annotation.*;
+import swp.auctionkoi.dto.request.AvatarRequest;
+import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
@@ -63,10 +65,23 @@ public class UserController {
                 .build();
     }
 
+
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.viewProfile())
                 .build();
+    }
+
+    @PutMapping("/{id}/avatar")
+    public ApiResponse<String> updateAvatar(@PathVariable int id, @RequestBody @Valid AvatarRequest avatarRequest) {
+
+        userService.updateAvatar(id, avatarRequest.getAvatarUrl());
+        return ApiResponse.<String>builder()
+                .result(String.valueOf(true))
+                .code(200)
+                .message("Avatar updated successfully")
+                .build();
+
     }
 }

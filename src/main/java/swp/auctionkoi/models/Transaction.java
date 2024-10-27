@@ -1,5 +1,6 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,10 +14,10 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@DynamicInsert
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@DynamicInsert
 @Table(name = "Transactions")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Transaction {
@@ -27,10 +28,12 @@ public class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")
+    @JsonIgnore // Thêm vào để bỏ qua thuộc tính này khi trả về JSON
     Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore // Thêm vào để bỏ qua thuộc tính này khi trả về JSON
     swp.auctionkoi.models.User user;
 
     @Column(name = "payment_id")
@@ -39,17 +42,26 @@ public class Transaction {
     @Column(name = "wallet_id")
     Integer walletId;
 
-    @Column(name = "transaction_fee")
-    float transactionFee;
-
     @Column(name = "amount")
-    float amount;
+    Float amount;
+
+    @Column(name = "transaction_fee")
+    Float transactionFee;
+
+    @Column(name = "transaction_date")
+    Instant transactionDate;
 
     @Column(name = "transaction_type")
     @Enumerated(EnumType.ORDINAL)
     TransactionType transactionType;
 
-    @Column(name = "transaction_date")
-    Instant transactionDate;
 
+//    // Getter riêng cho auctionId và memberId để hiển thị chúng trong JSON
+//    public Integer getAuctionId() {
+//        return auction != null ? auction.getId() : null;
+//    }
+
+//    public Integer getUserId() {
+//        return user != null ? user.getId() : null;
+//    }
 }

@@ -12,6 +12,7 @@ import swp.auctionkoi.models.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    User toUser (User user);
     User toUser(UserCreateRequest request);
     User toUser(StaffCreateUserRequest request);
     UserResponse toUserResponse(User user);

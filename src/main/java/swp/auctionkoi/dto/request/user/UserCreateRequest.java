@@ -10,9 +10,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreateRequest {
+    int id;
     String username;
     String password;
     String fullname;
     String phone;
     String address;
+    String avatar_url;
 }

@@ -85,4 +85,10 @@ public class UserServiceImpl implements UserService {
     public HashMap<Integer, User> getAllBreeder() {
         return null;
     }
+
+    public void updateAvatar(int id, String avatarUrl){
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+    }
 }

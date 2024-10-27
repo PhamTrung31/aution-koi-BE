@@ -1,4 +1,4 @@
-package swp.auctionkoi.dto.request.payment;
+package swp.auctionkoi.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -7,9 +7,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WithdrawPaymentRequest {
-     Integer userId;
-     Float amount;
+public class RefreshRequest {
+    String token;
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import swp.auctionkoi.dto.request.RefreshRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +57,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest introspectRequest) throws ParseException, JOSEException {
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest introspectRequest)
+            throws ParseException, JOSEException {
         var result = authenticationService.introspect(introspectRequest);
 
         return ApiResponse.<IntrospectResponse>builder()
@@ -103,5 +105,17 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
+
+//    @PostMapping("/refresh")
+//    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest authenticationRequest) throws ParseException, JOSEException {
+//        var result = authenticationService.refreshToken(authenticationRequest);
+//
+//        return ApiResponse.<AuthenticationResponse>builder()
+//                .result(result)
+//                .build();
+//    }
+
+
+
 
 }

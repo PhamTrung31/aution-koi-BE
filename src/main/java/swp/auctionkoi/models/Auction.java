@@ -23,7 +23,7 @@ public class Auction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fish_id")
-    swp.auctionkoi.models.KoiFish fish;
+    swp.auctionkoi.models.KoiFishs fish;
 
     @Column(name = "current_price")
     Float currentPrice;

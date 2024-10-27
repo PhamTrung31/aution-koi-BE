@@ -15,6 +15,7 @@ import swp.auctionkoi.service.user.ManagerService;
 import swp.auctionkoi.service.user.impl.ManagerServiceImpl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,58 +29,95 @@ public class ManagerController {
     private ManagerServiceImpl managerService;
 
     @GetMapping("/allstaff")
-    public ApiResponse<HashMap<Integer, User>> getAllStaff() {
+    public ApiResponse<List<User>> getAllStaff() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("Username {}", authentication.getName());
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
 
-        // Get all staff and filter out those who are not active
-        HashMap<Integer, User> activeStaff = managerService.getAllStaff().entrySet().stream()
-                .filter(entry -> entry.getValue().getIsActive())  // Only include active staff (isActive == true)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, HashMap::new));
+//        // Get all staff and filter out those who are not active
+//        List<User> activeStaff = managerService.getAllStaff().stream()
+//                .filter(User::getIsActive)  // Chỉ bao gồm staff active
+//                .collect(Collectors.toList());
 
-        return ApiResponse.<HashMap<Integer, User>>builder()
-                .result(activeStaff)
+        return ApiResponse.<List<User>>builder()
+                .result(managerService.getAllStaff())
+                .code(200)
+                .message("Successfully")
                 .build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getStaff(Integer id) {
-        Optional<UserResponse> userResponse = managerService.getStaff(id);
-        if (userResponse.isPresent()) {
-            return ResponseEntity.ok(userResponse.get());
-        }
-        return ResponseEntity.notFound().build();
+    public ApiResponse<UserResponse> getStaff(@PathVariable Integer id) {
+        UserResponse userResponse = managerService.getStaff(id);
+
+        return ApiResponse.<UserResponse>builder()
+                .result(userResponse)
+                .code(200)
+                .message("Successfully")
+                .build();
     }
 
-    @PostMapping
-    public ResponseEntity<User> addStaff(@RequestBody UserCreateRequest request) {
 
-        Optional<User> user = managerService.addStaff(request);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        }
-        return ResponseEntity.notFound().build();
+    @PostMapping("/add")
+    public ApiResponse<User> addStaff(@RequestBody UserCreateRequest request) {
+
+        User user = managerService.addStaff(request);
+
+        return ApiResponse.<User>builder()
+                .result(user)
+                .code(200)
+                .message("Successfully")
+                .build();
+
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<UserResponse> updateStaffStatus(@PathVariable int id,
-                                                          @RequestBody UserUpdateRequest request) {
-        Optional<UserResponse> user = managerService.updateStaff(id, request);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        }
-        return ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public ApiResponse<UserResponse> updateStaff( @PathVariable Integer id,
+            @RequestBody UserUpdateRequest request) {
+        UserResponse user = managerService.updateStaff(id, request);
+        return ApiResponse.<UserResponse>builder()
+                .result(user)
+                .code(200)
+                .message("Successfully")
+                .build();
+
+
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteStaff(@PathVariable int id) {
+    @DeleteMapping("/{id}/delete")
+    public ApiResponse<String> deleteStaff(@PathVariable int id) {
         boolean del = managerService.deleteStaff(id);
         if (del) {
-            return ResponseEntity.ok("Deleted Staff Successfully");
+            return ApiResponse.<String>builder()
+                    .code(200)
+                    .message("Deleted successfully!")
+                    .build();
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Staff not found");
+            return ApiResponse.<String>builder()
+                    .code(404)
+                    .message("Delete failed!")
+                    .build();
         }
+    }
+
+    @PostMapping("/ban/{userId}")
+    public ApiResponse<String> banUser(@PathVariable int userId) {
+        managerService.banUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Ban staff successfully!")
+                .build();
+    }
+
+    @PostMapping("/unban/{userId}")
+    public ApiResponse<String> unbanUser(@PathVariable int userId) {
+        managerService.unBanUser(userId);
+
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Unban staff successfully!")
+                .build();
     }
 }

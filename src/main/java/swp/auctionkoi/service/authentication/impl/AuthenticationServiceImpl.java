@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.dto.request.LogoutRequest;
+import swp.auctionkoi.dto.request.RefreshRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;
 import swp.auctionkoi.dto.respone.IntrospectResponse;
 import swp.auctionkoi.exception.AppException;
@@ -40,7 +41,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
-public class AuthenticationServiceImpl  implements AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
@@ -58,8 +59,8 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
 
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
 
-        if(!authenticated){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!authenticated) {
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         }
 
         var token = generateToken(user);
@@ -71,8 +72,7 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
     }
 
 
-
-    private String generateToken(User user){
+    private String generateToken(User user) {
 
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -83,6 +83,8 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
+                .claim("roles", user.getRole())
+
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -137,9 +139,10 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
         if (!(verified && expiryTime.after(new Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        int jwtIdHash = signedJWT.getJWTClaimsSet().getJWTID().hashCode();
+//        int jwtIdHash = signedJWT.getJWTClaimsSet().getJWTID().hashCode();
+        String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
 
-        if (invalidatedTokenRepository.existsById(jwtIdHash)) {
+        if (invalidatedTokenRepository.existsById(jwtId)) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -160,5 +163,44 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
 
         invalidatedTokenRepository.save(invalidatedToken);
     }
+
+//    @Override
+//    public AuthenticationResponse refreshToken(RefreshRequest request)
+//            throws ParseException, JOSEException {
+//        var signedJWT = verifyToken(request.getToken());
+//        // Sử dụng hash của JWT ID (jit) để làm unique key cho token
+//        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+//        var expirytime = signedJWT.getJWTClaimsSet().getExpirationTime();
+//
+////        // Kiểm tra xem token này đã bị vô hiệu hóa hay chưa
+//        if (invalidatedTokenRepository.existsById(jit)) {
+//            // Nếu token đã bị làm mới (có trong bảng invalidated), trả về lỗi 401
+//            throw new AppException(ErrorCode.UNAUTHENTICATED);
+//        }
+//
+//        // Nếu token chưa bị vô hiệu hóa, lưu token này vào bảng invalidated tokens
+//        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+//                .id(jit)
+//                .expiryTime(expirytime.toInstant())
+//                .build();
+//
+//        // Lưu token vào bảng invalidated để ngăn việc refresh lần nữa
+//        invalidatedTokenRepository.save(invalidatedToken);
+//
+//        // Lấy thông tin người dùng từ token đã được xác thực
+//        var username = signedJWT.getJWTClaimsSet().getSubject();
+//        var user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//
+//        // Tạo token mới cho người dùng
+//        var token = generateToken(user);
+//
+//        // Trả về token mới và thông tin xác thực
+//        return AuthenticationResponse.builder()
+//                .token(token)
+//                .authenticated(true)
+//                .build();
+//    }
+
 
 }

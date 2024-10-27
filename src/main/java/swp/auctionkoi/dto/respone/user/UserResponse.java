@@ -2,6 +2,7 @@ package swp.auctionkoi.dto.respone.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import swp.auctionkoi.models.enums.Role;
 
 @Getter
 @Data
@@ -14,4 +15,5 @@ public class UserResponse {
     String fullname;
     String phone;
     String address;
+    Role role;
 }

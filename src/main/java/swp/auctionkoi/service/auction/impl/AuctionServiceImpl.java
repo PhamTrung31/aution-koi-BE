@@ -224,7 +224,7 @@ public class AuctionServiceImpl implements AuctionService {
                     .user(participant.getUser())
                     .transactionType(TransactionType.TRANSFER)
                     .walletId(userWallet.getId())
-                    .transactionFee(0)
+                    .transactionFee(0F)
                     .amount(refundAmount)
                     .build();
             transactionRepository.save(transaction);
@@ -244,7 +244,7 @@ public class AuctionServiceImpl implements AuctionService {
                             .auction(auction)
                             .transactionType(TransactionType.TRANSFER)
                             .walletId(userWallet.getId())
-                            .transactionFee(0)
+                            .transactionFee(0F)
                             .amount(highestUserBid.getBidAmount())
                             .build();
                     transactionRepository.save(transaction);

@@ -1,4 +1,4 @@
-package swp.auctionkoi.dto.request.payment;
+package swp.auctionkoi.dto.respone;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -6,10 +6,11 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Getter
+@Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WithdrawPaymentRequest {
-     Integer userId;
-     Float amount;
+public class FileResponse {
+    String fileName;
+    byte[] fileContent;
 }

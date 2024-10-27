@@ -3,11 +3,9 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
@@ -19,14 +17,13 @@ import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.ManagerService;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasRole('MANAGER')")
+@PreAuthorize("hasAuthority('ROLE_MANAGER')")
 public class ManagerServiceImpl implements ManagerService {
 
     UserMapper userMapper;
@@ -35,73 +32,107 @@ public class ManagerServiceImpl implements ManagerService {
 
     PasswordEncoder passwordEncoder;
 
-    @Override
-    public HashMap<Integer, User> getAllStaff() {
-
-        HashMap<Integer, User> staff = new HashMap<>();
+    //    @Override
+//    public HashMap<Integer, User> getAllStaff() {
+//
+//        HashMap<Integer, User> staff = new HashMap<>();
+//        List<User> users = userRepository.findAll();
+//        for (User user : users) {
+//            if (user.getRole() == Role.STAFF)
+//                staff.put(user.getId(), user);
+//        }
+//        return staff;
+//    }
+    public List<User> getAllStaff() {
+        List<User> staffList = new ArrayList<>();
         List<User> users = userRepository.findAll();
         for (User user : users) {
-            if (user.getRole() == Role.STAFF)
-                staff.put(user.getId(), user);
+            if (user.getRole() == Role.STAFF) {
+                staffList.add(user);
+            }
         }
-        return staff;
+        return staffList;
     }
 
     @Override
-    public Optional<UserResponse> getStaff(int id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user != null && user.getRole() == Role.STAFF) {
+    public UserResponse getStaff(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+        if (user.getRole() == Role.STAFF) {
             UserResponse userResponse = new UserResponse();
-            return Optional.of(userResponse);
+            return userResponse;
         }
-
-        return Optional.empty();
+        throw new AppException(ErrorCode.STAFF_NOT_FOUND);
     }
 
+
     @Override
-    public Optional<User> addStaff(UserCreateRequest request) {
+    public User addStaff(UserCreateRequest request) {
         // Check for existing username
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.STAFF_EXISTED);
         }
 
-//        User user = new User();
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User user = userMapper.toUser(request);
 
-        // Encode the password
-//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        user.setIsActive(true);
 
         // Set the role for the user
         user.setRole(Role.STAFF);
 
+        userRepository.save(user);
+
         // Save and return the new user
-        return Optional.of(userRepository.save(user));
+        return userMapper.toUser(user);
     }
 
 
     @Override
-    public Optional<UserResponse> updateStaff(int id, UserUpdateRequest user) {
-        User user1 = userRepository.findById(id).orElse(null);
+    public UserResponse updateStaff(int id, UserUpdateRequest user) {
+        User user1 = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
         if (user != null && user1.getRole() == Role.STAFF) {
-            userMapper.updateStaff(user1 , user);
+            if (user.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            } else {
+                user.setPassword(user1.getPassword());
+            }
+            userMapper.updateUser(user1, user);
             userRepository.save(user1);
-            UserResponse userResponse = new UserResponse();
-            return Optional.of(userResponse);
-
-
+            return userMapper.toUserResponse(user1);
         }
-        return Optional.empty();
+        throw new AppException(ErrorCode.STAFF_NOT_FOUND);
     }
 
     @Override
     public boolean deleteStaff(int id) {
-        User user = userRepository.findById(id).get();
-        if (user != null && user.getRole() == Role.STAFF) {
-            userRepository.delete(user);
-            return true;
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+        if (user.getRole() != Role.STAFF) {
+            throw new AppException(ErrorCode.STAFF_NOT_FOUND);
         }
-        return false;
+
+        userRepository.delete(user);
+        return true;
+
     }
+
+    @Override
+    public void banUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unBanUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
+
 
 }
