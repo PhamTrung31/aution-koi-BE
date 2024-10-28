@@ -11,6 +11,7 @@ import swp.auctionkoi.models.enums.Role;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
+    Integer id;
     String username;
     String fullname;
     String phone;

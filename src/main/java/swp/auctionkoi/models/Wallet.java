@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @Entity
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 @Table(name = "Wallets")
 @FieldDefaults(level = AccessLevel.PRIVATE)

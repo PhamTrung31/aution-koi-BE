@@ -1,21 +1,34 @@
 package swp.auctionkoi.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Data;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Configuration
+@Getter
 public class VNPAYConfig {
-    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_Returnurl = "/auctionkoi/vnpay/vnpay-payment-return";
-    public static String vnp_TmnCode = "QCYQY77A"; // kiểm tra email sau
-    public static String vnp_HashSecret = "ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K"; // khi đăng ký Test
-    public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+    @Value("${vnpay.tmncode}")
+    private String vnp_TmnCode;
+
+    @Value("${vnpay.hashsecret}")
+    private String vnp_HashSecret;
+
+    @Value("${vnpay.payurl}")
+    private String vnp_PayUrl;
+
+    @Value("${vnpay.returnurl}")
+    private String vnp_Returnurl;
 
 
-    public static String hashAllFields(Map fields) {
+    public  String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
@@ -32,7 +45,7 @@ public class VNPAYConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(vnp_HashSecret,sb.toString());
+        return hmacSHA512(vnp_HashSecret, sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

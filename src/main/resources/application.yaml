@@ -27,7 +27,7 @@ spring:
               boot:
                 model:
                   naming:
-                      PhysicalNamingStrategyStandardImpl
+                    PhysicalNamingStrategyStandardImpl
     show-sql: true
 
 #  jpa:
@@ -60,7 +60,8 @@ springdoc:
     path: /swagger-ui-custom.html
 
 vnpay:
-  tmncode: QCYQY77A      # Mã sandbox mà VNPAY cung cấp
-  hashsecret: ST6Z81RWUFZMB7U2RAXO4Q5A3BXMZ68K  # Hash secret dùng để ký giao dịch
-  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html  # URL sandbox của VNPAY
-  returnurl: http://localhost:8081/auctionkoi/api/payment/vnpay-return  # URL callback để nhận phản hồi
+  tmncode: ${TMN_CODE}                   # Merchant code provided by VNPAY
+  hashsecret: ${HASH_SECRET}             # Secret key for data signing
+  payurl: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"   # Payment initiation URL
+  returnurl: "/auctionkoi/vnpay/vnpay-payment-return"                   # Secret key for data signing
+
