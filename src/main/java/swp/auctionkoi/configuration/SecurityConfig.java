@@ -35,7 +35,7 @@ import java.util.*;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig  {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/staffs/**", "/auth/**", "/auth/token", "/auth/introspect",
@@ -48,7 +48,7 @@ public class SecurityConfig {
             "/auction/view-all-breeder-requests/{breederId}",
             "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
             "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
-            "/vnpay/", "/vnpay/vnpay-payment-return",
+            "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/AuctionKoi/signingoogle",
             "v2/api-docs", "/payment/requestwithdraw",
             "v3/api-docs",
             "v3/api-docs/**",

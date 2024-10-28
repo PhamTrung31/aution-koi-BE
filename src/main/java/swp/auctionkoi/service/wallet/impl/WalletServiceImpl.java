@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.Wallet;
@@ -17,13 +18,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WalletServiceImpl implements WalletService {
-    private final WalletRepository walletRepository;
+    WalletRepository walletRepository;
 
-    public Optional<Wallet> getWalletByUserId(int userId){
-        if(userId <= 0){
+    public Optional<Wallet> getWalletByUserId(int userId) {
+        if (userId <= 0) {
             throw new AppException(ErrorCode.INVALID_USER_ID);
         }
-        Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        return Optional.ofNullable(wallet);
+        return Optional.ofNullable(walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
+
+
+
 }
