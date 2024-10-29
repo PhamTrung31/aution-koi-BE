@@ -48,7 +48,7 @@ public class SecurityConfig  {
             "/auction/view-all-breeder-requests/{breederId}",
             "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
             "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
-            "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/AuctionKoi/signingoogle",
+            "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/hello",
             "v2/api-docs", "/payment/requestwithdraw",
             "v3/api-docs",
             "v3/api-docs/**",
@@ -67,6 +67,7 @@ public class SecurityConfig  {
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -100,14 +101,17 @@ public class SecurityConfig  {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET, "/manager").hasAnyAuthority("ROLE_MANAGER")
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
 
+                .oauth2Login(oauth2 ->
+                        oauth2.defaultSuccessUrl("/hello",true))
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
+                .oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
                                 jwtConfigurer.decoder(jwtDecoder())
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+
         );
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);

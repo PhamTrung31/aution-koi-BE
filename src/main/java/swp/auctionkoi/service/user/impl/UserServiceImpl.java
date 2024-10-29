@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserLoginRequest;
@@ -18,6 +19,7 @@ import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.UserService;
 
 import javax.swing.text.html.Option;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -90,5 +92,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
+    }
+
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByUsername(email); // giả sử username được lưu là email
     }
 }

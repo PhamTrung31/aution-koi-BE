@@ -28,6 +28,16 @@ spring:
                 model:
                   naming:
                     PhysicalNamingStrategyStandardImpl
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+#            scope: https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
+#            redirect-uri: "http://localhost:8081/auctionkoi/login/oauth2/code/google"
+#            client-name: Google
     show-sql: true
 
 #  jpa:
@@ -39,19 +49,19 @@ spring:
 ##    suffix: .html                     # Phần mở rộng của file
 ##    cache: false
 #
-#logging:
-#  level:
-#    org.hibernate.SQL: DEBUG
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-#    org.springframework.security: DEBUG
-#  properties:
-#    hibernate:
-#      dialect: org.hibernate.dialect.SQLServerDialect
-#      ddl-auto: update
-#      cache:
-#        use_second_level_cache: false
-#      format_sql: true
-#  show-sql: true
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: DEBUG
+  properties:
+    hibernate:
+      dialect: org.hibernate.dialect.SQLServerDialect
+      ddl-auto: update
+      cache:
+        use_second_level_cache: false
+      format_sql: true
+  show-sql: true
 
 springdoc:
   api-docs:

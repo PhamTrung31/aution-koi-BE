@@ -57,7 +57,8 @@ public class AnonymousAuctionService {
         }
 
         //get user's wallet
-        Wallet wallet = walletService.getWalletByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+        Wallet wallet = walletService.getWalletByUserId(user.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
         //check type method
         if (auctionRequest.getMethodType() != AuctionType.ANONYMOUS) {
