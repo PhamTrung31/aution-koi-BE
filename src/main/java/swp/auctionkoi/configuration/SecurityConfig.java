@@ -39,7 +39,7 @@ public class SecurityConfig {
             "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
             "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
-            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}",
+            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}", "/ws"
 
     };
 
@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")
+                        .requestMatchers("/auctionkoi/ws").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
@@ -108,8 +109,8 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-
-        corsConfiguration.addAllowedOrigin("http://localhost:5173");
+        corsConfiguration.addAllowedOrigin("*");
+//        corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
 
