@@ -121,7 +121,8 @@ public class AuctionServiceImpl implements AuctionService {
                 .user(user)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(wallet.getId())
-                .transactionFee(depositAmount)
+                .amount(depositAmount)
+                .transactionFee(0F)
                 .build();
         transactionRepository.save(transaction);
 
@@ -130,7 +131,8 @@ public class AuctionServiceImpl implements AuctionService {
                 .user(admin)
                 .transactionType(TransactionType.TRANSFER)
                 .walletId(wallet.getId())
-                .transactionFee(depositAmount)
+                .amount(depositAmount)
+                .transactionFee(0F)
                 .build();
         transactionRepository.save(transaction1);
 
@@ -149,6 +151,17 @@ public class AuctionServiceImpl implements AuctionService {
 
         return response;
     }
+
+    @Override
+    // Hàm kiểm tra tham gia đấu giá
+    public String checkUserParticipationInAuction(int userId, int auctionId) {
+        Optional<AuctionParticipants> existedParticipants = Optional.ofNullable(
+                auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, userId)
+        );
+
+        return existedParticipants.isPresent() ? "Joined auction" : "Haven't join auction";
+    }
+
 
     @Transactional
     @Override

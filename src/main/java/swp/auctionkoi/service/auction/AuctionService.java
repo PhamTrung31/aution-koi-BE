@@ -22,6 +22,8 @@ public interface AuctionService {
 
     public AuctionJoinResponse joinAuction(int userId, int auctionId);
 
+    public String checkUserParticipationInAuction(int userId, int auctionId);
+
     public void endAuction(int auctionId);
 
 }

@@ -26,6 +26,7 @@ import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -53,6 +54,27 @@ public class AuctionController {
         return ApiResponse.<AuctionRequestResponseData>builder()
                 .code(200)
                 .result(auctionRequestResponseData)
+                .build();
+    }
+
+    @GetMapping("/manager-review")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInManagerReview() {
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInManagerReview();
+        log.info("Check size auctionRequestResponseDataHashMap: {}", auctionRequests.size());
+        return ApiResponse.<List<AuctionRequest>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionRequests)
+                .build();
+    }
+
+    @GetMapping("/wait")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInWait() {
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInWait();
+        return ApiResponse.<List<AuctionRequest>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionRequests)
                 .build();
     }
 
@@ -94,6 +116,7 @@ public class AuctionController {
         AuctionRequestUpdateResponse auctionRequestResponse = auctionRequestService.reviewAuctionRequestByManager(
                 request.getAuctionRequestId(),
                 request.getManagerId(),
+                request.getStaffId(),
                 request.isApproved(),
                 request.isAssignToStaff());
 
@@ -101,7 +124,7 @@ public class AuctionController {
         if (request.isApproved()) {
             message = "The manager agreed to approve";
         } else if(request.isAssignToStaff()) {
-            message = "Manager requests the staff who submitted the request to inspect the fish first";
+            message = "Manager requests the staff to inspect the fish first";
         } else {
             message = "Request not approved by manager";
         }

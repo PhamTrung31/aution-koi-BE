@@ -22,6 +22,7 @@ public class AuctionRequestResponseData {
     KoiFish fish;
     Float buyOut;
     Float startPrice;
+    Integer incrementStep;
     Float incrementPrice;
     AuctionType methodType;
     Instant requestCreatedDate;

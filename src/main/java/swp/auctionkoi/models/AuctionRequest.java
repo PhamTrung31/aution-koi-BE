@@ -1,10 +1,10 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionType;
@@ -25,36 +25,42 @@ public class AuctionRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.User user; //breeder
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "approved_staff_id")
+    @JoinColumn(name = "assigned_staff_id")
     @Nullable
-    swp.auctionkoi.models.User approvedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    swp.auctionkoi.models.User assignedStaff;
 
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "initiated_by_id")
-//    // Thêm trường này để lưu nhân viên đã khởi tạo yêu cầu
-//    @Nullable
-//    swp.auctionkoi.models.User initiatedBy;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
     @NotNull
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.KoiFish fish;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
     @Nullable
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.Auction auction;
 
     @Column(name = "buy_out")
     @NotNull
     Float buyOut;
+
+    @Column(name = "increment_step")
+    @NotNull
+    Integer incrementStep;
 
     @Column(name = "start_price")
     @NotNull
@@ -94,4 +100,6 @@ public class AuctionRequest {
 //    public void onPreUpdate() {
 //        this.requestUpdatedDate = Instant.now();
 //    }
+
+
 }

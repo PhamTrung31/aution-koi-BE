@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class ManagerReviewRequest {
      int auctionRequestId;
      int managerId;
+     int staffId;
      @JsonProperty("isApproved")
      boolean isApproved;
      @JsonProperty("assignToStaff")

@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 
 import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.request.UserDTO;
+import swp.auctionkoi.models.KoiFish;
+import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 
@@ -25,10 +27,11 @@ import java.time.Instant;
 public class AuctionRequestUpdateResponse {
      Integer auctionRequestId;
      UserDTO user;
-     Integer approvedStaffId;  // Chỉ lưu trữ ID của Staff
+     Integer assginedStaffId;
      String requestStatus;
      KoiFishDTO fish;
      Float buyOut;
+     Integer incrementStep;
      Float startPrice;
      AuctionType methodType;
      Instant requestCreatedDate;
@@ -40,10 +43,11 @@ public class AuctionRequestUpdateResponse {
      public AuctionRequestUpdateResponse(
              Integer auctionRequestId,
              UserDTO user,
-             Integer approvedStaffId,  // Chỉ lấy ID của Staff
+             Integer assginedStaffId,
              @NotNull AuctionRequestStatus requestStatus,
              KoiFishDTO fish,
              @NotNull Float buyOut,
+             @NotNull Integer incrementStep,
              @NotNull Float startPrice,
              @NotNull AuctionType methodType,
              Instant requestCreatedDate,
@@ -53,10 +57,11 @@ public class AuctionRequestUpdateResponse {
      ) {
           this.auctionRequestId = auctionRequestId;
           this.user = user;
-          this.approvedStaffId = approvedStaffId;  // Lưu ID của Staff
+          this.assginedStaffId = assginedStaffId;
           this.requestStatus = requestStatus.name();  // Chuyển từ enum sang String
           this.fish = fish;
           this.buyOut = buyOut;
+          this.incrementStep = incrementStep;
           this.startPrice = startPrice;
           this.methodType = methodType;
           this.requestCreatedDate = requestCreatedDate;

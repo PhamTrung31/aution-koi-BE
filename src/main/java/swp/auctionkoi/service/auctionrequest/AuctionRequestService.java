@@ -8,6 +8,7 @@ import swp.auctionkoi.models.AuctionRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 public interface AuctionRequestService {
     AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
@@ -16,8 +17,10 @@ public interface AuctionRequestService {
     HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequestsForBreeder(Integer breederId);
     AuctionRequestResponse updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO);
     AuctionRequestResponse cancelAuctionRequest (int auctionRequestId, int breederID);
-    public AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager);
+    List<AuctionRequest> getAuctionRequestsInManagerReview();
+    List<AuctionRequest> getAuctionRequestsInWait();
+    AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager);
 //    AuctionRequestResponse rejectAuctionRequestForStaff (int auctionRequestId, int staffId);
-    AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, boolean isApproved, boolean assignToStaff);
+    AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, Integer staffId, boolean isApproved, boolean assignToStaff);
     AuctionRequestUpdateResponse reviewAuctionRequestByStaff(int auctionRequestId, int staffId, boolean isApproved);
 }

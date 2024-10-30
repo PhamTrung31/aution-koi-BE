@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -128,7 +129,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         HashMap<Integer, AuctionRequestResponseData> result = new HashMap<>();
         List<AuctionRequest> auctionRequestList = auctionRequestRepository.findListAuctionRequestByUserId(userId);
 
-        for(AuctionRequest auctionRequest : auctionRequestList) {
+        for (AuctionRequest auctionRequest : auctionRequestList) {
             result.put(auctionRequest.getId(), auctionRequestMapper.toAuctionRequestResponseData(auctionRequest));
         }
 
@@ -162,6 +163,15 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
     @Override
+    public List<AuctionRequest> getAuctionRequestsInManagerReview() {
+        return auctionRequestRepository.findByRequestStatus(AuctionRequestStatus.MANAGER_REVIEW);
+    }
+    @Override
+    public List<AuctionRequest> getAuctionRequestsInWait() {
+        return auctionRequestRepository.findByRequestStatus(AuctionRequestStatus.WAIT);
+    }
+
+    @Override
     public AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager) {
 
 //        System.out.println("Received auctionRequestId: " + auctionRequestId);
@@ -185,7 +195,8 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         if (auctionRequest.getRequestStatus().equals(AuctionRequestStatus.WAIT) &&
                 auctionRequest.getFish().getStatus().equals(KoiStatus.PENDING_APPROVAL)) {
 
-            // Nếu staff gửi yêu cầu lên cho manager để xem xét
+            // Nếu staff gửi yêu cầu lên cho manager để xem xét và không gán thông tin
+            // staff đã gửi yêu cầu
             if (isSendToManager) {
                 auctionRequest.setRequestStatus(AuctionRequestStatus.MANAGER_REVIEW);
                 auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL);
@@ -193,26 +204,23 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 // Nếu staff duyệt thẳng yêu cầu
                 auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
                 auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+                // Gán thông tin staff chịu trách nhiệm duyệt thẳng yêu cầu
+                auctionRequest.setAssignedStaff(staff);
             }
-
-            // Gán thông tin staff chịu trách nhiệm hoặc khởi tạo
-            auctionRequest.setApprovedStaff(staff);
 
 
             // Lưu thay đổi vào repository
             auctionRequestRepository.save(auctionRequest);
-
-            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
-            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
-
-
+//            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+//            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
             return new AuctionRequestUpdateResponse(
                     auctionRequest.getId(),
-                    userDTO,
-                    auctionRequest.getApprovedStaff().getId(),
-                    auctionRequest.getRequestStatus(),
-                    koiFishDTO,
+                    UserDTO.fromUser(auctionRequest.getUser()),  // Chuyển User sang UserDTO
+                    auctionRequest.getAssignedStaff() != null ? auctionRequest.getAssignedStaff().getId() : null,
+                    auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
+                    KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                     auctionRequest.getBuyOut(),
+                    auctionRequest.getIncrementStep(),
                     auctionRequest.getStartPrice(),
                     auctionRequest.getMethodType(),
                     auctionRequest.getRequestCreatedDate(),
@@ -258,7 +266,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 //    }
 
     @Override
-    public AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, boolean isApproved, boolean assignToStaff) {
+    public AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, Integer staffId, boolean isApproved, boolean assignToStaff) {
 
         // Kiểm tra manager tồn tại
         User manager = userRepository.findById(managerId)
@@ -280,14 +288,30 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 // Manager đồng ý duyệt
                 auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
                 auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+
+                if (staffId != null) {
+                    User staff = userRepository.findById(staffId)
+                            .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+                    if (!staff.getRole().equals(Role.STAFF)) {
+                        throw new AppException(ErrorCode.UNAUTHORIZED);
+                    }
+                    auctionRequest.setAssignedStaff(staff);
+                }
             } else if (assignToStaff) {
+
+                if (staffId == null) {
+                    throw new AppException(ErrorCode.STAFF_ID_REQUIRED);
+                }
+                User staff = userRepository.findById(staffId)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                if (!staff.getRole().equals(Role.STAFF)) {
+                    throw new AppException(ErrorCode.UNAUTHORIZED);
+                }
+
                 // Manager yêu cầu staff đã gửi đi xem cá trước
                 auctionRequest.setRequestStatus(AuctionRequestStatus.ASSIGNED_TO_STAFF);
                 auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL); // Hoặc giữ nguyên
-
-                // Lấy lại thông tin Staff đã gửi yêu cầu ban đầu
-                User staff = auctionRequest.getApprovedStaff();
-                auctionRequest.setApprovedStaff(staff); // Gán lại staff vào yêu cầu
+//                auctionRequest.setAssignedStaff(staff); // Gán lại staff đi xem cá
 
 
             } else {
@@ -301,16 +325,17 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
             // Trả về kết quả
 
-            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
-            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
+//            UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+//            KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
 
             return new AuctionRequestUpdateResponse(
                     auctionRequest.getId(),
-                    userDTO,
-                    auctionRequest.getApprovedStaff().getId(),
-                    auctionRequest.getRequestStatus(),
-                    koiFishDTO,
+                    UserDTO.fromUser(auctionRequest.getUser()),  // Chuyển User sang UserDTO
+                    auctionRequest.getAssignedStaff() != null ? auctionRequest.getAssignedStaff().getId() : null,
+                    auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
+                    KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                     auctionRequest.getBuyOut(),
+                    auctionRequest.getIncrementStep(),
                     auctionRequest.getStartPrice(),
                     auctionRequest.getMethodType(),
                     auctionRequest.getRequestCreatedDate(),
@@ -346,15 +371,17 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             throw new AppException(ErrorCode.INVALID_AUCTION_REQUEST_STATE);
         }
 
-        // Kiểm tra staff có phải là người được assign không
-        if (!auctionRequest.getApprovedStaff().getId().equals(staffId)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+//        // Kiểm tra staff có phải là người được assign không
+//        if (!auctionRequest.getApprovedStaff().getId().equals(staffId)) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
 
         // Nếu staff đồng ý duyệt yêu cầu sau khi xem cá
         if (isApproved) {
             auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
             auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+            auctionRequest.setAssignedStaff(staff);
+
         } else {
             // Nếu staff từ chối yêu cầu sau khi xem cá
             auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
@@ -366,16 +393,17 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
         // Trả về kết quả
 
-        UserDTO userDTO = new UserDTO(auctionRequest.getUser());
-        KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
+//        UserDTO userDTO = new UserDTO(auctionRequest.getUser());
+//        KoiFishDTO koiFishDTO = new KoiFishDTO(auctionRequest.getFish());
 
         return new AuctionRequestUpdateResponse(
                 auctionRequest.getId(),
-                userDTO,
-                auctionRequest.getApprovedStaff().getId(),
-                auctionRequest.getRequestStatus(),
-                koiFishDTO,
+                UserDTO.fromUser(auctionRequest.getUser()),  // Chuyển User sang UserDTO
+                auctionRequest.getAssignedStaff() != null ? auctionRequest.getAssignedStaff().getId() : null,
+                auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
+                KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                 auctionRequest.getBuyOut(),
+                auctionRequest.getIncrementStep(),
                 auctionRequest.getStartPrice(),
                 auctionRequest.getMethodType(),
                 auctionRequest.getRequestCreatedDate(),
@@ -384,7 +412,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getEndTime()
         );
     }
-
 
 
     private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
@@ -435,7 +462,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
     private AuctionRequest updateRequest(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO, KoiFish fish) {
-        try{
+        try {
             fish.setStatus(KoiStatus.PENDING_APPROVAL);
             auctionRequest.setFish(fish);
             auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
@@ -447,7 +474,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             auctionRequestRepository.save(auctionRequest);
 
             return auctionRequest;
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new AppException(ErrorCode.ERROR_UPDATE); //temp error to check, delete after fix it
         }
     }

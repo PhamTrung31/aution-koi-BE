@@ -57,7 +57,8 @@ public enum ErrorCode {
     NOT_BELONG_TO_BREEDER(1045, "Fish not belong to breeder!", HttpStatus.BAD_REQUEST),
     ERROR_UPDATE(1046, "Update failed!", HttpStatus.BAD_REQUEST),
     STAFF_NOT_FOUND(1047, "Staff not existed", HttpStatus.NOT_FOUND),
-        INCORRECT_PASSWORD(1048,"Incorrect password",HttpStatus.BAD_REQUEST);
+    INCORRECT_PASSWORD(1048, "Incorrect password", HttpStatus.BAD_REQUEST),
+    STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND );
 
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 //    USER_EXISTED(1001, "User existed", HttpStatus.BAD_REQUEST),
@@ -82,4 +83,4 @@ public enum ErrorCode {
     int code;
     String message;
     HttpStatusCode statusCode;
-}
+    }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,6 +33,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -49,7 +52,9 @@ public class SecurityConfig  {
             "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
             "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
             "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/hello",
-            "v2/api-docs", "/payment/requestwithdraw",
+            "/payment/requestwithdraw","/google/hello","/auctions/check-participation",
+            "/auctions/manager-review",
+            "v2/api-docs",
             "v3/api-docs",
             "v3/api-docs/**",
             "/swagger-resources",
@@ -104,7 +109,9 @@ public class SecurityConfig  {
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 ->
-                        oauth2.defaultSuccessUrl("/hello",true))
+                        oauth2.defaultSuccessUrl("/google/hello",true))
+                .oauth2Login(withDefaults())
+                .formLogin(withDefaults())
 
                 .oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->

@@ -94,10 +94,16 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     // Hàm chung để sắp xếp theo bất kỳ cột nào
+    @Override
     public List<Transaction> getSortedTransactions(String sortBy, String order) {
         Sort sort = order.equalsIgnoreCase("asc")
                 ? Sort.by(Sort.Order.asc(sortBy))
                 : Sort.by(Sort.Order.desc(sortBy));
         return transactionRepository.findAll(sort);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsByUserId(Integer userId) {
+        return transactionRepository.findByUserId(userId);
     }
 }

@@ -33,7 +33,26 @@ public class KoiFishDTO {
         this.age = fish.getAge();
         this.description = fish.getDescription();
         this.image_Url = fish.getImageUrl();
-        this.video_Url   = fish.getVideoUrl();
+        this.video_Url = fish.getVideoUrl();
         this.status = fish.getStatus();
     }
+
+    public static KoiFishDTO fromKoiFish(KoiFish fish) {
+        if (fish == null) {
+            return null;
+        }
+        return new KoiFishDTO(
+                fish.getId(),
+                fish.getName(),
+                fish.getSex(),
+                fish.getSize(),
+                fish.getAge(),
+                fish.getDescription(),
+                fish.getImageUrl(),
+                fish.getVideoUrl(),
+                fish.getStatus()
+
+        );
+    }
+
 }

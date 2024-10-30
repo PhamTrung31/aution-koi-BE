@@ -11,4 +11,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     // Phương thức tìm tất cả và sắp xếp theo Sort, không cần thêm gì khác
     List<Transaction> findAll(Sort sort);
     Transaction findTopByAuctionIdAndUserIdOrderByAmountDesc(int auctionId, int userId);
+    List<Transaction> findByUserId(Integer userId);
 }

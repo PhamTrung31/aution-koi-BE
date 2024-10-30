@@ -42,6 +42,15 @@ public class MemberManageAuctionController {
                 .build();
     }
 
+    @GetMapping("/check-participation/{auctionId}/{userId}")
+    public ApiResponse<String> checkAuctionParticipation(@PathVariable int userId, @PathVariable int auctionId) {
+        String participationStatus = auctionServiceImpl.checkUserParticipationInAuction(userId, auctionId);
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message(participationStatus)
+                .build();
+    }
+
     @PostMapping("/placebid/traditional")
     public ApiResponse<String> placeBidTraditional(@RequestBody BidRequestTraditional bidRequestTraditional){
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(bidRequestTraditional.getAuctionId()).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));

@@ -27,4 +27,19 @@ public class UserDTO  {
         this.avatarUrl = user.getAvatarUrl();
         this.role = user.getRole().toString();
     }
+    public static UserDTO fromUser(User user) {
+        if (user == null) {
+            return null;
+        }
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getFullname(),
+                user.getPhone(),
+                user.getAddress(),
+                user.getAvatarUrl()
+        );
+
+    }
+
 }
