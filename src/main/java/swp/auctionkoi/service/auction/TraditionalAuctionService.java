@@ -14,6 +14,8 @@ import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
 
+import java.time.Duration;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,7 +33,9 @@ public class TraditionalAuctionService {
     TransactionRepository transactionRepository;
 
     AuctionRequestRepository auctionRequestRepository;
-    private final AuctionParticipantsRepository auctionParticipantsRepository;
+
+    AuctionParticipantsRepository auctionParticipantsRepository;
+
 
     public void placeBid(int auctionId, BidRequestTraditional bidRequestTraditional) {
 
@@ -44,14 +48,14 @@ public class TraditionalAuctionService {
         //get user
         User user = userRepository.findById(bidRequestTraditional.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
+        AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
-        if(auctionParticipants == null) {
+        if(auctionParticipant == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
 
         //get user's wallet
-        Wallet wallet = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+        Wallet walletUser = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
         //check type method
         if (auctionRequest.getMethodType() != AuctionType.TRADITIONAL) {
@@ -71,12 +75,12 @@ public class TraditionalAuctionService {
         //get bidAmount
         float bidAmount = bidRequestTraditional.getBidAmount();
 
-        if(bidAmount < auction.getHighestPrice()){
+        if(bidAmount <= auction.getHighestPrice()){
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
         }
 
         //not enough money
-        if(bidAmount > wallet.getBalance()) {
+        if(bidAmount > walletUser.getBalance()) {
             throw new AppException(ErrorCode.MONEY_IN_WALLET_NOT_ENOUGH);
         }
 
@@ -88,14 +92,22 @@ public class TraditionalAuctionService {
         }
 
         Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
+        bidRepository.save(bid);
 
-        wallet.setBalance(wallet.getBalance() - bidAmount);
+        //for check bid place close the end time or not
+        Bid checkBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auctionId, user.getId());
+        Duration duration = Duration.between(checkBid.getBidCreatedDate(), auctionRequest.getEndTime());
+        if (!duration.isNegative() && duration.toMillis() < 10000) {
+            auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
+        }
+
+        walletUser.setBalance(walletUser.getBalance() - bidAmount);
 
         Transaction transaction = Transaction.builder()
                 .auction(auction)
                 .user(user)
                 .transactionFee(0)
-                .walletId(wallet.getId())
+                .walletId(walletUser.getId())
                 .transactionType(TransactionType.BID)
                 .amount(bidAmount)
                 .build();
@@ -103,10 +115,10 @@ public class TraditionalAuctionService {
         auction.setHighestPrice(bidAmount);
         auction.setWinner(user);
 
-        walletRepository.save(wallet);
+        walletRepository.save(walletUser);
         transactionRepository.save(transaction);
         auctionRepository.save(auction);
-        bidRepository.save(bid);
+
     }
 
     /**

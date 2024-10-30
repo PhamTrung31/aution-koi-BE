@@ -134,8 +134,8 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/reject/{auctionRequestId}")
-    public AuctionRequestResponse rejectAuctionRequestForStaff(@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId) {
-        return auctionRequestService.rejectAuctionRequestForStaff(auctionRequestId, staffId);
-    }
+//    @PutMapping("/reject/{auctionRequestId}")
+//    public AuctionRequestResponse rejectAuctionRequestForStaff(@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId) {
+//        return auctionRequestService.rejectAuctionRequestForStaff(auctionRequestId, staffId);
+//    }
 }

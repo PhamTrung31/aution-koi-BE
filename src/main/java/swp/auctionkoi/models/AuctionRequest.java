@@ -31,9 +31,9 @@ public class AuctionRequest {
     swp.auctionkoi.models.User user; //breeder
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "approved_staff_id")
+    @JoinColumn(name = "assigned_staff_id")
     @Nullable
-    swp.auctionkoi.models.User approvedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
+    swp.auctionkoi.models.User assignedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
 
 
 //    @ManyToOne(fetch = FetchType.EAGER)
@@ -42,12 +42,12 @@ public class AuctionRequest {
 //    @Nullable
 //    swp.auctionkoi.models.User initiatedBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
     @NotNull
     swp.auctionkoi.models.KoiFish fish;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
     @Nullable
     swp.auctionkoi.models.Auction auction;
@@ -83,6 +83,7 @@ public class AuctionRequest {
     @Column(name = "end_time")
     @NotNull
     Instant endTime;
+
 
     @PrePersist
     public void onPrePersist() {

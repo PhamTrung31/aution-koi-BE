@@ -21,7 +21,7 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
     swp.auctionkoi.models.KoiFish fish;
 
@@ -32,7 +32,7 @@ public class Auction {
     @Enumerated(EnumType.ORDINAL)
     AuctionStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "winner_id")
     User winner;
 
@@ -45,4 +45,9 @@ public class Auction {
 
     @Column(name = "deposit_amount")
     Float depositAmount;
+
+    @ColumnDefault("0")
+    @Column(name = "buy_intent_count")
+    private Integer buyIntentCount;
+
 }

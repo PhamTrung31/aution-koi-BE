@@ -1,5 +1,8 @@
 package swp.auctionkoi.service.auction;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequest;
@@ -13,6 +16,8 @@ import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FixedPriceAuctionService {
 
     AuctionRepository auctionRepository;
@@ -22,12 +27,10 @@ public class FixedPriceAuctionService {
     TransactionRepository transactionRepository;
     BidRepository bidRepository;
     AuctionParticipantsRepository auctionParticipantsRepository;
-
-
+    
     public void placeBid(int auctionId, BidRequest bidRequest) {
 
         //get data from database
-
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
         //check auction status
@@ -44,14 +47,13 @@ public class FixedPriceAuctionService {
 
         User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
+        AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
-        if (auctionParticipants == null) {
+        if (auctionParticipant == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
 
-        Wallet wallet = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
-
+        Wallet walletUser = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
         //check value bid
         if (bidRequest.getBidAmount() <= 0) {
@@ -59,13 +61,18 @@ public class FixedPriceAuctionService {
         }
 
         //check bid lower than start price
-        if (bidRequest.getBidAmount() < auctionRequest.getStartPrice()) {
+        if (bidRequest.getBidAmount() < auctionRequest.getBuyOut() || bidRequest.getBidAmount() > auctionRequest.getBuyOut()) {
             throw new AppException(ErrorCode.INVALID_BID_AMOUNT);
         }
 
         //check money in wallet can pay bid or not
-        if (bidRequest.getBidAmount() > wallet.getBalance()) {
+        if (bidRequest.getBidAmount() > walletUser.getBalance()) {
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
+        }
+
+        // Kiểm tra xem người dùng đã đặt giá chưa
+        if (bidRepository.existsByAuctionAndUser(auction, user)) {
+            throw new AppException(ErrorCode.BID_ALREADY_PLACED);
         }
 
         // save bid
@@ -75,16 +82,16 @@ public class FixedPriceAuctionService {
                 .bidAmount(bidRequest.getBidAmount())
                 .build();
 
-        wallet.setBalance(wallet.getBalance() - bidRequest.getBidAmount());
+        walletUser.setBalance(walletUser.getBalance() - bidRequest.getBidAmount());
 
         Transaction transaction = Transaction.builder()
                 .auction(auction)
                 .user(user)
-                .walletId(wallet.getId())
+                .walletId(walletUser.getId())
                 .transactionType(TransactionType.BID)
                 .build();
 
-        walletRepository.save(wallet);
+        walletRepository.save(walletUser);
         transactionRepository.save(transaction);
         bidRepository.save(bid);
     }

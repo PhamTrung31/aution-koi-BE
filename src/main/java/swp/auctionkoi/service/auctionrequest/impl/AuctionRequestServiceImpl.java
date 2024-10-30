@@ -196,7 +196,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             }
 
             // Gán thông tin staff chịu trách nhiệm hoặc khởi tạo
-            auctionRequest.setApprovedStaff(staff);
+            auctionRequest.setAssignedStaff(staff);
 
 
             // Lưu thay đổi vào repository
@@ -209,7 +209,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             return new AuctionRequestUpdateResponse(
                     auctionRequest.getId(),
                     userDTO,
-                    auctionRequest.getApprovedStaff().getId(),
+                    auctionRequest.getAssignedStaff().getId(),
                     auctionRequest.getRequestStatus(),
                     koiFishDTO,
                     auctionRequest.getBuyOut(),
@@ -286,8 +286,8 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL); // Hoặc giữ nguyên
 
                 // Lấy lại thông tin Staff đã gửi yêu cầu ban đầu
-                User staff = auctionRequest.getApprovedStaff();
-                auctionRequest.setApprovedStaff(staff); // Gán lại staff vào yêu cầu
+                User staff = auctionRequest.getAssignedStaff();
+                auctionRequest.setAssignedStaff(staff); // Gán lại staff vào yêu cầu
 
 
             } else {
@@ -307,7 +307,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             return new AuctionRequestUpdateResponse(
                     auctionRequest.getId(),
                     userDTO,
-                    auctionRequest.getApprovedStaff().getId(),
+                    auctionRequest.getAssignedStaff().getId(),
                     auctionRequest.getRequestStatus(),
                     koiFishDTO,
                     auctionRequest.getBuyOut(),
@@ -347,7 +347,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
         // Kiểm tra staff có phải là người được assign không
-        if (!auctionRequest.getApprovedStaff().getId().equals(staffId)) {
+        if (!auctionRequest.getAssignedStaff().getId().equals(staffId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -372,7 +372,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return new AuctionRequestUpdateResponse(
                 auctionRequest.getId(),
                 userDTO,
-                auctionRequest.getApprovedStaff().getId(),
+                auctionRequest.getAssignedStaff().getId(),
                 auctionRequest.getRequestStatus(),
                 koiFishDTO,
                 auctionRequest.getBuyOut(),

@@ -16,12 +16,14 @@ import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.wallet.WalletService;
 
+import javax.swing.text.html.FormSubmitEvent;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,22 +181,57 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public void endAuction(int auctionId) {
         // Lấy thông tin auction
-        Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
-
-        auction.setStatus(AuctionStatus.COMPLETED); //staff will update after finish delivery
-        auctionRepository.save(auction);
-
-        //get list participant in this auction
-        List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auction.getId());
-
-
+        AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
         //get admin
-        User admin = userRepository.findByUsername("admin")
-                .orElseThrow(() -> new AppException(ErrorCode.ADMIN_NOT_FOUND));
+        User admin = userRepository.findByUsername("admin").orElseThrow(() -> new AppException(ErrorCode.ADMIN_NOT_FOUND));
 
-        backDepositAmount(auction, participants, admin);
-        backMoneyBid(auction, participants, admin);
-        createDeliveryKoiForWinner(auction);
+        List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionRequest.getAuction().getId());
+
+
+        if (auctionRequest.getMethodType().equals(AuctionType.TRADITIONAL)) {
+
+            if(auctionRequest.getAuction().getWinner() == null){
+                auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
+                return;
+            }
+            backDepositAmount(auctionRequest.getAuction(), participants, admin);
+            createDeliveryKoiForWinner(auctionRequest.getAuction());
+        }
+
+        if (auctionRequest.getMethodType().equals(AuctionType.FIXED_PRICE)) {
+            List<Bid> listBid = bidRepository.getListBidByAuctionId(auctionRequest.getAuction().getId());
+            if(listBid.size() > 1) {
+                User winner = randomWinner(listBid);
+                auctionRequest.getAuction().setWinner(winner);
+                createDeliveryKoiForWinner(auctionRequest.getAuction());
+            } else if (listBid.size() == 1){
+                User winner = listBid.get(0).getUser();
+                auctionRequest.getAuction().setWinner(winner);
+                createDeliveryKoiForWinner(auctionRequest.getAuction());
+            } else{
+                auctionRequest.getAuction().setWinner(null);
+                auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
+                return;
+            }
+            backDepositAmount(auctionRequest.getAuction(), participants, admin);
+        }
+
+        if (auctionRequest.getMethodType().equals(AuctionType.ANONYMOUS)) {
+            Bid bid = bidRepository.getBidHighestAmountAndEarliestInAuction(auctionRequest.getAuction().getId());
+            if(bid != null) {
+                User winner = bid.getUser();
+                auctionRequest.getAuction().setWinner(winner);
+                backDepositAmount(auctionRequest.getAuction(), participants, admin);
+                createDeliveryKoiForWinner(auctionRequest.getAuction());
+            } else {
+                auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
+                return;
+            }
+        }
+
+        backMoneyBid(auctionRequest.getAuction(), participants, admin);
+        auctionRequest.getAuction().setStatus(AuctionStatus.COMPLETED); //staff will update after finish delivery
+        auctionRequestRepository.save(auctionRequest);
     }
 
     private void backDepositAmount(Auction auction, List<AuctionParticipants> participants, User admin) {
@@ -233,11 +270,11 @@ public class AuctionServiceImpl implements AuctionService {
 
     private void backMoneyBid(Auction auction, List<AuctionParticipants> participants, User admin) {
         for (AuctionParticipants participant : participants) {
-            Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), participant.getId());
-            if(highestUserBid != null){
-                Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
-                Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+            if(!participant.getUser().getId().equals(auction.getWinner().getId())){
+                Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), participant.getId());
                 if (highestUserBid != null) {
+                    Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+                    Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     //transaction backmoney when user have bid
                     Transaction transaction = Transaction.builder()
                             .user(participant.getUser())
@@ -263,20 +300,23 @@ public class AuctionServiceImpl implements AuctionService {
     private void createDeliveryKoiForWinner(Auction auction) {
         User winner = auction.getWinner();
         if (winner != null) {
-            // Example of calling endAuction with manual addresses
-            String fromAddress = "123 Admin Street, Admin City";
-            String toAddress = "456 Winner Avenue, Winner Town";
-
-            Transaction transaction = transactionRepository.findTopByAuctionIdAndUserIdOrderByAmountDesc(auction.getId(), winner.getId());
+            //from address
+            User breeder = auction.getFish().getUser();
+            String fromAddress = breeder.getAddress();
+            String toAddress = winner.getAddress();
 
             // Create a delivery record with manually entered addresses
             Delivery delivery = Delivery.builder()
-                    .transaction(transaction)
                     .fromAddress(fromAddress)  // Manual input for fromAddress
                     .toAddress(toAddress)      // Manual input for toAddress
                     .deliveryStatus(DeliveryStatus.PREPARING_SHIPMENT)
                     .build();
             deliveryRepository.save(delivery);
         }
+    }
+
+    private User randomWinner(List<Bid> listBid) {
+        int randomIndex = ThreadLocalRandom.current().nextInt(listBid.size()); // select index from 0 to size - 1
+        return listBid.get(randomIndex).getUser(); // return user winner
     }
 }

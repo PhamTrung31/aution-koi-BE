@@ -43,7 +43,7 @@ public class KoiFish {
 
     @NotNull
     @Column(name = "\"size\"", nullable = false)
-    Double size;
+    Float size;
 
     @NotNull
     @Column(name = "age", nullable = false)

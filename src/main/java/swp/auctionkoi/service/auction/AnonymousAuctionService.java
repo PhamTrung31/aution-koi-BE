@@ -50,9 +50,9 @@ public class AnonymousAuctionService {
         //get user
         User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        AuctionParticipants auctionParticipants = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
+        AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
-        if(auctionParticipants == null) {
+        if(auctionParticipant == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
 

@@ -42,5 +42,4 @@ public class Bid {
 
     @Column(name = "bid_amount")
     float bidAmount;
-
 }
