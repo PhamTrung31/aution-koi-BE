@@ -147,7 +147,7 @@ public class VNPAYService {
             if (signValue.equals(vnp_SecureHash)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     // Giao dịch thành công, cập nhật DB, sau đó chuyển hướng
-                    response.sendRedirect("https://fap.fpt.edu.vn/");
+                    response.sendRedirect("http://localhost:5173/topupSuccess");
                 } else {
                     // Giao dịch thất bại
                     response.sendRedirect("https://fap.fpt.edu.vn/error");

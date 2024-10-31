@@ -79,7 +79,7 @@ public class VNPAYController {
 
     // Sau khi hoàn tất thanh toán, VNPAY sẽ chuyển hướng trình duyệt về URL này
     @GetMapping("/vnpay-payment-return")
-    public ResponseEntity<String> paymentCompleted(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Object> paymentCompleted(HttpServletRequest request, HttpServletResponse response) {
         try {
             // Gọi phương thức xử lý thanh toán từ service
             vnPayService.orderReturn(request, response);
@@ -125,7 +125,13 @@ public class VNPAYController {
                 transactionRepository.save(transaction);
 
                 // Trả về thông báo thành công
-                return ResponseEntity.ok("Payment successful");
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("transactionId", transactionId);
+                responseData.put("time", paymentTime);
+                responseData.put("transactionType", "TOP_UP");
+                responseData.put("amount", amount);
+
+                return ResponseEntity.ok().body(responseData);
 
             } else { // Giao dịch thất bại
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment failed");
