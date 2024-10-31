@@ -39,9 +39,9 @@ public class AuctionController {
     AuctionRequestService auctionRequestService;
 
     @GetMapping("/view-all-requests")
-    public ApiResponse<HashMap<Integer, AuctionRequestResponseData>> viewAllAuctionRequest() {
-        HashMap<Integer, AuctionRequestResponseData> auctionRequestResponseHashMap = auctionRequestService.viewAllAuctionRequest();
-        return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
+    public ApiResponse< List<AuctionRequest>> viewAllAuctionRequest() {
+        List<AuctionRequest> auctionRequestResponseHashMap = auctionRequestService.viewAllAuctionRequest();
+        return ApiResponse.< List<AuctionRequest>>builder()
                 .code(200)
                 .result(auctionRequestResponseHashMap)
                 .build();
