@@ -49,5 +49,4 @@ public class Auction {
     @ColumnDefault("0")
     @Column(name = "buy_intent_count")
     private Integer buyIntentCount;
-
 }

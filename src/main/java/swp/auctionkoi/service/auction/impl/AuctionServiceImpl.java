@@ -4,10 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import swp.auctionkoi.dto.request.AuctionDTO;
 import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
+import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
@@ -19,16 +22,15 @@ import swp.auctionkoi.service.wallet.WalletService;
 import javax.swing.text.html.FormSubmitEvent;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@CrossOrigin("*")
 public class AuctionServiceImpl implements AuctionService {
 
     WalletRepository walletRepository;
@@ -271,8 +273,8 @@ public class AuctionServiceImpl implements AuctionService {
     private void backMoneyBid(Auction auction, List<AuctionParticipants> participants, User admin) {
         for (AuctionParticipants participant : participants) {
             if(!participant.getUser().getId().equals(auction.getWinner().getId())){
-                Bid highestUserBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auction.getId(), participant.getId());
-                if (highestUserBid != null) {
+                Bid bid = bidRepository.findByAuctionIdAndUserId(auction.getId(), participant.getId());
+                if (bid != null) {
                     Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     //transaction backmoney when user have bid
@@ -282,15 +284,15 @@ public class AuctionServiceImpl implements AuctionService {
                             .transactionType(TransactionType.TRANSFER)
                             .walletId(userWallet.getId())
                             .transactionFee(0)
-                            .amount(highestUserBid.getBidAmount())
+                            .amount(bid.getBidAmount())
                             .build();
                     transactionRepository.save(transaction);
 
                     //back money
-                    userWallet.setBalance(userWallet.getBalance() + highestUserBid.getBidAmount());
+                    userWallet.setBalance(userWallet.getBalance() + bid.getBidAmount());
                     walletRepository.save(userWallet);
                     //minus money from system wallet
-                    adminWallet.setBalance(adminWallet.getBalance() - highestUserBid.getBidAmount());
+                    adminWallet.setBalance(adminWallet.getBalance() - bid.getBidAmount());
                     walletRepository.save(adminWallet);
                 }
             }
@@ -318,5 +320,19 @@ public class AuctionServiceImpl implements AuctionService {
     private User randomWinner(List<Bid> listBid) {
         int randomIndex = ThreadLocalRandom.current().nextInt(listBid.size()); // select index from 0 to size - 1
         return listBid.get(randomIndex).getUser(); // return user winner
+    }
+
+
+
+    public List<AuctionResonpse> getListAuctionComplete(){
+        List<Auction> auctions = auctionRepository.getListAuctionCompleteByStatus(4);
+        List<AuctionResonpse> resonpses = new ArrayList<>();
+        for(Auction auction : auctions){
+            resonpses.add(AuctionResonpse.builder()
+                            .auction_id(auction.getId())
+                            .fish_id(auction.getFish().getId())
+                            .build());
+        }
+        return resonpses;
     }
 }

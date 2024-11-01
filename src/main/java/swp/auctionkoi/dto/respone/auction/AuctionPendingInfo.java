@@ -16,7 +16,6 @@ import java.time.Instant;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionPendingInfo {
-    Integer auction;
     Integer auction_id;
     Integer fish_id;
     String fish_name;

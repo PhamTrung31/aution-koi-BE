@@ -1,10 +1,13 @@
 package swp.auctionkoi.controller;
 
+import com.google.protobuf.Api;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.*;
 import swp.auctionkoi.dto.request.bid.BidRequest;
@@ -15,8 +18,10 @@ import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
+import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
+import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.repository.AuctionRepository;
@@ -26,16 +31,28 @@ import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/auctions")
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @CrossOrigin("*")
 public class AuctionController {
 
-    AuctionRequestService auctionRequestService;
+    @Autowired
+    private AuctionRequestService auctionRequestService;
+
+    @Autowired
+    private AuctionService auctionService;
+
+    @GetMapping("/past-auction")
+    public ApiResponse<List<AuctionResonpse>> getAuctionComplete(){
+        return ApiResponse.<List<AuctionResonpse>>builder()
+                .code(200)
+                .message("OK")
+                .result(auctionService.getListAuctionComplete())
+                .build();
+    }
 
     @GetMapping("/view-all-requests")
     public ApiResponse<HashMap<Integer, AuctionRequestResponseData>> viewAllAuctionRequest() {

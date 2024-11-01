@@ -13,6 +13,7 @@ import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
+import swp.auctionkoi.service.bid.impl.BidServiceImpl;
 
 import java.time.Duration;
 
@@ -91,14 +92,24 @@ public class TraditionalAuctionService {
             }
         }
 
-        Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
-        bidRepository.save(bid);
+
+        Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
+
+        if(findBidByUser == null) {
+            Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
+            bidRepository.save(bid);
+        } else {
+            findBidByUser.setBidAmount(bidAmount);
+            bidRepository.save(findBidByUser);
+        }
 
         //for check bid place close the end time or not
-        Bid checkBid = bidRepository.findTopByAuctionIdAndUserIdOrderByBidAmountDesc(auctionId, user.getId());
-        Duration duration = Duration.between(checkBid.getBidCreatedDate(), auctionRequest.getEndTime());
+        Bid checkBid = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
+        Duration duration = Duration.between(checkBid.getBidUpdatedDate(), auctionRequest.getEndTime());
         if (!duration.isNegative() && duration.toMillis() < 10000) {
             auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
+            auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
+            auctionRepository.save(auction);
         }
 
         walletUser.setBalance(walletUser.getBalance() - bidAmount);

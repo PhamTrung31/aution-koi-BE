@@ -35,9 +35,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users","/staffs",
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/staffs",
             "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
-            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}","/users/create",
+            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}", "/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
             "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}", "/ws"
 
@@ -63,14 +63,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET,"/manager").hasAnyAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/manager").hasAnyAuthority("ROLE_MANAGER")
                         .requestMatchers("/auctionkoi/ws").permitAll()
+//                        .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                jwtConfigurer.decoder(jwtDecoder())
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
@@ -89,7 +90,6 @@ public class SecurityConfig {
 
         return converter;
     }
-
 
 
     @Bean
@@ -174,7 +174,7 @@ public class SecurityConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        return hmacSHA512(secretKey, sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

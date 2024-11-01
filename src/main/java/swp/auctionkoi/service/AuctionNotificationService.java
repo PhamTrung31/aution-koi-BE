@@ -19,9 +19,9 @@ public class AuctionNotificationService {
 
     SimpMessagingTemplate messagingTemplate;
 
-    public void sendAuctionPendingNotification(AuctionPendingInfo notificationStart) {
+    public void sendAuctionPendingNotification(AuctionPendingInfo notificationPendingInfo) {
         log.info("Auction pending send noti was run");
-        messagingTemplate.convertAndSend("/auctions/pending", notificationStart);
+        messagingTemplate.convertAndSend("/auctions/pending", notificationPendingInfo);
     }
 
     public void sendAuctionStartNotification(AuctionStartInfo notificationStart) {

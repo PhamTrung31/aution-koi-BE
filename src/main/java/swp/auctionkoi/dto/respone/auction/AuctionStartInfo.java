@@ -20,6 +20,7 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionStartInfo {
     Integer auction_id;
+    AuctionType auction_type;
     Integer fish_id;
     String fish_name;
     Integer fish_age;

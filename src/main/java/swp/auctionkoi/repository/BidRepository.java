@@ -24,4 +24,6 @@ public interface BidRepository extends JpaRepository<Bid, Integer> {
     public Bid getBidHighestAmountAndEarliestInAuction(@Param("auctionId") Integer auctionId);
 
     List<Bid> findListBidByAuctionId(int auctionId);
+
+    Bid findByAuctionIdAndUserId(int auctionId, int userId);
 }

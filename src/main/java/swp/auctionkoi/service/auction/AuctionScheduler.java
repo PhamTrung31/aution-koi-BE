@@ -24,6 +24,7 @@ import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.models.enums.AuctionType;
+import swp.auctionkoi.models.enums.KoiStatus;
 import swp.auctionkoi.repository.AuctionParticipantsRepository;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.AuctionRequestRepository;
@@ -133,6 +134,7 @@ public class AuctionScheduler {
                 //build message
                 AuctionStartInfo auctionStartInfo = AuctionStartInfo.builder()
                         .auction_id(request.getAuction().getId())
+                        .auction_type(request.getMethodType())
                         .fish_id(request.getAuction().getFish().getId())
                         .fish_name(request.getAuction().getFish().getName())
                         .fish_age(request.getAuction().getFish().getAge())
@@ -160,6 +162,7 @@ public class AuctionScheduler {
         if (request.getEndTime().isBefore(currentTime) && auctionParticipants.size() < 5) { //real run will be 7
             request.getAuction().setStatus(AuctionStatus.UNSOLD);
             request.getAuction().setWinner(null);
+            request.getFish().setStatus(KoiStatus.UNSOLD);
             auctionRequestRepository.save(request);
             AuctionCanNotStartInfo canNotStartInfo = AuctionCanNotStartInfo.builder()
                     .auction_id(request.getAuction().getId())
