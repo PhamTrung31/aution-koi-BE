@@ -1,37 +1,20 @@
 package swp.auctionkoi.controller;
 
-import com.google.protobuf.Api;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.*;
-import swp.auctionkoi.dto.request.bid.BidRequest;
-import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
 import swp.auctionkoi.dto.respone.ApiResponse;
-import swp.auctionkoi.dto.respone.AuctionRequestResponse;
-import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.models.Auction;
-import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
-import swp.auctionkoi.exception.AppException;
-import swp.auctionkoi.exception.ErrorCode;
-import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.AuctionRequest;
-import swp.auctionkoi.models.KoiFishs;
-import swp.auctionkoi.service.auction.impl.AuctionServiceImpl;
+import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 import swp.auctionkoi.service.koifish.impl.KoiFishServiceImpl;
 
-import java.util.List;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -59,9 +42,9 @@ public class AuctionController {
     }
 
     @GetMapping("/view-all-requests")
-    public ApiResponse< List<AuctionRequest>> viewAllAuctionRequest() {
+    public ApiResponse<List<AuctionRequest>> viewAllAuctionRequest() {
         List<AuctionRequest> auctionRequestResponseHashMap = auctionRequestService.viewAllAuctionRequest();
-        return ApiResponse.< List<AuctionRequest>>builder()
+        return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
                 .result(auctionRequestResponseHashMap)
                 .build();

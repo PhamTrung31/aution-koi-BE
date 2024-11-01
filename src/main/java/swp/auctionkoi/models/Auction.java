@@ -28,7 +28,7 @@ public class Auction {
     @JoinColumn(name = "fish_id")
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    swp.auctionkoi.models.KoiFishs fish;
+    swp.auctionkoi.models.KoiFish fish;
 
     @Column(name = "current_price")
     Float currentPrice;

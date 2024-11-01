@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@Builder
 @Table(name = "Wallets")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Wallet {

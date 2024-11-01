@@ -14,10 +14,10 @@ import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.UserRepository;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
 public class ApplicationInitConfig {
 
     PasswordEncoder passwordEncoder;

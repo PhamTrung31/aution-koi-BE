@@ -42,7 +42,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer{
 
     private final String[] PUBLIC_ENDPOINTS = {"/users", "/staffs",
             "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
@@ -64,7 +64,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        httpSecurity.authorizeHttpRequests(request ->
+        httpSecurity.authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
@@ -165,7 +165,7 @@ public class SecurityConfig {
         registry.addResourceHandler("/static/**")
                 .addResourceLocations("classpath:/static/");
     }
-}
+
 
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;

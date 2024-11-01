@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.koifish.KoiFishUpdateRequest;
 import swp.auctionkoi.dto.respone.ApiResponse;
-import swp.auctionkoi.models.KoiFishs;
-import swp.auctionkoi.service.koifish.impl.KoiFishServiceImpl;
+import swp.auctionkoi.models.KoiFish;
+import swp.auctionkoi.service.koifish.KoiFishService;
 
 import java.util.List;
 
@@ -20,12 +20,12 @@ import java.util.List;
 @CrossOrigin("*")
 public class KoiFishController {
 
-    KoiFishServiceImpl koiFishService;
+    KoiFishService koiFishService;
 
     @GetMapping("/koifish/{id}")
-    public ApiResponse<KoiFishs> getKoiFishById(@PathVariable int id) {
-        KoiFishs koiFish = koiFishService.getKoiFishById(id);
-        return ApiResponse.<KoiFishs>builder()
+    public ApiResponse<KoiFish> getKoiFishById(@PathVariable int id) {
+        KoiFish koiFish = koiFishService.getKoiFishById(id);
+        return ApiResponse.<KoiFish>builder()
                 .code(200)
                 .message("Successfully")
                 .result(koiFish)
@@ -33,9 +33,9 @@ public class KoiFishController {
     }
 
     @PostMapping("/{breederId}")
-    public ApiResponse<KoiFishs> createKoiFish(@RequestBody KoiFishs koiFish ,@PathVariable int breederId) {
-        KoiFishs createdKoiFish = koiFishService.createKoiFish(koiFish, breederId);
-        return ApiResponse.<KoiFishs>builder()
+    public ApiResponse<KoiFish> createKoiFish(@RequestBody KoiFish koiFish ,@PathVariable int breederId) {
+        KoiFish createdKoiFish = koiFishService.createKoiFish(koiFish, breederId);
+        return ApiResponse.<KoiFish>builder()
                 .code(200)
                 .message("Successfully")
                 .result(createdKoiFish)
@@ -44,9 +44,9 @@ public class KoiFishController {
 
     // Update an existing KoiFish by ID
     @PutMapping("/{id}")
-    public ApiResponse<KoiFishs> updateKoiFish(@PathVariable Integer id, @RequestBody KoiFishUpdateRequest koiFish) {
-        KoiFishs updatedKoiFish = koiFishService.updateKoiFish(id, koiFish);
-        return ApiResponse.<KoiFishs>builder()
+    public ApiResponse<KoiFish> updateKoiFish(@PathVariable Integer id, @RequestBody KoiFishUpdateRequest koiFish) {
+        KoiFish updatedKoiFish = koiFishService.updateKoiFish(id, koiFish);
+        return ApiResponse.<KoiFish>builder()
                 .code(200)
                 .message("Successfully")
                 .result(updatedKoiFish)
@@ -55,9 +55,9 @@ public class KoiFishController {
 
     // View KoiFish by breeder ID
     @GetMapping("/breeder/{breederId}")
-    public ApiResponse<List<KoiFishs>> viewKoiFishByBreederId(@PathVariable int breederId) {
-        List<KoiFishs> koiFishList = koiFishService.viewKoiFishByBreederId(breederId);
-        return ApiResponse.<List<KoiFishs>>builder()
+    public ApiResponse<List<KoiFish>> viewKoiFishByBreederId(@PathVariable int breederId) {
+        List<KoiFish> koiFishList = koiFishService.viewKoiFishByBreederId(breederId);
+        return ApiResponse.<List<KoiFish>>builder()
                 .code(200)
                 .message("Successfully")
                 .result(koiFishList)
@@ -66,9 +66,9 @@ public class KoiFishController {
 
     // Cancel a KoiFish by ID
     @PutMapping("/cancel/{id}")
-    public ApiResponse<KoiFishs> cancelKoiFish(@PathVariable int id) {
-        KoiFishs canceledKoiFish = koiFishService.cancelKoiFish(id);
-        return ApiResponse.<KoiFishs>builder()
+    public ApiResponse<KoiFish> cancelKoiFish(@PathVariable int id) {
+        KoiFish canceledKoiFish = koiFishService.cancelKoiFish(id);
+        return ApiResponse.<KoiFish>builder()
                 .code(200)
                 .message("Successfully")
                 .result(canceledKoiFish)

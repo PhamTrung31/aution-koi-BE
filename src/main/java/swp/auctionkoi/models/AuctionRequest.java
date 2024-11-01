@@ -34,11 +34,11 @@ public class AuctionRequest {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_staff_id")
-    @Nullable
-    swp.auctionkoi.models.User assignedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    swp.auctionkoi.models.User assignedStaff;
+    @Nullable
+    swp.auctionkoi.models.User assignedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
+
 
 
 //    @ManyToOne(fetch = FetchType.EAGER)
@@ -52,7 +52,7 @@ public class AuctionRequest {
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    swp.auctionkoi.models.KoiFishs fish;
+    swp.auctionkoi.models.KoiFish fish;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
@@ -65,9 +65,9 @@ public class AuctionRequest {
     @NotNull
     Float buyOut;
 
-    @Column(name = "increment_step")
-    @NotNull
-    Integer incrementStep;
+//    @Column(name = "increment_step")
+//    @NotNull
+//    Integer incrementStep;
 
     @Column(name = "start_price")
     @NotNull

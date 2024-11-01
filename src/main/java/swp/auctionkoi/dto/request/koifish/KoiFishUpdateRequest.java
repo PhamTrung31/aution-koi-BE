@@ -13,7 +13,7 @@ import swp.auctionkoi.models.enums.Sex;
 public class KoiFishUpdateRequest {
     String name;
     Sex sex;
-    Double size;
+    Float size;
     Integer age;
     String description;
     String imageUrl;

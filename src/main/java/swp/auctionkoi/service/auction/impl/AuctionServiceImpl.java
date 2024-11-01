@@ -320,15 +320,15 @@ public class AuctionServiceImpl implements AuctionService {
 
     private void createDeliveryKoiForWinner(Auction auction) {
         User winner = auction.getWinner();
+        AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auction.getId()).get();
         if (winner != null) {
             //from address
-            User breeder = auction.getFish().getUser();
+            User breeder = auctionRequest.getUser();
             String fromAddress = breeder.getAddress();
             String toAddress = winner.getAddress();
 
             // Create a delivery record with manually entered addresses
             Delivery delivery = Delivery.builder()
-                    .transaction(transaction)
                     .fromAddress(fromAddress)  // Manual input for fromAddress
                     .toAddress(toAddress)      // Manual input for toAddress
                     .deliveryStatus(DeliveryStatus.PREPARING_SHIPMENT)

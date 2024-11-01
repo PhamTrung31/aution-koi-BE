@@ -51,7 +51,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         User user = userRepository.findById(auctionRequestDTO.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        KoiFishs fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
+        KoiFish fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
 
         checkRequest(auctionRequestDTO, user, fish);
@@ -64,7 +64,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .user(user)
                 .fish(fish)
                 .buyOut(auctionRequestDTO.getBuyOut())
-                .incrementStep(auctionRequestDTO.getIncrementStep())
+//                .incrementStep(auctionRequestDTO.getIncrementStep())
                 .startPrice(auctionRequestDTO.getStartPrice())
                 .methodType(auctionRequestDTO.getMethodType())
                 .startTime(auctionRequestDTO.getStart_time())
@@ -96,7 +96,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Determine which KoiFish to use for the update
-        KoiFishs fish;
+        KoiFish fish;
         if (auctionRequestDTO.getFishId() != null) {
             fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
                     .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
@@ -114,7 +114,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setUser(user);
         auctionRequest.setFish(fish);
         auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
-        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
+//        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
         auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
         auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
@@ -232,7 +232,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.setAssignedStaff(staff);
 
                 Auction newAuction = new Auction();
-                KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+                KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                         .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
                 newAuction.setFish(fish);  // Set the Fish entity
                 newAuction.setStatus(AuctionStatus.NEW);
@@ -254,7 +254,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
                     KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                     auctionRequest.getBuyOut(),
-                    auctionRequest.getIncrementStep(),
+//                    auctionRequest.getIncrementStep(),
                     auctionRequest.getStartPrice(),
                     auctionRequest.getMethodType(),
                     auctionRequest.getRequestCreatedDate(),
@@ -324,7 +324,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
 
                 Auction newAuction = new Auction();
-                KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+                KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                         .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
                 newAuction.setFish(fish);  // Set the Fish entity
                 newAuction.setStatus(AuctionStatus.NEW);
@@ -378,7 +378,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                     auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
                     KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                     auctionRequest.getBuyOut(),
-                    auctionRequest.getIncrementStep(),
+//                    auctionRequest.getIncrementStep(),
                     auctionRequest.getStartPrice(),
                     auctionRequest.getMethodType(),
                     auctionRequest.getRequestCreatedDate(),
@@ -426,7 +426,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             auctionRequest.setAssignedStaff(staff);
 
             Auction newAuction = new Auction();
-            KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+            KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                     .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
             newAuction.setFish(fish);  // Set the Fish entity
             newAuction.setStatus(AuctionStatus.NEW);
@@ -455,7 +455,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getRequestStatus().name(),  // Chuyển enum sang String nếu cần
                 KoiFishDTO.fromKoiFish(auctionRequest.getFish()),  // Chuyển KoiFish sang KoiFishDTO
                 auctionRequest.getBuyOut(),
-                auctionRequest.getIncrementStep(),
+//                auctionRequest.getIncrementStep(),
                 auctionRequest.getStartPrice(),
                 auctionRequest.getMethodType(),
                 auctionRequest.getRequestCreatedDate(),
@@ -466,7 +466,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
 
-    private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFishs fish) {
+    private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
 
         if (!user.getRole().equals(Role.BREEDER)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
