@@ -26,4 +26,5 @@ public interface AuctionService {
 
     public void endAuction(int auctionId);
 
+    public Auction getAuctionById(int auctionId);
 }

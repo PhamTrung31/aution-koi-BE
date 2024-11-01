@@ -1,16 +1,17 @@
 package swp.auctionkoi.service.koifish;
 
-import swp.auctionkoi.dto.request.koifish.KoiFishCreateRequest;
 import swp.auctionkoi.dto.request.koifish.KoiFishUpdateRequest;
-import swp.auctionkoi.dto.respone.koifish.KoiFishResponse;
+import swp.auctionkoi.models.KoiFishs;
 
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.List;
 
 public interface KoiFishService {
-    public HashMap<Integer, KoiFishResponse> getAllFish();
-    public Optional<KoiFishResponse> getFish(int id);
-    public KoiFishResponse addFish(KoiFishCreateRequest fish);
-    public Optional<KoiFishResponse> updateFish(KoiFishUpdateRequest fish);
-    public boolean deleteFish(int id);
+    public KoiFishs getKoiFishById(int id);
+    public KoiFishs createKoiFish(KoiFishs koiFish, int breederId);
+    public KoiFishs updateKoiFish(int id, KoiFishUpdateRequest updatedKoiFish);
+    public List<KoiFishs> viewKoiFishByBreederId(int breederid);
+    public KoiFishs cancelKoiFish(int id);
+
+
+
 }

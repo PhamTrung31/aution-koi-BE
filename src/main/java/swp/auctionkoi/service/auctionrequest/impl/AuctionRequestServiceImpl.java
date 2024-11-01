@@ -14,10 +14,9 @@ import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.AuctionRequestMapper;
-import swp.auctionkoi.models.AuctionRequest;
-import swp.auctionkoi.models.KoiFish;
-import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.*;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
+import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
@@ -45,12 +44,14 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
     AuctionRequestMapper auctionRequestMapper;
 
+
+
     public AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO) {
         // Fetching User and Fish
         User user = userRepository.findById(auctionRequestDTO.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        KoiFish fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
+        KoiFishs fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
 
         checkRequest(auctionRequestDTO, user, fish);
@@ -95,11 +96,11 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Determine which KoiFish to use for the update
-        KoiFish fish;
+        KoiFishs fish;
         if (auctionRequestDTO.getFishId() != null) {
             fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
                     .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
-            if (!fish.getUser().equals(user)) {
+            if (!fish.getBreeder().equals(user)) {
                 throw new AppException(ErrorCode.NOT_BELONG_TO_BREEDER);
             }
         } else {
@@ -229,6 +230,16 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
                 // Gán thông tin staff chịu trách nhiệm duyệt thẳng yêu cầu
                 auctionRequest.setAssignedStaff(staff);
+
+                Auction newAuction = new Auction();
+                KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+                        .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
+                newAuction.setFish(fish);  // Set the Fish entity
+                newAuction.setStatus(AuctionStatus.NEW);
+                Auction savedAuction = auctionRepository.save(newAuction);
+
+                auctionRequest.setAuction(savedAuction);
+
             }
 
 
@@ -311,6 +322,15 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 // Manager đồng ý duyệt
                 auctionRequest.setRequestStatus(AuctionRequestStatus.APPROVE);
                 auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
+
+                Auction newAuction = new Auction();
+                KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+                        .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
+                newAuction.setFish(fish);  // Set the Fish entity
+                newAuction.setStatus(AuctionStatus.NEW);
+                Auction savedAuction = auctionRepository.save(newAuction);
+
+                auctionRequest.setAuction(savedAuction);
 
                 if (staffId != null) {
                     User staff = userRepository.findById(staffId)
@@ -405,6 +425,15 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             auctionRequest.getFish().setStatus(KoiStatus.APPROVED);
             auctionRequest.setAssignedStaff(staff);
 
+            Auction newAuction = new Auction();
+            KoiFishs fish = koiFishRepository.findById(auctionRequest.getFish().getId())
+                    .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
+            newAuction.setFish(fish);  // Set the Fish entity
+            newAuction.setStatus(AuctionStatus.NEW);
+            Auction savedAuction = auctionRepository.save(newAuction);
+
+            auctionRequest.setAuction(savedAuction);
+
         } else {
             // Nếu staff từ chối yêu cầu sau khi xem cá
             auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
@@ -437,7 +466,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
 
-    private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
+    private void checkRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFishs fish) {
 
         if (!user.getRole().equals(Role.BREEDER)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);

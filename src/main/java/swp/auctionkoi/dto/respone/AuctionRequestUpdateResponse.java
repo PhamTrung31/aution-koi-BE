@@ -1,16 +1,11 @@
 package swp.auctionkoi.dto.respone;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.request.UserDTO;
-import swp.auctionkoi.models.KoiFish;
-import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 

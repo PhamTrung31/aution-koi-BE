@@ -46,7 +46,7 @@ public class AuctionRequest {
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    swp.auctionkoi.models.KoiFish fish;
+    swp.auctionkoi.models.KoiFishs fish;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")

@@ -94,8 +94,8 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByUsername(email); // giả sử username được lưu là email
+    @Override
+    public User getUserById(int id){
+        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 }

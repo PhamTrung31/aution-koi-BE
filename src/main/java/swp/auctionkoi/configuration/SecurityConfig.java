@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,6 +25,9 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,7 +42,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig  {
+public class SecurityConfig implements WebMvcConfigurer {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/staffs/**", "/auth/**", "/auth/token", "/auth/introspect",
@@ -53,7 +57,8 @@ public class SecurityConfig  {
             "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
             "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/hello",
             "/payment/requestwithdraw","/google/hello","/auctions/check-participation",
-            "/auctions/manager-review",
+            "/auctions/manager-review","/auth/login-with-google-token",
+            "/login/oauth2/code/google",
             "v2/api-docs",
             "v3/api-docs",
             "v3/api-docs/**",
@@ -109,9 +114,10 @@ public class SecurityConfig  {
                         .anyRequest().authenticated())
 
                 .oauth2Login(oauth2 ->
-                        oauth2.defaultSuccessUrl("/google/hello",true))
-                .oauth2Login(withDefaults())
-                .formLogin(withDefaults())
+                        oauth2.defaultSuccessUrl("http://localhost:5173",true))
+//                .oauth2Login(withDefaults())
+//                .formLogin(withDefaults())
+
 
                 .oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
@@ -181,4 +187,21 @@ public class SecurityConfig  {
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
+    // Overriding method to add CORS mappings
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5173", "https://aution-koi-fe.vercel.app")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers")
+                .maxAge(1440000);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
+    }
 }
+

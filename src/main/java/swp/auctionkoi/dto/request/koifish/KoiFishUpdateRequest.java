@@ -16,6 +16,7 @@ public class KoiFishUpdateRequest {
     Double size;
     Integer age;
     String description;
-    String image;
+    String imageUrl;
+    String videoUrl;
 
 }

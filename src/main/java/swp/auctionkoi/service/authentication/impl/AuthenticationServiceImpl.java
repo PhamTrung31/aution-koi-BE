@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import swp.auctionkoi.dto.request.AuthenticationRequest;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.dto.request.LogoutRequest;
-import swp.auctionkoi.dto.request.RefreshRequest;
 import swp.auctionkoi.dto.respone.AuthenticationResponse;
 import swp.auctionkoi.dto.respone.IntrospectResponse;
 import swp.auctionkoi.exception.AppException;
@@ -34,7 +32,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.StringJoiner;
 import java.util.UUID;
 
 @Slf4j

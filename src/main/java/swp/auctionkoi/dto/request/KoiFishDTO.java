@@ -3,7 +3,7 @@ package swp.auctionkoi.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import swp.auctionkoi.models.KoiFish;
+import swp.auctionkoi.models.KoiFishs;
 import swp.auctionkoi.models.enums.KoiStatus;
 import swp.auctionkoi.models.enums.Sex;
 
@@ -25,8 +25,8 @@ public class KoiFishDTO {
     String video_Url;
     KoiStatus status;
 
-    public KoiFishDTO(@NotNull KoiFish fish) {
-        this.breederId = fish.getUser().getId();  // Lấy thông tin breeder
+    public KoiFishDTO(@NotNull KoiFishs fish) {
+        this.breederId = fish.getBreeder().getId();  // Lấy thông tin breeder
         this.name = fish.getName();
         this.sex = fish.getSex();
         this.size = fish.getSize();
@@ -37,7 +37,7 @@ public class KoiFishDTO {
         this.status = fish.getStatus();
     }
 
-    public static KoiFishDTO fromKoiFish(KoiFish fish) {
+    public static KoiFishDTO fromKoiFish(KoiFishs fish) {
         if (fish == null) {
             return null;
         }

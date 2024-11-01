@@ -4,28 +4,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.*;
-import swp.auctionkoi.dto.request.bid.BidRequest;
-import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
 import swp.auctionkoi.dto.respone.ApiResponse;
-import swp.auctionkoi.dto.respone.AuctionRequestResponse;
-import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
-import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
-import swp.auctionkoi.exception.AppException;
-import swp.auctionkoi.exception.ErrorCode;
+import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.AuctionRequest;
-import swp.auctionkoi.models.enums.AuctionType;
-import swp.auctionkoi.repository.AuctionRepository;
-import swp.auctionkoi.repository.AuctionRequestRepository;
-import swp.auctionkoi.service.auction.*;
+import swp.auctionkoi.models.KoiFishs;
+import swp.auctionkoi.service.auction.impl.AuctionServiceImpl;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
+import swp.auctionkoi.service.koifish.impl.KoiFishServiceImpl;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -37,6 +27,8 @@ import java.util.List;
 public class AuctionController {
 
     AuctionRequestService auctionRequestService;
+    AuctionServiceImpl auctionService;
+    KoiFishServiceImpl koiFishService;
 
     @GetMapping("/view-all-requests")
     public ApiResponse< List<AuctionRequest>> viewAllAuctionRequest() {
@@ -156,6 +148,19 @@ public class AuctionController {
                 .result(auctionRequestResponse)
                 .build();
     }
+
+    @GetMapping("/auctions/{id}")
+    public ApiResponse<Auction> getAuctionById(@PathVariable int id) {
+        Auction auction = auctionService.getAuctionById(id);
+        return ApiResponse.<Auction>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auction)
+                .build();
+    }
+
+
+
 
 //    @PutMapping("/reject/{auctionRequestId}")
 //    public AuctionRequestResponse rejectAuctionRequestForStaff(@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId) {

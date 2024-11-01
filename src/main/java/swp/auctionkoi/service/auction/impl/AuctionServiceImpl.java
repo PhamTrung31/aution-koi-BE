@@ -210,6 +210,12 @@ public class AuctionServiceImpl implements AuctionService {
         createDeliveryKoiForWinner(auction);
     }
 
+    @Override
+    public Auction getAuctionById(int auctionId) {
+        return auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+    }
+
     private void backDepositAmount(Auction auction, List<AuctionParticipants> participants, User admin) {
 
         //get deposit

@@ -1,5 +1,9 @@
     package swp.auctionkoi.models;
 
+    import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+    import com.fasterxml.jackson.annotation.JsonIdentityReference;
+    import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+    import com.google.firebase.database.annotations.NotNull;
     import jakarta.persistence.*;
     import jakarta.validation.constraints.Size;
     import lombok.*;
@@ -19,7 +23,7 @@
     @AllArgsConstructor
     @Builder
     @DynamicInsert
-    @Table(name = "Koi_Fishs")
+    @Table(name = "Koi_Fish")
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public class KoiFishs {
         @Id
@@ -29,6 +33,8 @@
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "breeder_id")
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        @JsonIdentityReference(alwaysAsId = true)
         swp.auctionkoi.models.User breeder;
 
         @Size(max = 250)
@@ -51,9 +57,14 @@
         String description;
 
         @Size(max = 2000)
-        @Column(name = "image", length = 2000)
-        String image;
+        @NotNull
+        @Column(name = "image_url", nullable = false, length = 2000)
+        String imageUrl;
 
+        @Size(max = 2000)
+        @NotNull
+        @Column(name = "video_url", nullable = false, length = 2000)
+        String videoUrl;
         @Column(name = "status")
         @Enumerated(EnumType.ORDINAL)
         KoiStatus status;
