@@ -354,7 +354,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 // Manager yêu cầu staff đã gửi đi xem cá trước
                 auctionRequest.setRequestStatus(AuctionRequestStatus.ASSIGNED_TO_STAFF);
                 auctionRequest.getFish().setStatus(KoiStatus.PENDING_APPROVAL); // Hoặc giữ nguyên
-//                auctionRequest.setAssignedStaff(staff); // Gán lại staff đi xem cá
+                auctionRequest.setAssignedStaff(staff); // Gán lại staff đi xem cá
 
 
             } else {
@@ -415,9 +415,9 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
 //        // Kiểm tra staff có phải là người được assign không
-//        if (!auctionRequest.getApprovedStaff().getId().equals(staffId)) {
-//            throw new AppException(ErrorCode.UNAUTHORIZED);
-//        }
+        if (!auctionRequest.getAssignedStaff().getId().equals(staffId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
         // Nếu staff đồng ý duyệt yêu cầu sau khi xem cá
         if (isApproved) {
