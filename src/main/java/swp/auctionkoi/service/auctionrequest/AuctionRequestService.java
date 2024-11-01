@@ -20,6 +20,7 @@ public interface AuctionRequestService {
     List<AuctionRequest> getAuctionRequestsInManagerReview();
     List<AuctionRequest> getAuctionRequestsInWait();
     List<AuctionRequest> getAuctionRequestsInAssignedToStaff(Integer staffId);
+     List<AuctionRequest> getAuctionRequestsByAssignedToStaff(Integer staffId);
     AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager);
 //    AuctionRequestResponse rejectAuctionRequestForStaff (int auctionRequestId, int staffId);
     AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, Integer staffId, boolean isApproved, boolean assignToStaff);

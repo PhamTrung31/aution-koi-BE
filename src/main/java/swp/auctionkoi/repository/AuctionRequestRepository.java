@@ -31,4 +31,7 @@ public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, 
 
     @Query("SELECT ar FROM AuctionRequest ar WHERE ar.assignedStaff.id = :staffId AND ar.requestStatus = :status")
     List<AuctionRequest> findByAssignedStaffIdAndStatus(Integer staffId, AuctionRequestStatus status);
+
+    @Query("SELECT ar FROM AuctionRequest ar WHERE ar.assignedStaff.id = :staffId")
+    List<AuctionRequest> findByAssignedStaffId(Integer staffId);
 }

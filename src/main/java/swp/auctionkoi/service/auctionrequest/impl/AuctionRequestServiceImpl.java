@@ -202,6 +202,11 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
     @Override
+    public List<AuctionRequest> getAuctionRequestsByAssignedToStaff(Integer staffId) {
+        return auctionRequestRepository.findByAssignedStaffId(staffId);
+    }
+
+    @Override
     public AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager) {
 
 //        System.out.println("Received auctionRequestId: " + auctionRequestId);
