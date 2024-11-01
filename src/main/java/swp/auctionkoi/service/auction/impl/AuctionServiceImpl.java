@@ -68,7 +68,6 @@ public class AuctionServiceImpl implements AuctionService {
         // Lấy thông tin ví của user
         Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
-
         // Fetch admin by known admin ID or role
         User admin = (User) userRepository.findFirstByRole(Role.MANAGER)
                 .orElseThrow(() -> new AppException(ErrorCode.ADMIN_NOT_FOUND));
@@ -79,6 +78,7 @@ public class AuctionServiceImpl implements AuctionService {
 
         // Lấy thông tin auction
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+
         // Kiểm tra xem user đã tham gia auction này chưa
         Optional<AuctionParticipants> existedParticipants = Optional.ofNullable(auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, userId));
 

@@ -17,6 +17,6 @@ public class BidRequestTraditional {
     int userId;
     float bidAmount;
     boolean isAutoBid;
-    AutoBidIncrement incrementAutobid;
+//    AutoBidIncrement incrementAutobid;
     float maxBidAmount;
 }

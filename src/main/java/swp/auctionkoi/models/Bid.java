@@ -28,10 +28,10 @@ public class Bid {
     @JoinColumn(name = "user_id")
     swp.auctionkoi.models.User user;
 
-    @Column(name = "bid_created_date")
+    @Column(name = "bid_created_date", updatable = false, insertable = false)
     Instant bidCreatedDate;
 
-    @Column(name = "bid_updated_date")
+    @Column(name = "bid_updated_date", updatable = false, insertable = false)
     Instant bidUpdatedDate;
 
     @Column(name = "is_auto_bid")
