@@ -16,6 +16,7 @@ public class UserDTO  {
      String fullname;
      String username;
      String phone;
+     String adress;
      String avatarUrl;
      String role;
 
@@ -24,6 +25,7 @@ public class UserDTO  {
         this.fullname = user.getFullname();
         this.username = user.getUsername();
         this.phone = user.getPhone();
+        this.adress = user.getAddress();
         this.avatarUrl = user.getAvatarUrl();
         this.role = user.getRole().toString();
     }
@@ -33,11 +35,12 @@ public class UserDTO  {
         }
         return new UserDTO(
                 user.getId(),
-                user.getUsername(),
                 user.getFullname(),
+                user.getUsername(),
                 user.getPhone(),
                 user.getAddress(),
-                user.getAvatarUrl()
+                user.getAvatarUrl(),
+                user.getRole().toString()
         );
 
     }

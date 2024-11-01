@@ -34,7 +34,7 @@ public enum ErrorCode {
     BID_ALREADY_PLACED(1022, "Bid already placed!", HttpStatus.BAD_REQUEST),
     INVALID_AUCTION_TYPE(1023, "Invalid Auction type!", HttpStatus.BAD_REQUEST),
     MONEY_IN_WALLET_NOT_ENOUGH(1024, "Money in your wallet not enough to continues bid!", HttpStatus.BAD_REQUEST),
-    LOWER_CURRENT_PRICE(1025, "Your bid price is lower than current price!", HttpStatus.BAD_REQUEST),
+    LOWER_CURRENT_PRICE(1025, "Your bid price must bigger than current highest!", HttpStatus.BAD_REQUEST),
     AUCTION_REQUEST_NOT_FOUND(1027, "Auction request not found!", HttpStatus.NOT_FOUND),
     INVALID_TRANSACTION_ID(1028, "Invalid transaction id!", HttpStatus.BAD_REQUEST),
     INVALID_USER_ID(1030, "Invalid user id!", HttpStatus.BAD_REQUEST),

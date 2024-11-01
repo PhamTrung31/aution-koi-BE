@@ -1,16 +1,11 @@
 package swp.auctionkoi.dto.respone;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import swp.auctionkoi.dto.request.KoiFishDTO;
 import swp.auctionkoi.dto.request.UserDTO;
-import swp.auctionkoi.models.KoiFish;
-import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 
@@ -31,7 +26,7 @@ public class AuctionRequestUpdateResponse {
      String requestStatus;
      KoiFishDTO fish;
      Float buyOut;
-     Integer incrementStep;
+//     Integer incrementStep;
      Float startPrice;
      AuctionType methodType;
      Instant requestCreatedDate;
@@ -47,7 +42,7 @@ public class AuctionRequestUpdateResponse {
              @NotNull AuctionRequestStatus requestStatus,
              KoiFishDTO fish,
              @NotNull Float buyOut,
-             @NotNull Integer incrementStep,
+//             @NotNull Integer incrementStep,
              @NotNull Float startPrice,
              @NotNull AuctionType methodType,
              Instant requestCreatedDate,
@@ -61,7 +56,7 @@ public class AuctionRequestUpdateResponse {
           this.requestStatus = requestStatus.name();  // Chuyển từ enum sang String
           this.fish = fish;
           this.buyOut = buyOut;
-          this.incrementStep = incrementStep;
+//          this.incrementStep = incrementStep;
           this.startPrice = startPrice;
           this.methodType = methodType;
           this.requestCreatedDate = requestCreatedDate;

@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import swp.auctionkoi.dto.request.IntrospectRequest;
 import swp.auctionkoi.service.authentication.AuthenticationService;
-import swp.auctionkoi.service.authentication.impl.AuthenticationServiceImpl;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.text.ParseException;

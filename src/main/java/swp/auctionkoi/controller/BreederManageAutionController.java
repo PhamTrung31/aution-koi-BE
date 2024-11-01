@@ -10,6 +10,8 @@ import swp.auctionkoi.dto.request.AuctionRequestDTO;
 import swp.auctionkoi.dto.request.AuctionRequestResponseData;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
+import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
+import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 
 import java.util.HashMap;
@@ -25,27 +27,27 @@ public class BreederManageAutionController {
     AuctionRequestService auctionRequestService;
 
     @PostMapping("/send-request")
-    public ApiResponse<AuctionRequestResponse> sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
-        AuctionRequestResponse auctionRequestResponse = auctionRequestService.sendAuctionRequest(auctionRequestDTO);
-        return ApiResponse.<AuctionRequestResponse>builder()
+    public ApiResponse<AuctionRequest> sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
+        AuctionRequest auctionRequestResponse = auctionRequestService.sendAuctionRequest(auctionRequestDTO);
+        return ApiResponse.<AuctionRequest>builder()
                 .code(200)
-                .message(auctionRequestResponse.getMessage())
+                .message("Successfully sent auction request")
                 .result(auctionRequestResponse)
                 .build();
     }
 
     @GetMapping("/view-all-requests/{breederId}")
-    public ApiResponse<HashMap<Integer, AuctionRequestResponseData>> viewAllAuctionRequestsForBreeder(@PathVariable Integer breederId) {
-        HashMap<Integer, AuctionRequestResponseData> auctionRequestResponseDataHashMap = auctionRequestService.viewAllAuctionRequestsForBreeder(breederId);
+    public ApiResponse<List<AuctionRequest>> viewAllAuctionRequestsForBreeder(@PathVariable Integer breederId) {
+        List<AuctionRequest> auctionRequestResponseDataHashMap = auctionRequestService.viewAllAuctionRequestsForBreeder(breederId);
         log.info("Check size auctionRequestResponseDataHashMap: {}", auctionRequestResponseDataHashMap.size());
         if (auctionRequestResponseDataHashMap.isEmpty()) {
             log.warn("No auction requests found for breederId: {}", breederId);
-            return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
+            return ApiResponse.<List<AuctionRequest>>builder()
                     .code(204)  // No Content
                     .message("No auction requests found")
                     .build();
         }
-        return ApiResponse.<HashMap<Integer, AuctionRequestResponseData>>builder()
+        return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
                 .message("")
                 .result(auctionRequestResponseDataHashMap)
@@ -53,14 +55,11 @@ public class BreederManageAutionController {
     }
 
     @PutMapping("/update/{auctionRequestId}")
-    public ApiResponse<AuctionRequestResponse> updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestDTO auctionRequestDTO){
-        AuctionRequestResponse auctionRequestResponse = auctionRequestService.updateAuctionRequestForBreeder(auctionRequestId, auctionRequestDTO);
-
-        log.info(auctionRequestResponse.getMessage());
-
-        return ApiResponse.<AuctionRequestResponse>builder()
+    public ApiResponse<AuctionRequest> updateAuctionRequest(@PathVariable Integer auctionRequestId, @RequestBody AuctionRequestDTO auctionRequestDTO){
+        AuctionRequest auctionRequestResponse = auctionRequestService.updateAuctionRequestForBreeder(auctionRequestId, auctionRequestDTO);
+        return ApiResponse.<AuctionRequest>builder()
                 .code(200)
-                .message(auctionRequestResponse.getMessage())
+                .message("Update auction request successfully!")
                 .result(auctionRequestResponse)
                 .build();
     }

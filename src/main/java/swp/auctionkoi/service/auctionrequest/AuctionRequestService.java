@@ -11,14 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface AuctionRequestService {
-    AuctionRequestResponse sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
-    HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequest();
+    AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
+    List<AuctionRequest> viewAllAuctionRequest();
     AuctionRequestResponseData viewAuctionRequestDetail(int auctionRequestId);
-    HashMap<Integer, AuctionRequestResponseData> viewAllAuctionRequestsForBreeder(Integer breederId);
-    AuctionRequestResponse updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO);
+    List<AuctionRequest> viewAllAuctionRequestsForBreeder(Integer breederId);
+    AuctionRequest updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO);
     AuctionRequestResponse cancelAuctionRequest (int auctionRequestId, int breederID);
     List<AuctionRequest> getAuctionRequestsInManagerReview();
     List<AuctionRequest> getAuctionRequestsInWait();
+    List<AuctionRequest> getAuctionRequestsInAssignedToStaff(Integer staffId);
+     List<AuctionRequest> getAuctionRequestsByAssignedToStaff(Integer staffId);
     AuctionRequestUpdateResponse approveAuctionRequestForStaff(int auctionRequestId, int staffId, boolean isSendToManager);
 //    AuctionRequestResponse rejectAuctionRequestForStaff (int auctionRequestId, int staffId);
     AuctionRequestUpdateResponse reviewAuctionRequestByManager(int auctionRequestId, int managerId, Integer staffId, boolean isApproved, boolean assignToStaff);

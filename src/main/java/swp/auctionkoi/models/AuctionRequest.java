@@ -25,7 +25,7 @@ public class AuctionRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -34,20 +34,27 @@ public class AuctionRequest {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_staff_id")
-    @Nullable
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    swp.auctionkoi.models.User assignedStaff;
+    @Nullable
+    swp.auctionkoi.models.User assignedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "initiated_by_id")
+//    // Thêm trường này để lưu nhân viên đã khởi tạo yêu cầu
+//    @Nullable
+//    swp.auctionkoi.models.User initiatedBy;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.KoiFish fish;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
     @Nullable
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -58,9 +65,9 @@ public class AuctionRequest {
     @NotNull
     Float buyOut;
 
-    @Column(name = "increment_step")
-    @NotNull
-    Integer incrementStep;
+//    @Column(name = "increment_step")
+//    @NotNull
+//    Integer incrementStep;
 
     @Column(name = "start_price")
     @NotNull
@@ -100,6 +107,4 @@ public class AuctionRequest {
 //    public void onPreUpdate() {
 //        this.requestUpdatedDate = Instant.now();
 //    }
-
-
 }

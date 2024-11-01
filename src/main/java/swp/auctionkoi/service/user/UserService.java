@@ -17,4 +17,5 @@ public interface UserService {
     public void updateProfile(User user);
     public HashMap<Integer, User> getAllBreeder();
     public void updateAvatar(int id, String avatarUrl);
+    public User getUserById(int id);
 }

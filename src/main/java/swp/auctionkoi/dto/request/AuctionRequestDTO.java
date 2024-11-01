@@ -19,7 +19,8 @@ public class AuctionRequestDTO {
     Integer fishId;
     @JsonProperty("buyOut")
     Float buyOut;
-    Float  startPrice;
+//    Integer incrementStep;
+    Float startPrice;
     AuctionType methodType;
     Instant start_time;
     Instant end_time;

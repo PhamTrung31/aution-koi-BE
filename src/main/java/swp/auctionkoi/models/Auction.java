@@ -1,5 +1,8 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,9 +24,11 @@ public class Auction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
-    swp.auctionkoi.models.KoiFishs fish;
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    swp.auctionkoi.models.KoiFish fish;
 
     @Column(name = "current_price")
     Float currentPrice;
@@ -32,7 +37,7 @@ public class Auction {
     @Enumerated(EnumType.ORDINAL)
     AuctionStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "winner_id")
     User winner;
 
@@ -45,4 +50,12 @@ public class Auction {
 
     @Column(name = "deposit_amount")
     Float depositAmount;
+
+    @ColumnDefault("0")
+    @Column(name = "buy_intent_count")
+    private Integer buyIntentCount;
+
+    public Integer getFishId() {
+        return fish != null ? fish.getId() : null;
+    }
 }

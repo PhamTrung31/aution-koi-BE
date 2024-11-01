@@ -1,11 +1,15 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.google.firebase.database.annotations.NotNull;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
 import swp.auctionkoi.models.enums.KoiStatus;
 import swp.auctionkoi.models.enums.Sex;
@@ -18,35 +22,33 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 @Table(name = "Koi_Fish")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class KoiFish {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "breeder_id", nullable = false)
-    User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "breeder_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    swp.auctionkoi.models.User breeder;
 
     @Size(max = 250)
-    @NotNull
-    @Column(name = "name", nullable = false, length = 250)
+    @Column(name = "name", length = 250)
     String name;
 
-    @NotNull
-    @Column(name = "sex", nullable = false)
+    @Column(name = "sex")
     @Enumerated(EnumType.ORDINAL)
     Sex sex;
 
-    @NotNull
-    @Column(name = "\"size\"", nullable = false)
-    Double size;
+    @Column(name = "size")
+    Float size;
 
-    @NotNull
-    @Column(name = "age", nullable = false)
+    @Column(name = "age")
     Integer age;
 
     @Size(max = 2000)
@@ -63,20 +65,16 @@ public class KoiFish {
     @NotNull
     @Column(name = "video_url", nullable = false, length = 2000)
     String videoUrl;
-
-    @NotNull
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)
     KoiStatus status;
 
-    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "fish_created_date", nullable = false)
+    @Column(name = "fish_created_date")
     Instant fishCreatedDate;
 
-    @NotNull
     @ColumnDefault("getdate()")
-    @Column(name = "fish_updated_date", nullable = false)
+    @Column(name = "fish_updated_date")
     Instant fishUpdatedDate;
 
 }

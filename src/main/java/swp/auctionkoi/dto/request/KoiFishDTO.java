@@ -18,7 +18,7 @@ public class KoiFishDTO {
     Integer breederId;
     String name;
     Sex sex;
-    Double size;
+    Float size;
     Integer age;
     String description;
     String image_Url;
@@ -26,7 +26,7 @@ public class KoiFishDTO {
     KoiStatus status;
 
     public KoiFishDTO(@NotNull KoiFish fish) {
-        this.breederId = fish.getUser().getId();  // Lấy thông tin breeder
+        this.breederId = fish.getBreeder().getId();  // Lấy thông tin breeder
         this.name = fish.getName();
         this.sex = fish.getSex();
         this.size = fish.getSize();

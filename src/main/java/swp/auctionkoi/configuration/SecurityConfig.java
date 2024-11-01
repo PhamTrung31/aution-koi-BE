@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,6 +25,9 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,32 +42,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig  {
+public class SecurityConfig implements WebMvcConfigurer{
 
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs/**", "/auth/**", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auction/send-request", "/auctions/join",
-            "/auctions/end/{auctionId}", "/auction/update/{auctionRequestId}",
-            "/auction/cancel/{auctionRequestId}", "/users/create",
-            "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/staffs",
+            "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
+            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}", "/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
-            "/auction/view-request-detail/{auctionRequestId}",
-            "/auction/view-all-breeder-requests/{breederId}",
-            "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
-            "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
-            "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/hello",
-            "/payment/requestwithdraw","/google/hello","/auctions/check-participation",
-            "/auctions/manager-review",
-            "v2/api-docs",
-            "v3/api-docs",
-            "v3/api-docs/**",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui/**",
-            "/webjars/**",
-            "/swagger-ui.html"
+            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}", "/ws"
+
     };
 
 
@@ -78,42 +64,23 @@ public class SecurityConfig  {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        httpSecurity.authorizeHttpRequests(request ->
-
-                request.requestMatchers(
-                                "/api/v1/auth/**",
-                                "v2/api-docs",
-                                "v3/api-docs",
-                                "v3/api-docs/**",
-                                "/swagger-resources",
-                                "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
-                                "/swagger-ui/**",
-                                "/webjars/**",
-                                "/swagger-ui.html"
-
-
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
+        httpSecurity.authorizeHttpRequests(request -> request
+//                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
+//                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET, "/manager").hasAnyAuthority("ROLE_MANAGER")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/auctionkoi/ws").permitAll()
+//                        .requestMatchers(HttpMethod.GET).permitAll()
+                        .anyRequest().authenticated());
 
-                .oauth2Login(oauth2 ->
-                        oauth2.defaultSuccessUrl("/google/hello",true))
-                .oauth2Login(withDefaults())
-                .formLogin(withDefaults())
-
-                .oauth2ResourceServer(oauth2 ->
+        httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
                                 jwtConfigurer.decoder(jwtDecoder())
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -142,14 +109,14 @@ public class SecurityConfig  {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Nếu vai trò trong token có tiền tố "ROLE_"
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles"); // Tên trường trong token chứa vai trò
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("ROLE_");
 
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return converter;
     }
+
 
 
     @Bean
@@ -172,6 +139,7 @@ public class SecurityConfig  {
 
         corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedOrigin("https://aution-koi-fe.vercel.app");
+        corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
 
@@ -181,4 +149,44 @@ public class SecurityConfig  {
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
+    // Overriding method to add CORS mappings
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5173", "https://aution-koi-fe.vercel.app")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers")
+                .maxAge(1440000);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
+    }
+
+
+    public static String getIpAddress(HttpServletRequest request) {
+        String ipAdress;
+        try {
+            ipAdress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAdress == null) {
+                ipAdress = request.getRemoteAddr();
+            }
+        } catch (Exception e) {
+            ipAdress = "Invalid IP:" + e.getMessage();
+        }
+        return ipAdress;
+    }
+
+    public static String getRandomNumber(int len) {
+        Random rnd = new Random();
+        String chars = "0123456789";
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
 }

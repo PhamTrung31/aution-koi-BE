@@ -1,6 +1,7 @@
 package swp.auctionkoi.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import swp.auctionkoi.dto.request.AuctionRequestResponseData;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
@@ -27,4 +28,10 @@ public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, 
     boolean existsAuctionsByStartTime(LocalDateTime auctionDateTime);
 
     List<AuctionRequest> findByRequestStatus(AuctionRequestStatus requestStatus);
+
+    @Query("SELECT ar FROM AuctionRequest ar WHERE ar.assignedStaff.id = :staffId AND ar.requestStatus = :status")
+    List<AuctionRequest> findByAssignedStaffIdAndStatus(Integer staffId, AuctionRequestStatus status);
+
+    @Query("SELECT ar FROM AuctionRequest ar WHERE ar.assignedStaff.id = :staffId")
+    List<AuctionRequest> findByAssignedStaffId(Integer staffId);
 }
