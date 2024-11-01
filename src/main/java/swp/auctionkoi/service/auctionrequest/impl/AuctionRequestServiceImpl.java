@@ -235,7 +235,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                         .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
                 newAuction.setFish(fish);  // Set the Fish entity
-                newAuction.setStatus(AuctionStatus.NEW);
+                newAuction.setStatus(AuctionStatus.PENDING);
                 Auction savedAuction = auctionRepository.save(newAuction);
 
                 auctionRequest.setAuction(savedAuction);
@@ -327,7 +327,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                         .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
                 newAuction.setFish(fish);  // Set the Fish entity
-                newAuction.setStatus(AuctionStatus.NEW);
+                newAuction.setStatus(AuctionStatus.PENDING);
                 Auction savedAuction = auctionRepository.save(newAuction);
 
                 auctionRequest.setAuction(savedAuction);
@@ -429,7 +429,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             KoiFish fish = koiFishRepository.findById(auctionRequest.getFish().getId())
                     .orElseThrow(() -> new RuntimeException("Fish not found"));  // Retrieve Fish entity by ID
             newAuction.setFish(fish);  // Set the Fish entity
-            newAuction.setStatus(AuctionStatus.NEW);
+            newAuction.setStatus(AuctionStatus.PENDING);
             Auction savedAuction = auctionRepository.save(newAuction);
 
             auctionRequest.setAuction(savedAuction);
