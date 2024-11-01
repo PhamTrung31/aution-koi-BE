@@ -18,7 +18,7 @@ public class KoiFishDTO {
     Integer breederId;
     String name;
     Sex sex;
-    Double size;
+    Float size;
     Integer age;
     String description;
     String image_Url;

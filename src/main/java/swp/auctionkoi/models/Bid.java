@@ -31,6 +31,9 @@ public class Bid {
     @Column(name = "bid_created_date")
     Instant bidCreatedDate;
 
+    @Column(name = "bid_updated_date")
+    Instant bidUpdatedDate;
+
     @Column(name = "is_auto_bid")
     Boolean isAutoBid;
 
@@ -42,5 +45,4 @@ public class Bid {
 
     @Column(name = "bid_amount")
     float bidAmount;
-
 }

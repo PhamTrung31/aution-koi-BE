@@ -42,33 +42,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/staffs/**", "/auth/**", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auction/send-request", "/auctions/join",
-            "/auctions/end/{auctionId}", "/auction/update/{auctionRequestId}",
-            "/auction/cancel/{auctionRequestId}", "/users/create",
-            "/users/create", "/api/payment/vnpay-return", "/api/wallet/withdraw",
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/staffs",
+            "/auth/token", "/auth/introspect", "/auth/logout", "/auction/send-request",
+            "/auction/update/{auctionRequestId}", "/auction/cancel/{auctionRequestId}", "/users/create",
             "/auction/reject/{auctionRequestId}", "/auction/booking", "/auction/view-all-requests",
-            "/auction/view-request-detail/{auctionRequestId}",
-            "/auction/view-all-breeder-requests/{breederId}",
-            "/deliveries/status", "/api/files/upload", "/api/koifish/upload/{koiId}",
-            "/deliveries/{deliveryId}", "/users/{id}/avatar", "/vnpay/submitOrder",
-            "/vnpay/", "/vnpay/vnpay-payment-return","/wallet/{userId}","/hello",
-            "/payment/requestwithdraw","/google/hello","/auctions/check-participation",
-            "/auctions/manager-review","/auth/login-with-google-token",
-            "/login/oauth2/code/google",
-            "v2/api-docs",
-            "v3/api-docs",
-            "v3/api-docs/**",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui/**",
-            "/webjars/**",
-            "/swagger-ui.html"
+            "/auction/view-request-detail/{auctionRequestId}", "/auction/view-all-breeder-requests/{breederId}", "/ws"
+
     };
 
 
@@ -84,22 +65,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request ->
-
-                request.requestMatchers(
-                                "/api/v1/auth/**",
-                                "v2/api-docs",
-                                "v3/api-docs",
-                                "v3/api-docs/**",
-                                "/swagger-resources",
-                                "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
-                                "/swagger-ui/**",
-                                "/webjars/**",
-                                "/swagger-ui.html"
-
-
-                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
@@ -111,15 +76,11 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/staffs").hasAnyAuthority("ROLE_STAFF")
                         .requestMatchers(HttpMethod.GET, "/manager").hasAnyAuthority("ROLE_MANAGER")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/auctionkoi/ws").permitAll()
+//                        .requestMatchers(HttpMethod.GET).permitAll()
+                        .anyRequest().authenticated());
 
-                .oauth2Login(oauth2 ->
-                        oauth2.defaultSuccessUrl("http://localhost:5173",true))
-//                .oauth2Login(withDefaults())
-//                .formLogin(withDefaults())
-
-
-                .oauth2ResourceServer(oauth2 ->
+        httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
                                 jwtConfigurer.decoder(jwtDecoder())
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -148,14 +109,14 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Nếu vai trò trong token có tiền tố "ROLE_"
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles"); // Tên trường trong token chứa vai trò
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("ROLE_");
 
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return converter;
     }
+
 
 
     @Bean
@@ -178,6 +139,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedOrigin("https://aution-koi-fe.vercel.app");
+        corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
 
@@ -205,3 +167,26 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 }
 
+    public static String getIpAddress(HttpServletRequest request) {
+        String ipAdress;
+        try {
+            ipAdress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAdress == null) {
+                ipAdress = request.getRemoteAddr();
+            }
+        } catch (Exception e) {
+            ipAdress = "Invalid IP:" + e.getMessage();
+        }
+        return ipAdress;
+    }
+
+    public static String getRandomNumber(int len) {
+        Random rnd = new Random();
+        String chars = "0123456789";
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+}

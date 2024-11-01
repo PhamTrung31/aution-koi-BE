@@ -4,11 +4,11 @@ import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.AuctionDTO;
 import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
+import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
@@ -27,4 +27,5 @@ public interface AuctionService {
     public void endAuction(int auctionId);
 
     public Auction getAuctionById(int auctionId);
+    public List<AuctionResonpse> getListAuctionComplete();
 }

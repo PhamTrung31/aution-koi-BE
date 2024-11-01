@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import swp.auctionkoi.models.enums.AutoBidIncrement;
 
+import java.time.Instant;
+
 @Setter
 @Getter
 @AllArgsConstructor

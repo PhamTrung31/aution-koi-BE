@@ -30,25 +30,31 @@ public class AuctionRequest {
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-
     swp.auctionkoi.models.User user; //breeder
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_staff_id")
     @Nullable
+    swp.auctionkoi.models.User assignedStaff; // Thêm trường này để lưu thông tin nhân viên đã gửi yêu cầu
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.User assignedStaff;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "initiated_by_id")
+//    // Thêm trường này để lưu nhân viên đã khởi tạo yêu cầu
+//    @Nullable
+//    swp.auctionkoi.models.User initiatedBy;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fish_id")
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.KoiFishs fish;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
     @Nullable
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -101,6 +107,4 @@ public class AuctionRequest {
 //    public void onPreUpdate() {
 //        this.requestUpdatedDate = Instant.now();
 //    }
-
-
 }
