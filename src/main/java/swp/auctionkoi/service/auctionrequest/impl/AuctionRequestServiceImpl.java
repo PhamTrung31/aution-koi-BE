@@ -45,7 +45,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     AuctionRequestMapper auctionRequestMapper;
 
 
-
     public AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO) {
         // Fetching User and Fish
         User user = userRepository.findById(auctionRequestDTO.getUserId())
@@ -129,7 +128,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
 
-
     @Override
     public List<AuctionRequest> viewAllAuctionRequest() {
         List<AuctionRequest> auctionRequests = new ArrayList<>();
@@ -193,6 +191,14 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     @Override
     public List<AuctionRequest> getAuctionRequestsInWait() {
         return auctionRequestRepository.findByRequestStatus(AuctionRequestStatus.WAIT);
+    }
+
+    @Override
+    public List<AuctionRequest> getAuctionRequestsInAssignedToStaff(Integer staffId) {
+        return auctionRequestRepository.findByAssignedStaffIdAndStatus(
+                staffId,
+                AuctionRequestStatus.ASSIGNED_TO_STAFF
+        );
     }
 
     @Override
@@ -359,7 +365,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
             } else {
                 // Manager từ chối yêu cầu đấu giá
-                auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
+                auctionRequest.setRequestStatus(AuctionRequestStatus.REJECTED);
                 auctionRequest.getFish().setStatus(KoiStatus.REJECTED);
             }
 
@@ -436,7 +442,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
         } else {
             // Nếu staff từ chối yêu cầu sau khi xem cá
-            auctionRequest.setRequestStatus(AuctionRequestStatus.CANCEL);
+            auctionRequest.setRequestStatus(AuctionRequestStatus.REJECTED);
             auctionRequest.getFish().setStatus(KoiStatus.REJECTED);
         }
 
@@ -495,7 +501,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 //        }
     }
 }
-
 
 
 //    private AuctionRequest saveRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {

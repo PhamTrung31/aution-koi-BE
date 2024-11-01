@@ -81,6 +81,16 @@ public class AuctionController {
                 .build();
     }
 
+    @GetMapping("/assigned-staff/{staffId}")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAssignedStaff(@PathVariable Integer staffId) {
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAssignedToStaff(staffId);
+        return ApiResponse.<List<AuctionRequest>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionRequests)
+                .build();
+    }
+
     @PutMapping("/approve")
     public ApiResponse<AuctionRequestUpdateResponse> approveAuctionRequestForStaff(
             @RequestBody ApproveAuctionRequestDto approveRequestDto) {

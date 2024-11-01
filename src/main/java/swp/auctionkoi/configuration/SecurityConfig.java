@@ -65,11 +65,11 @@ public class SecurityConfig implements WebMvcConfigurer{
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
-                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.GET, "/staffs").hasAuthority("ROLE_STAFF")
+//                        .requestMatchers(HttpMethod.GET, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.POST, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.PUT, "/manager/**").hasAuthority("ROLE_MANAGER")
+//                        .requestMatchers(HttpMethod.DELETE, "/manager/**").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
