@@ -86,9 +86,10 @@ public class AuctionScheduler {
                 existAuctionPending(request);
 
                 startAuctionSchedule(request, auctionParticipants, currentTime);
+
+                endTimeButWasNotStartSchedule(request, auctionParticipants, currentTime);
             }
             if(request.getAuction().getStatus().equals(AuctionStatus.IN_PROGRESS)){
-                endTimeButWasNotStartSchedule(request, auctionParticipants, currentTime);
                 endAuctionSchedule(request, auctionParticipants, currentTime);
             }
         }

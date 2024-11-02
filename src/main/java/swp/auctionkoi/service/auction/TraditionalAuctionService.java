@@ -1,5 +1,6 @@
 package swp.auctionkoi.service.auction;
 
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,11 +17,13 @@ import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.bid.impl.BidServiceImpl;
 
 import java.time.Duration;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PreAuthorize("hasRole('MEMBER')")
+@Transactional
 public class TraditionalAuctionService {
 
     AuctionRepository auctionRepository;
@@ -36,7 +39,6 @@ public class TraditionalAuctionService {
     AuctionRequestRepository auctionRequestRepository;
 
     AuctionParticipantsRepository auctionParticipantsRepository;
-
 
     public void placeBid(int auctionId, BidRequestTraditional bidRequestTraditional) {
 
@@ -95,33 +97,58 @@ public class TraditionalAuctionService {
 
         Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
 
+        float amount_find = 0;
+
         if(findBidByUser == null) {
             Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
             bidRepository.save(bid);
         } else {
+            amount_find = findBidByUser.getBidAmount();
             findBidByUser.setBidAmount(bidAmount);
             bidRepository.save(findBidByUser);
         }
 
-        //for check bid place close the end time or not
-        Bid checkBid = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
-        Duration duration = Duration.between(checkBid.getBidUpdatedDate(), auctionRequest.getEndTime());
-        if (!duration.isNegative() && duration.toMillis() < 10000) {
-            auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
-            auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
-            auctionRepository.save(auction);
+
+
+        if (auctionRequest.getEndTime() != null) {
+            Instant instantNow = Instant.now();
+            // Add 7 hours to Instant
+            Instant currentTime = instantNow.plus(Duration.ofHours(7));
+            Duration duration = Duration.between(currentTime, auctionRequest.getEndTime());
+            if (!duration.isNegative() && duration.toMillis() < 10000) {
+                auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
+                auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
+                auctionRepository.save(auction);
+            }
         }
 
-        walletUser.setBalance(walletUser.getBalance() - bidAmount);
+        Transaction transaction;
 
-        Transaction transaction = Transaction.builder()
-                .auction(auction)
-                .user(user)
-                .transactionFee(0F)
-                .walletId(walletUser.getId())
-                .transactionType(TransactionType.BID)
-                .amount(bidAmount)
-                .build();
+        if(amount_find != 0){
+            float difference = bidAmount - amount_find;
+            walletUser.setBalance(walletUser.getBalance() - difference);
+            transaction = Transaction.builder()
+                    .auction(auction)
+                    .user(user)
+                    .transactionFee(0F)
+                    .walletId(walletUser.getId())
+                    .transactionType(TransactionType.BID)
+                    .amount(difference)
+                    .build();
+        } else {
+            walletUser.setBalance(walletUser.getBalance() - bidAmount);
+            transaction = Transaction.builder()
+                    .auction(auction)
+                    .user(user)
+                    .transactionFee(0F)
+                    .walletId(walletUser.getId())
+                    .transactionType(TransactionType.BID)
+                    .amount(bidAmount)
+                    .build();
+        }
+
+
+
 
         auction.setHighestPrice(bidAmount);
         auction.setWinner(user);
@@ -136,13 +163,14 @@ public class TraditionalAuctionService {
      *  For build a new bid
      * */
     private Bid buildBid(Auction auction, User user, BidRequestTraditional bidRequestTraditional, float bidAmount) {
-        return Bid.builder()
+        Bid bid = Bid.builder()
                 .auction(auction)
                 .user(user)
                 .isAutoBid(bidRequestTraditional.isAutoBid())
                 .autoBidMax(bidRequestTraditional.getMaxBidAmount())
                 .bidAmount(bidAmount)
                 .build();
+        return bid;
     }
 
 //    private float calBidAmount(User user, float currentPrice, BidRequestTraditional bidRequestTraditional) {

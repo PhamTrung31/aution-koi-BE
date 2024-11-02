@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import swp.auctionkoi.dto.request.AuctionDTO;
@@ -55,6 +56,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     private static final float DEPOSIT_RATE = 0.15f;
 
+    @PreAuthorize("hasRole('MEMBER')")
     @Override
     public AuctionJoinResponse joinAuction(int userId, int auctionId) {
         // Lấy thông tin user
@@ -68,7 +70,6 @@ public class AuctionServiceImpl implements AuctionService {
         // Lấy thông tin ví của user
         Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
-
         // Fetch admin by known admin ID or role
         User admin = (User) userRepository.findFirstByRole(Role.MANAGER)
                 .orElseThrow(() -> new AppException(ErrorCode.ADMIN_NOT_FOUND));
@@ -79,6 +80,7 @@ public class AuctionServiceImpl implements AuctionService {
 
         // Lấy thông tin auction
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_EXISTED));
+
         // Kiểm tra xem user đã tham gia auction này chưa
         Optional<AuctionParticipants> existedParticipants = Optional.ofNullable(auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, userId));
 

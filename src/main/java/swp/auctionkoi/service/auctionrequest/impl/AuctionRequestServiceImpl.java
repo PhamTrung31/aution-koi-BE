@@ -44,6 +44,10 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 
     AuctionRequestMapper auctionRequestMapper;
 
+    public AuctionRequest getAuctionRequestDetailByAuctionId(int auctionId){
+        return auctionRequestRepository.findByAuctionId(auctionId).get();
+    }
+
 
     public AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO) {
         // Fetching User and Fish

@@ -23,7 +23,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasAuthority('ROLE_MANAGER')")
+//@PreAuthorize("hasAuthority('ROLE_MANAGER')")
+@PreAuthorize("hasRole('MANAGER')")
 public class ManagerServiceImpl implements ManagerService {
 
     UserMapper userMapper;
