@@ -66,8 +66,6 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 //                .incrementStep(auctionRequestDTO.getIncrementStep())
                 .startPrice(auctionRequestDTO.getStartPrice())
                 .methodType(auctionRequestDTO.getMethodType())
-                .startTime(auctionRequestDTO.getStart_time())
-                .endTime(auctionRequestDTO.getEnd_time())
                 .requestStatus(AuctionRequestStatus.WAIT)
                 .build();
 
@@ -116,8 +114,8 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 //        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
         auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
-        auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
-        auctionRequest.setEndTime(auctionRequestDTO.getEnd_time());
+//        auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
+//        auctionRequest.setEndTime(auctionRequestDTO.getEnd_time());
         auctionRequest.setRequestUpdatedDate(Instant.now());
 
         // Save the updated AuctionRequest
@@ -491,13 +489,13 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             throw new AppException(ErrorCode.INVALID_START_PRICE);
         }
 
-        Instant start_time = auctionRequestDTO.getStart_time();
-        Instant end_time = auctionRequestDTO.getEnd_time();
-        Instant now = Instant.now();
+//        Instant start_time = auctionRequestDTO.getStart_time();
+//        Instant end_time = auctionRequestDTO.getEnd_time();
+//        Instant now = Instant.now();
 
-        if (start_time.isAfter(end_time)) {
-            throw new AppException(ErrorCode.INVALID_START_TIME);
-        }
+//        if (start_time.isAfter(end_time)) {
+//            throw new AppException(ErrorCode.INVALID_START_TIME);
+//        }
 
 //        Duration duration = Duration.between(start_time, now);
 //
