@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 import swp.auctionkoi.dto.request.bid.BidRequest;
@@ -17,6 +18,7 @@ import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.repository.AuctionRequestRepository;
 import swp.auctionkoi.service.auction.AnonymousAuctionService;
+import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auction.FixedPriceAuctionService;
 import swp.auctionkoi.service.auction.TraditionalAuctionService;
 import swp.auctionkoi.service.auction.impl.AuctionServiceImpl;
@@ -31,11 +33,11 @@ public class MemberManageAuctionController {
     AuctionRequestRepository auctionRequestRepository;
     FixedPriceAuctionService fixedPriceAuctionService;
     AnonymousAuctionService anonymousAuctionService;
-    private final AuctionServiceImpl auctionServiceImpl;
-
+    AuctionService auctionService;
+    
     @PostMapping("/join/{auctionId}/{userId}")
     public ApiResponse<String> joinAuction(@PathVariable int userId, @PathVariable int auctionId) {
-        auctionServiceImpl.joinAuction(userId, auctionId);
+        auctionService.joinAuction(userId, auctionId);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Join auction successfully!")
@@ -44,7 +46,7 @@ public class MemberManageAuctionController {
 
     @GetMapping("/check-participation/{auctionId}/{userId}")
     public ApiResponse<String> checkAuctionParticipation(@PathVariable int userId, @PathVariable int auctionId) {
-        String participationStatus = auctionServiceImpl.checkUserParticipationInAuction(userId, auctionId);
+        String participationStatus = auctionService.checkUserParticipationInAuction(userId, auctionId);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message(participationStatus)

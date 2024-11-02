@@ -23,7 +23,6 @@ import java.time.Instant;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PreAuthorize("hasRole('MEMBER')")
-
 @Transactional
 public class TraditionalAuctionService {
 
@@ -98,11 +97,13 @@ public class TraditionalAuctionService {
 
         Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
 
+        float amount_find = 0;
 
         if(findBidByUser == null) {
             Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
             bidRepository.save(bid);
         } else {
+            amount_find = findBidByUser.getBidAmount();
             findBidByUser.setBidAmount(bidAmount);
             bidRepository.save(findBidByUser);
         }
@@ -121,16 +122,33 @@ public class TraditionalAuctionService {
             }
         }
 
-        walletUser.setBalance(walletUser.getBalance() - bidAmount);
+        Transaction transaction;
 
-        Transaction transaction = Transaction.builder()
-                .auction(auction)
-                .user(user)
-                .transactionFee(0F)
-                .walletId(walletUser.getId())
-                .transactionType(TransactionType.BID)
-                .amount(bidAmount)
-                .build();
+        if(amount_find != 0){
+            float difference = bidAmount - amount_find;
+            walletUser.setBalance(walletUser.getBalance() - difference);
+            transaction = Transaction.builder()
+                    .auction(auction)
+                    .user(user)
+                    .transactionFee(0F)
+                    .walletId(walletUser.getId())
+                    .transactionType(TransactionType.BID)
+                    .amount(difference)
+                    .build();
+        } else {
+            walletUser.setBalance(walletUser.getBalance() - bidAmount);
+            transaction = Transaction.builder()
+                    .auction(auction)
+                    .user(user)
+                    .transactionFee(0F)
+                    .walletId(walletUser.getId())
+                    .transactionType(TransactionType.BID)
+                    .amount(bidAmount)
+                    .build();
+        }
+
+
+
 
         auction.setHighestPrice(bidAmount);
         auction.setWinner(user);

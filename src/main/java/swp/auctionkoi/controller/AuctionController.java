@@ -41,6 +41,8 @@ public class AuctionController {
                 .build();
     }
 
+
+
     @GetMapping("/view-all-requests")
     public ApiResponse<List<AuctionRequest>> viewAllAuctionRequest() {
         List<AuctionRequest> auctionRequestResponseHashMap = auctionRequestService.viewAllAuctionRequest();

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface AuctionRequestService {
+    AuctionRequest getAuctionRequestDetailByAuctionId(int auctionId);
     AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
     List<AuctionRequest> viewAllAuctionRequest();
     AuctionRequestResponseData viewAuctionRequestDetail(int auctionRequestId);
