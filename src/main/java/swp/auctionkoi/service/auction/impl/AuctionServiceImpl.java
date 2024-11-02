@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import swp.auctionkoi.dto.request.AuctionDTO;
@@ -55,6 +56,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     private static final float DEPOSIT_RATE = 0.15f;
 
+    @PreAuthorize("hasRole('MEMBER')")
     @Override
     public AuctionJoinResponse joinAuction(int userId, int auctionId) {
         // Lấy thông tin user

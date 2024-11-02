@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequest;
 import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
@@ -19,6 +20,7 @@ import swp.auctionkoi.service.wallet.WalletService;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('MEMBER')")
 public class AnonymousAuctionService {
 
     AuctionRepository auctionRepository;
@@ -36,7 +38,6 @@ public class AnonymousAuctionService {
     WalletService walletService;
 
     AuctionParticipantsRepository auctionParticipantsRepository;
-
 
     public void placeBid(int auctionId, BidRequest bidRequest) {
 
