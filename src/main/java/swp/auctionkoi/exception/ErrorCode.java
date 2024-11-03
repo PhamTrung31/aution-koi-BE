@@ -45,10 +45,10 @@ public enum ErrorCode {
 
     NOT_FOUND_BID_HIGHEST(1034, "Can not found highest bid!", HttpStatus.NOT_FOUND),
     WRONG_PASSWORD(1035, "Wrong password!", HttpStatus.BAD_REQUEST),
-    FISH_NOT_AVAILABLE(1036, "Fish not ready for create an auction!", HttpStatus.BAD_REQUEST),
-    INVALID_START_PRICE(1037, "Invalid start price!", HttpStatus.BAD_REQUEST),
-    INVALID_START_TIME(1038, "Start time is after end time!", HttpStatus.BAD_REQUEST),
-    START_TIME_TOO_CLOSED(10439, "Start time is too closed, start time must be at least one day from current time!", HttpStatus.BAD_REQUEST),
+    FISH_NOT_AVAILABLE(1036, "Fish not available for create an auction!", HttpStatus.BAD_REQUEST),
+    INVALID_PRICE(1037, "Invalid price!", HttpStatus.BAD_REQUEST),
+    INVALID_AUCTION_TIME(1038, "Start time is after end time!", HttpStatus.BAD_REQUEST),
+    START_TIME_TOO_CLOSED(1039, "Start time is too closed, start time must be at least one day from current time!", HttpStatus.BAD_REQUEST),
     CANT_CANCEL_REQUEST(1040, "Your request or fish is invalid!", HttpStatus.BAD_REQUEST),
     INVALID_AUCTION_REQUEST_AND_FISH_STATE(1041, "Your request and fish have invalid state!", HttpStatus.BAD_REQUEST),
     USER_NOT_IN_AUCTION(1042, "You not in auction", HttpStatus.NOT_FOUND),
@@ -58,8 +58,9 @@ public enum ErrorCode {
     ERROR_UPDATE(1046, "Update failed!", HttpStatus.BAD_REQUEST),
     STAFF_NOT_FOUND(1047, "Staff not existed", HttpStatus.NOT_FOUND),
     INCORRECT_PASSWORD(1048, "Incorrect password", HttpStatus.BAD_REQUEST),
-    STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND );
-
+    STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND ),
+    INVALID_AUCTION_DURATION(1050,"Auction duration must be at least 10 minutes",HttpStatus.BAD_REQUEST),
+    DUPLICATE_FISH_NAME(1051,"Duplicated fish name",HttpStatus.BAD_REQUEST);
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 //    USER_EXISTED(1001, "User existed", HttpStatus.BAD_REQUEST),
 //    USERNAME_INVALID(1002, "Username must be ....", HttpStatus.BAD_REQUEST),

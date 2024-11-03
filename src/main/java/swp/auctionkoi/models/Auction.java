@@ -30,8 +30,8 @@ public class Auction {
     @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.KoiFish fish;
 
-    @Column(name = "current_price")
-    Float currentPrice;
+//    @Column(name = "current_price")
+//    Float currentPrice;
 
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)

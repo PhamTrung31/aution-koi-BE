@@ -1,9 +1,12 @@
 package swp.auctionkoi.dto.request;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Future;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import shaded_package.javax.validation.constraints.NotNull;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -12,9 +15,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ApproveAuctionRequestDto {
+public class ScheduleAuctionRequestDTO {
     Integer auctionRequestId;
     Integer staffId;
-    @JsonProperty("isSendToManager")
-    boolean isSendToManager;
+    @JsonProperty("start_time")
+    Instant startTime;
+    @JsonProperty("end_time")
+    Instant endTime;
 }
