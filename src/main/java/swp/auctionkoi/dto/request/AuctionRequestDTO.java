@@ -22,6 +22,6 @@ public class AuctionRequestDTO {
 //    Integer incrementStep;
     Float startPrice;
     AuctionType methodType;
-    Instant start_time;
-    Instant end_time;
+//    Instant start_time;
+//    Instant end_time;
 }

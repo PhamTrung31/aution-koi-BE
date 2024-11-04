@@ -90,11 +90,11 @@ public class AuctionRequest {
     AuctionRequestStatus requestStatus;
 
     @Column(name = "start_time")
-    @NotNull
+    @Nullable
     Instant startTime;
 
     @Column(name = "end_time")
-    @NotNull
+    @Nullable
     Instant endTime;
 
     @PrePersist

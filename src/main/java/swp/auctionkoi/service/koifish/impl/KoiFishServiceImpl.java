@@ -28,16 +28,19 @@ public class KoiFishServiceImpl implements KoiFishService {
     @Override
     public KoiFish getKoiFishById(int id) {
         return koiFishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("KoiFish not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
     }
 
     @Override
     public KoiFish createKoiFish(KoiFish koiFish, int breederId) {
         User breeder = userRepository.findById(breederId)
-                .orElseThrow(() -> new RuntimeException("Breeder not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         // Check if the user's role is "BREEDER"
         if (!breeder.getRole().equals(Role.BREEDER)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if (koiFishRepository.existsByNameAndBreederId(koiFish.getName(), breederId)) {
+            throw new AppException(ErrorCode.DUPLICATE_FISH_NAME);
         }
         koiFish.setBreeder(breeder);  // Set breeder to avoid NULL in breeder_id column
         koiFish.setStatus(KoiStatus.NEW);
@@ -47,7 +50,22 @@ public class KoiFishServiceImpl implements KoiFishService {
     @Override
     public KoiFish updateKoiFish(int id, KoiFishUpdateRequest updatedKoiFish) {
         KoiFish existingKoiFish = koiFishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("KoiFish not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
+        // Check if the new name is different from the current name
+        if (!existingKoiFish.getName().equals(updatedKoiFish.getName())) {
+            // Check if the new name already exists for this breeder
+            if (koiFishRepository.existsByNameAndBreederIdAndIdNot(
+                    updatedKoiFish.getName(),
+                    existingKoiFish.getBreeder().getId(),
+                    id)) {
+                throw new AppException(ErrorCode.DUPLICATE_FISH_NAME);
+            }
+        }
+
+        // Validate status - only allow updates if fish is in NEW
+        if (!existingKoiFish.getStatus().equals(KoiStatus.NEW)) {
+            throw new AppException(ErrorCode.INVALID_FISH_STATE);
+        }
         existingKoiFish.setName(updatedKoiFish.getName());
         existingKoiFish.setSex(updatedKoiFish.getSex());
         existingKoiFish.setSize(updatedKoiFish.getSize());
@@ -67,7 +85,7 @@ public class KoiFishServiceImpl implements KoiFishService {
     @Override
     public KoiFish cancelKoiFish(int id) {
         KoiFish koiFish = koiFishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("KoiFish not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
         koiFish.setStatus(KoiStatus.CANCELED);
         return koiFishRepository.save(koiFish);
     }
