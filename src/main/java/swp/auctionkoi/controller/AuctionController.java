@@ -2,14 +2,13 @@ package swp.auctionkoi.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.*;
 import swp.auctionkoi.dto.respone.ApiResponse;
 
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.models.Auction;
-import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
+import swp.auctionkoi.dto.respone.auction.AuctionHistoryResponse;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
@@ -33,8 +32,8 @@ public class AuctionController {
     private KoiFishServiceImpl koiFishService;
 
     @GetMapping("/past-auction")
-    public ApiResponse<List<AuctionResonpse>> getAuctionComplete(){
-        return ApiResponse.<List<AuctionResonpse>>builder()
+    public ApiResponse<List<AuctionHistoryResponse>> getAuctionComplete(){
+        return ApiResponse.<List<AuctionHistoryResponse>>builder()
                 .code(200)
                 .message("OK")
                 .result(auctionService.getListAuctionComplete())
@@ -182,7 +181,19 @@ public class AuctionController {
                 .build();
     }
 
-    @GetMapping("/auctions/{id}")
+
+    @GetMapping("/view-past-auction")
+    public ApiResponse<List<AuctionHistoryResponse>> viewPastAuction() {
+        return ApiResponse.<List<AuctionHistoryResponse>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionService.getListAuctionComplete())
+                .build();
+    }
+
+
+
+    @GetMapping("/detail/{id}")
     public ApiResponse<Auction> getAuctionById(@PathVariable int id) {
         Auction auction = auctionService.getAuctionById(id);
         return ApiResponse.<Auction>builder()

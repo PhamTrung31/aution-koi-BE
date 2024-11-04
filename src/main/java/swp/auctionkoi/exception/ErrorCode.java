@@ -58,7 +58,10 @@ public enum ErrorCode {
     ERROR_UPDATE(1046, "Update failed!", HttpStatus.BAD_REQUEST),
     STAFF_NOT_FOUND(1047, "Staff not existed", HttpStatus.NOT_FOUND),
     INCORRECT_PASSWORD(1048, "Incorrect password", HttpStatus.BAD_REQUEST),
-    STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND );
+    STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND ),
+    AlREADY_WIN(1050, "You are the winner!", HttpStatus.BAD_REQUEST),
+
+    ;
 
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 //    USER_EXISTED(1001, "User existed", HttpStatus.BAD_REQUEST),
