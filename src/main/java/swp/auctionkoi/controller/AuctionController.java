@@ -81,6 +81,15 @@ public class AuctionController {
                 .result(auctionRequests)
                 .build();
     }
+    @GetMapping("/awaiting_schedule")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAwaitingSchedule() {
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule();
+        return ApiResponse.<List<AuctionRequest>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionRequests)
+                .build();
+    }
 
     @GetMapping("/assigned-staff/{staffId}")
     public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAssignedStaff(@PathVariable Integer staffId) {
@@ -102,82 +111,99 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/approve")
-    public ApiResponse<AuctionRequestUpdateResponse> approveAuctionRequestForStaff(
-            @RequestBody ApproveAuctionRequestDto approveRequestDto) {
-
-        // Log giá trị nhận được từ frontend
-//        System.out.println("Request received - auctionRequestId: " + approveRequestDto.getAuctionRequestId() +
-//                ", staffId: " + approveRequestDto.getStaffId() +
-//                ", isSendToManager: " + approveRequestDto.isSendToManager());
-
-        // Gọi service để xử lý yêu cầu
-        AuctionRequestUpdateResponse auctionRequestResponse = auctionRequestService.approveAuctionRequestForStaff(
-                approveRequestDto.getAuctionRequestId(),
-                approveRequestDto.getStaffId(),
-                approveRequestDto.isSendToManager()
+    @PutMapping("/staff/send-to-manager")
+    public ApiResponse<AuctionRequestUpdateResponse> sendToManager(@RequestBody AuctionRequestActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.SendToManager(
+                request.getAuctionRequestId(),
+                request.getStaffId()
         );
-
-        // Kiểm tra xem yêu cầu đã được gửi lên manager hay staff tự duyệt
-        String message;
-        if (approveRequestDto.isSendToManager()) {
-            message = "Request sent to manager for approval";
-        } else {
-            message = "Successfully approved by staff";
-        }
-
-        // Trả về API response
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
-                .message(message)
-                .result(auctionRequestResponse)
+                .message("Request sent to manager for review")
+                .result(response)
+                .build();
+    }
+
+    @PutMapping("/staff/approve")
+    public ApiResponse<AuctionRequestUpdateResponse> approveByStaff(@RequestBody AuctionRequestActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.approveDirectlyByStaff(
+                request.getAuctionRequestId(),
+                request.getStaffId()
+        );
+        return ApiResponse.<AuctionRequestUpdateResponse>builder()
+                .code(200)
+                .message("Request approved by staff")
+                .result(response)
                 .build();
     }
 
 
-    @PutMapping("/manager/review")
-    public ApiResponse<AuctionRequestUpdateResponse> reviewAuctionRequestByManager(@RequestBody ManagerReviewRequest request) {
-        AuctionRequestUpdateResponse auctionRequestResponse = auctionRequestService.reviewAuctionRequestByManager(
+    @PutMapping("/manager/reject")
+    public ApiResponse<AuctionRequestUpdateResponse> rejectByManager(@RequestBody ManagerActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.rejectByManager(
+                request.getAuctionRequestId(),
+                request.getManagerId()
+        );
+        return ApiResponse.<AuctionRequestUpdateResponse>builder()
+                .code(200)
+                .message("Request rejected by manager")
+                .result(response)
+                .build();
+    }
+
+    @PutMapping("/manager/assign-staff")
+    public ApiResponse<AuctionRequestUpdateResponse> assignToStaff(@RequestBody ManagerActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.assignToStaffByManager(
                 request.getAuctionRequestId(),
                 request.getManagerId(),
-                request.getStaffId(),
-                request.isApproved(),
-                request.isAssignToStaff());
-
-        String message;
-        if (request.isApproved()) {
-            message = "The manager agreed to approve";
-        } else if(request.isAssignToStaff()) {
-            message = "Manager requests the staff to inspect the fish first";
-        } else {
-            message = "Request not approved by manager";
-        }
-
+                request.getStaffId()
+        );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
-                .message(message)
-                .result(auctionRequestResponse)
+                .message("Request assigned to staff")
+                .result(response)
                 .build();
     }
 
-    @PutMapping("/staff/review")
-    public ApiResponse<AuctionRequestUpdateResponse> reviewAuctionRequestByStaff(@RequestBody StaffReviewRequest request) {
-        AuctionRequestUpdateResponse auctionRequestResponse = auctionRequestService.reviewAuctionRequestByStaff(
+    @PutMapping("/assignedstaff/approve")
+    public ApiResponse<AuctionRequestUpdateResponse> approveByAssignedStaff(@RequestBody AuctionRequestActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.approveByAssignedStaff(
                 request.getAuctionRequestId(),
-                request.getStaffId(),
-                request.isApproved());
-
-        String message;
-        if (request.isApproved()) {
-            message = "Successfully approved by staff";
-        } else {
-            message = "Request not approved by staff";
-        }
-
+                request.getStaffId()
+        );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
-                .message(message)
-                .result(auctionRequestResponse)
+                .message("Request approved by assigned staff")
+                .result(response)
+                .build();
+    }
+
+    @PutMapping("/assignedstaff/reject")
+    public ApiResponse<AuctionRequestUpdateResponse> rejectByAssignedStaff(@RequestBody AuctionRequestActionDto request) {
+        AuctionRequestUpdateResponse response = auctionRequestService.rejectByAssignedStaff(
+                request.getAuctionRequestId(),
+                request.getStaffId()
+        );
+        return ApiResponse.<AuctionRequestUpdateResponse>builder()
+                .code(200)
+                .message("Request rejected by assigned staff")
+                .result(response)
+                .build();
+    }
+
+    @PutMapping("/schedule")
+    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction( @RequestBody ScheduleAuctionRequestDTO scheduleRequest
+    ) {
+        AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
+                scheduleRequest.getAuctionRequestId(),
+                scheduleRequest.getStaffId(),
+                scheduleRequest.getStartTime(),
+                scheduleRequest.getEndTime()
+        );
+        return ApiResponse.<AuctionRequestUpdateResponse>builder()
+                .code(200)
+                .message("Request scheduled update successfully")
+                .result(response)
                 .build();
     }
 

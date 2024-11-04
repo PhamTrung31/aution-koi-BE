@@ -1,5 +1,6 @@
 package swp.auctionkoi.dto.request;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,12 +12,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ManagerReviewRequest {
-     int auctionRequestId;
-     int managerId;
-     int staffId;
-     @JsonProperty("isApproved")
-     boolean isApproved;
-     @JsonProperty("assignToStaff")
-     boolean assignToStaff;
+public class AuctionRequestActionDto {
+    Integer auctionRequestId;
+    Integer staffId;
 }
