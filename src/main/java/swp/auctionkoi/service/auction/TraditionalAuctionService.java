@@ -174,8 +174,10 @@ public class TraditionalAuctionService {
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
         }
 
-        if(user.getId() == auction.getWinner().getId()){
-            throw new AppException(ErrorCode.AlREADY_WIN);
+        if(auction.getWinner() != null) {
+            if (user.getId().equals(auction.getWinner().getId())) {
+                throw new AppException(ErrorCode.AlREADY_WIN);
+            }
         }
 
         //not enough money
