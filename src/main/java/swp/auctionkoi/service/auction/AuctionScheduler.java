@@ -81,7 +81,7 @@ public class AuctionScheduler {
             //get list bidder in this auction
             List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
 
-            if (request.getAuction().getStatus().equals(AuctionStatus.PENDING) && request.getRequestStatus().equals(AuctionRequestStatus.AWAITING_SCHEDULE)) {
+            if (request.getAuction().getStatus().equals(AuctionStatus.PENDING) && request.getRequestStatus().equals(AuctionRequestStatus.SCHEDULED)) {
 
                 existAuctionPending(request);
 
@@ -105,7 +105,7 @@ public class AuctionScheduler {
     }
 
     private void existAuctionPending(AuctionRequest request) {
-        if (!auctionNotificationSentMap.containsKey(request.getAuction().getId()) && request.getAuction().getStatus() == AuctionStatus.PENDING && request.getRequestStatus().equals(AuctionRequestStatus.AWAITING_SCHEDULE)) {
+        if (!auctionNotificationSentMap.containsKey(request.getAuction().getId()) && request.getAuction().getStatus() == AuctionStatus.PENDING && request.getRequestStatus().equals(AuctionRequestStatus.SCHEDULED)) {
             AuctionPendingInfo auctionPendingInfo = AuctionPendingInfo.builder()
                     .auction_id(request.getAuction().getId())
                     .fish_id(request.getFish().getId())
