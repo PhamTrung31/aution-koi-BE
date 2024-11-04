@@ -88,9 +88,12 @@ public class AuctionScheduler {
                 startAuctionSchedule(request, auctionParticipants, currentTime);
 
                 endTimeButWasNotStartSchedule(request, auctionParticipants, currentTime);
+
             }
             if(request.getAuction().getStatus().equals(AuctionStatus.IN_PROGRESS)){
+
                 endAuctionSchedule(request, auctionParticipants, currentTime);
+
             }
         }
     }
@@ -160,7 +163,7 @@ public class AuctionScheduler {
     @Transactional
     public void endTimeButWasNotStartSchedule(AuctionRequest request, List<AuctionParticipants> auctionParticipants, Instant currentTime) {
         //check that this auction have bid and have valid number of participant or not
-        if (request.getEndTime().isBefore(currentTime) && auctionParticipants.size() < 5) { //real run will be 7
+        if (request.getEndTime().isBefore(currentTime) && auctionParticipants.size() < 2) { //real run will be 7
             request.getAuction().setStatus(AuctionStatus.UNSOLD);
             request.getAuction().setWinner(null);
             request.getFish().setStatus(KoiStatus.UNSOLD);
@@ -191,6 +194,9 @@ public class AuctionScheduler {
                     auctionNotificationService.sendAuctionEndNotification(auctionEndInfo);
                     log.info("Auction ID: {} ended", request.getAuction().getId());
                 }
+            } else {
+                auctionService.endAuction(request.getAuction().getId());
+                log.info("Auction ID: {} ended", request.getAuction().getId());
             }
         }
     }
