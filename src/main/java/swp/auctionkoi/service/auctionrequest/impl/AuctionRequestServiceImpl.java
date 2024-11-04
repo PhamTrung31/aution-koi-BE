@@ -362,7 +362,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         // Update auction request
         auctionRequest.setStartTime(startTime);
         auctionRequest.setEndTime(endTime);
-        auctionRequest.setRequestStatus(AuctionRequestStatus.AWAITING_SCHEDULE);
+        auctionRequest.setRequestStatus(AuctionRequestStatus.SCHEDULED);
 
         // Update associated auction
         Auction auction = auctionRequest.getAuction();
@@ -489,61 +489,5 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 }
 
 
-//    private AuctionRequest saveRequest(AuctionRequestDTO auctionRequestDTO, User user, KoiFish fish) {
-//        fish.setStatus(KoiStatus.PENDING_APPROVAL);
-//        AuctionRequest auctionRequest = AuctionRequest.builder()
-//                .user(user)
-//                .fish(fish)
-//                .startPrice(auctionRequestDTO.getStartPrice())
-//                .buyOut(auctionRequestDTO.getBuyOut())
-//                .methodType(auctionRequestDTO.getMethodType())
-//                .startTime(auctionRequestDTO.getStart_time())
-//                .endTime(auctionRequestDTO.getEnd_time())
-//                .requestStatus(AuctionRequestStatus.WAIT)
-//                .build();
-//
-//        auctionRequestRepository.save(auctionRequest);
-//
-//        return auctionRequest;
-//    }
 
-//    private AuctionRequest updateRequest(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO, KoiFish fish) {
-//        try {
-//            fish.setStatus(KoiStatus.PENDING_APPROVAL);
-//            auctionRequest.setFish(fish);
-//            auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
-//            auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
-//            auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
-//            auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
-//            auctionRequest.setEndTime(auctionRequestDTO.getEnd_time());
-//
-//            auctionRequestRepository.save(auctionRequest);
-//
-//            return auctionRequest;
-//        } catch (Exception e) {
-//            throw new AppException(ErrorCode.ERROR_UPDATE); //temp error to check, delete after fix it
-//        }
-//    }
-
-//    //get field from original object
-//    private void checkFieldUpdate(AuctionRequest auctionRequest, AuctionRequestDTO auctionRequestDTO) {
-//        if (auctionRequestDTO.getBuyOut() == null) {
-//            auctionRequestDTO.setBuyOut(auctionRequest.getBuyOut());
-//        }
-//        if (auctionRequestDTO.getIncrementStep() == null) {
-//            auctionRequestDTO.setIncrementStep(auctionRequest.getIncrementStep());
-//        }
-//        if (auctionRequestDTO.getStartPrice() == null) {
-//            auctionRequestDTO.setStartPrice(auctionRequest.getStartPrice());
-//        }
-//        if (auctionRequestDTO.getStart_time() == null) {
-//            auctionRequestDTO.setStart_time(auctionRequest.getStartTime());
-//        }
-//        if (auctionRequestDTO.getEnd_time() == null) {
-//            auctionRequestDTO.setEnd_time(auctionRequest.getEndTime());
-//        }
-//        if (auctionRequestDTO.getMethodType() == null) {
-//            auctionRequestDTO.setMethodType(auctionRequest.getMethodType());
-//        }
-//    }
 
