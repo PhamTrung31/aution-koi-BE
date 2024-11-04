@@ -12,4 +12,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     List<Transaction> findAll(Sort sort);
     Transaction findTopByAuctionIdAndUserIdOrderByAmountDesc(int auctionId, int userId);
     List<Transaction> findByUserId(Integer userId);
+
+    Transaction findByPaymentId(int paymentId);
 }
