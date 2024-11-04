@@ -38,5 +38,6 @@ public class AuctionNotificationService {
     public void sendAuctionEndNotification(AuctionEndInfo notificationEnd) {
         log.info("Auction end send noti was run");
         messagingTemplate.convertAndSend("/auctions/end", notificationEnd);
+        // them list bid cua auction
     }
 }
