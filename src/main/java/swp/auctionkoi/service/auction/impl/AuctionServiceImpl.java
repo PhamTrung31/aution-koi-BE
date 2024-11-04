@@ -8,19 +8,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import swp.auctionkoi.dto.request.AuctionDTO;
-import swp.auctionkoi.dto.respone.AuctionResponse;
 import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
-import swp.auctionkoi.dto.respone.auction.AuctionResonpse;
+import swp.auctionkoi.dto.respone.auction.AuctionHistoryResponse;
+import swp.auctionkoi.dto.respone.auction.UserWinAucionInfo;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
 import swp.auctionkoi.models.enums.*;
 import swp.auctionkoi.repository.*;
+import swp.auctionkoi.service.AuctionNotificationService;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.wallet.WalletService;
 
-import javax.swing.text.html.FormSubmitEvent;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -53,6 +52,8 @@ public class AuctionServiceImpl implements AuctionService {
     WalletService walletService;
 
     KoiFishRepository koiFishRepository;
+
+    AuctionNotificationService auctionNotificationService;
 
     private static final float DEPOSIT_RATE = 0.15f;
 
@@ -206,16 +207,17 @@ public class AuctionServiceImpl implements AuctionService {
 
 
         if (auctionRequest.getMethodType().equals(AuctionType.TRADITIONAL)) {
-
-            if(auctionRequest.getAuction().getWinner() == null){
+            backDepositAmount(auctionRequest.getAuction(), participants, admin);
+            List<Bid> listBid = bidRepository.getListBidByAuctionId(auctionRequest.getAuction().getId());
+            if(auctionRequest.getAuction().getWinner() == null && listBid.isEmpty()){
                 auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
                 return;
             }
-            backDepositAmount(auctionRequest.getAuction(), participants, admin);
             createDeliveryKoiForWinner(auctionRequest.getAuction());
         }
 
         if (auctionRequest.getMethodType().equals(AuctionType.FIXED_PRICE)) {
+            backDepositAmount(auctionRequest.getAuction(), participants, admin);
             List<Bid> listBid = bidRepository.getListBidByAuctionId(auctionRequest.getAuction().getId());
             if(listBid.size() > 1) {
                 User winner = randomWinner(listBid);
@@ -230,15 +232,21 @@ public class AuctionServiceImpl implements AuctionService {
                 auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
                 return;
             }
-            backDepositAmount(auctionRequest.getAuction(), participants, admin);
+            UserWinAucionInfo userWinAucionInfo = UserWinAucionInfo.builder()
+                    .user_id(auctionRequest.getAuction().getWinner().getId())
+                    .full_name(auctionRequest.getAuction().getWinner().getFullname())
+                    .avatar_url(auctionRequest.getAuction().getWinner().getAvatarUrl())
+                    .highest_bid(auctionRequest.getAuction().getHighestPrice())
+                    .build();
+            auctionNotificationService.sendWinnerOfFixedPrice(userWinAucionInfo);
         }
 
         if (auctionRequest.getMethodType().equals(AuctionType.ANONYMOUS)) {
+            backDepositAmount(auctionRequest.getAuction(), participants, admin);
             Bid bid = bidRepository.getBidHighestAmountAndEarliestInAuction(auctionRequest.getAuction().getId());
             if(bid != null) {
                 User winner = bid.getUser();
                 auctionRequest.getAuction().setWinner(winner);
-                backDepositAmount(auctionRequest.getAuction(), participants, admin);
                 createDeliveryKoiForWinner(auctionRequest.getAuction());
             } else {
                 auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
@@ -346,11 +354,11 @@ public class AuctionServiceImpl implements AuctionService {
 
 
 
-    public List<AuctionResonpse> getListAuctionComplete(){
+    public List<AuctionHistoryResponse> getListAuctionComplete(){
         List<Auction> auctions = auctionRepository.getListAuctionCompleteByStatus(4);
-        List<AuctionResonpse> resonpses = new ArrayList<>();
+        List<AuctionHistoryResponse> resonpses = new ArrayList<>();
         for(Auction auction : auctions){
-            resonpses.add(AuctionResonpse.builder()
+            resonpses.add(AuctionHistoryResponse.builder()
                             .auction_id(auction.getId())
                             .fish_id(auction.getFish().getId())
                             .build());

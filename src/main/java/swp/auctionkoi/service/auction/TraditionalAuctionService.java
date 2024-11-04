@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
+import swp.auctionkoi.dto.respone.auction.PlaceBidTraditionalInfo;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
@@ -14,6 +15,7 @@ import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
+import swp.auctionkoi.service.AuctionNotificationService;
 import swp.auctionkoi.service.bid.impl.BidServiceImpl;
 
 import java.time.Duration;
@@ -40,6 +42,8 @@ public class TraditionalAuctionService {
 
     AuctionParticipantsRepository auctionParticipantsRepository;
 
+    AuctionNotificationService auctionNotificationService;
+
     public void placeBid(int auctionId, BidRequestTraditional bidRequestTraditional) {
 
         // get auction
@@ -53,12 +57,102 @@ public class TraditionalAuctionService {
 
         AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
+        //get user's wallet
+        Wallet walletUser = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+
+
+        float bidAmount = bidRequestTraditional.getBidAmount();
+
+        boolean valid = checkValid(auction, auctionParticipant, auctionRequest, user, walletUser, bidAmount, bidRequestTraditional);
+
+        if(valid) {
+            Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
+
+            float amount_find = 0;
+
+            if (findBidByUser == null) {
+                Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
+                bidRepository.save(bid);
+            } else {
+                amount_find = findBidByUser.getBidAmount();
+                findBidByUser.setBidAmount(bidAmount);
+                bidRepository.save(findBidByUser);
+            }
+
+
+            if (auctionRequest.getEndTime() != null) {
+                Instant instantNow = Instant.now();
+                // Add 7 hours to Instant
+                Instant currentTime = instantNow.plus(Duration.ofHours(7));
+                Duration duration = Duration.between(currentTime, auctionRequest.getEndTime());
+                if (!duration.isNegative() && duration.toMillis() < 10000) {
+                    auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
+                    auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
+                    auctionRepository.save(auction);
+                }
+            }
+
+            Transaction transaction;
+
+            if (amount_find != 0) {
+                float difference = bidAmount - amount_find;
+                walletUser.setBalance(walletUser.getBalance() - difference);
+                transaction = Transaction.builder()
+                        .auction(auction)
+                        .user(user)
+                        .transactionFee(0F)
+                        .walletId(walletUser.getId())
+                        .transactionType(TransactionType.BID)
+                        .amount(difference)
+                        .build();
+            } else {
+                walletUser.setBalance(walletUser.getBalance() - bidAmount);
+                transaction = Transaction.builder()
+                        .auction(auction)
+                        .user(user)
+                        .transactionFee(0F)
+                        .walletId(walletUser.getId())
+                        .transactionType(TransactionType.BID)
+                        .amount(bidAmount)
+                        .build();
+            }
+
+            auction.setHighestPrice(bidAmount);
+            auction.setWinner(user);
+
+            walletRepository.save(walletUser);
+            transactionRepository.save(transaction);
+            auctionRepository.save(auction);
+
+            PlaceBidTraditionalInfo placeBidTraditionalInfo = PlaceBidTraditionalInfo.builder()
+                    .winner_Id(auction.getWinner().getId())
+                    .end_time(auctionRequest.getEndTime())
+                    .highest_price(auction.getHighestPrice())
+                    .build();
+
+            //send info winnner
+            auctionNotificationService.sendPlaceBidTraditionalNotification(placeBidTraditionalInfo);
+        }
+    }
+
+    /**
+     *  For build a new bid
+     * */
+    private Bid buildBid(Auction auction, User user, BidRequestTraditional bidRequestTraditional, float bidAmount) {
+        Bid bid = Bid.builder()
+                .auction(auction)
+                .user(user)
+                .isAutoBid(bidRequestTraditional.isAutoBid())
+                .autoBidMax(bidRequestTraditional.getMaxBidAmount())
+                .bidAmount(bidAmount)
+                .build();
+        return bid;
+    }
+
+    private boolean checkValid(Auction auction, AuctionParticipants auctionParticipant, AuctionRequest auctionRequest, User user, Wallet walletUser, float bidAmount, BidRequestTraditional bidRequestTraditional) {
         if(auctionParticipant == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
-
-        //get user's wallet
-        Wallet walletUser = walletRepository.findByUserId(user.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
 
         //check type method
         if (auctionRequest.getMethodType() != AuctionType.TRADITIONAL) {
@@ -76,10 +170,12 @@ public class TraditionalAuctionService {
         }
 
         //get bidAmount
-        float bidAmount = bidRequestTraditional.getBidAmount();
-
         if(bidAmount <= auction.getHighestPrice()){
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
+        }
+
+        if(user.getId() == auction.getWinner().getId()){
+            throw new AppException(ErrorCode.AlREADY_WIN);
         }
 
         //not enough money
@@ -93,84 +189,7 @@ public class TraditionalAuctionService {
                 throw new AppException(ErrorCode.AUCTION_AUTO_BID_EXCEEDS_MAX);
             }
         }
-
-
-        Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
-
-        float amount_find = 0;
-
-        if(findBidByUser == null) {
-            Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
-            bidRepository.save(bid);
-        } else {
-            amount_find = findBidByUser.getBidAmount();
-            findBidByUser.setBidAmount(bidAmount);
-            bidRepository.save(findBidByUser);
-        }
-
-
-
-        if (auctionRequest.getEndTime() != null) {
-            Instant instantNow = Instant.now();
-            // Add 7 hours to Instant
-            Instant currentTime = instantNow.plus(Duration.ofHours(7));
-            Duration duration = Duration.between(currentTime, auctionRequest.getEndTime());
-            if (!duration.isNegative() && duration.toMillis() < 10000) {
-                auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
-                auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
-                auctionRepository.save(auction);
-            }
-        }
-
-        Transaction transaction;
-
-        if(amount_find != 0){
-            float difference = bidAmount - amount_find;
-            walletUser.setBalance(walletUser.getBalance() - difference);
-            transaction = Transaction.builder()
-                    .auction(auction)
-                    .user(user)
-                    .transactionFee(0F)
-                    .walletId(walletUser.getId())
-                    .transactionType(TransactionType.BID)
-                    .amount(difference)
-                    .build();
-        } else {
-            walletUser.setBalance(walletUser.getBalance() - bidAmount);
-            transaction = Transaction.builder()
-                    .auction(auction)
-                    .user(user)
-                    .transactionFee(0F)
-                    .walletId(walletUser.getId())
-                    .transactionType(TransactionType.BID)
-                    .amount(bidAmount)
-                    .build();
-        }
-
-
-
-
-        auction.setHighestPrice(bidAmount);
-        auction.setWinner(user);
-
-        walletRepository.save(walletUser);
-        transactionRepository.save(transaction);
-        auctionRepository.save(auction);
-
-    }
-
-    /**
-     *  For build a new bid
-     * */
-    private Bid buildBid(Auction auction, User user, BidRequestTraditional bidRequestTraditional, float bidAmount) {
-        Bid bid = Bid.builder()
-                .auction(auction)
-                .user(user)
-                .isAutoBid(bidRequestTraditional.isAutoBid())
-                .autoBidMax(bidRequestTraditional.getMaxBidAmount())
-                .bidAmount(bidAmount)
-                .build();
-        return bid;
+        return true;
     }
 
 //    private float calBidAmount(User user, float currentPrice, BidRequestTraditional bidRequestTraditional) {

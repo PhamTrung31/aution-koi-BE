@@ -49,6 +49,6 @@ public class Delivery {
     Instant deliveryDate;
 
     @Column(name = "delivery_fee")
-    Double deliveryFee;
+    Float deliveryFee;
 
 }
