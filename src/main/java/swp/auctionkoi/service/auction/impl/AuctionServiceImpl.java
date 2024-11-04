@@ -205,6 +205,10 @@ public class AuctionServiceImpl implements AuctionService {
 
         List<AuctionParticipants> participants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(auctionRequest.getAuction().getId());
 
+//        User user = auctionRequest.getAuction().getWinner();
+//        if (user != null){
+//            throw new AppException(ErrorCode.WINNER_NOT_EXISTED);
+//        }
 
         if (auctionRequest.getMethodType().equals(AuctionType.TRADITIONAL)) {
             backDepositAmount(auctionRequest.getAuction(), participants, admin);
@@ -301,7 +305,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     private void backMoneyBid(Auction auction, List<AuctionParticipants> participants, User admin) {
         for (AuctionParticipants participant : participants) {
-            if(!participant.getUser().getId().equals(auction.getWinner().getId())){
+            if(auction.getWinner() == null || !participant.getUser().getId().equals(auction.getWinner().getId())){
                 Bid bid = bidRepository.findByAuctionIdAndUserId(auction.getId(), participant.getId());
                 if (bid != null) {
                     Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
@@ -358,9 +362,12 @@ public class AuctionServiceImpl implements AuctionService {
         List<Auction> auctions = auctionRepository.getListAuctionCompleteByStatus(4);
         List<AuctionHistoryResponse> resonpses = new ArrayList<>();
         for(Auction auction : auctions){
+            AuctionRequest data = auctionRequestRepository.findByAuctionId(auction.getId()).get();
             resonpses.add(AuctionHistoryResponse.builder()
                             .auction_id(auction.getId())
                             .fish_id(auction.getFish().getId())
+                            .start_time(data.getStartTime())
+                            .end_time(data.getEndTime())
                             .build());
         }
         return resonpses;
