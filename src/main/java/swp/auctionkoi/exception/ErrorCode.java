@@ -59,8 +59,11 @@ public enum ErrorCode {
     STAFF_NOT_FOUND(1047, "Staff not existed", HttpStatus.NOT_FOUND),
     INCORRECT_PASSWORD(1048, "Incorrect password", HttpStatus.BAD_REQUEST),
     STAFF_ID_REQUIRED(1049, "Required staff to assign",HttpStatus.NOT_FOUND ),
-    INVALID_AUCTION_DURATION(1050,"Auction duration must be at least 10 minutes",HttpStatus.BAD_REQUEST),
-    DUPLICATE_FISH_NAME(1051,"Duplicated fish name",HttpStatus.BAD_REQUEST);
+    AlREADY_WIN(1050, "You are the winner!", HttpStatus.BAD_REQUEST),
+
+    INVALID_AUCTION_DURATION(1051,"Auction duration must be at least 10 minutes",HttpStatus.BAD_REQUEST),
+    DUPLICATE_FISH_NAME(1052,"Duplicated fish name",HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_STATUS(1053,"Invalid payment status",HttpStatus.BAD_REQUEST);
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 //    USER_EXISTED(1001, "User existed", HttpStatus.BAD_REQUEST),
 //    USERNAME_INVALID(1002, "Username must be ....", HttpStatus.BAD_REQUEST),

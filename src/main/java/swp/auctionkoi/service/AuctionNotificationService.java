@@ -6,10 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.respone.auction.AuctionCanNotStartInfo;
-import swp.auctionkoi.dto.respone.auction.AuctionEndInfo;
-import swp.auctionkoi.dto.respone.auction.AuctionPendingInfo;
-import swp.auctionkoi.dto.respone.auction.AuctionStartInfo;
+import swp.auctionkoi.dto.respone.auction.*;
 
 @Slf4j
 @Service
@@ -19,6 +16,8 @@ public class AuctionNotificationService {
 
     SimpMessagingTemplate messagingTemplate;
 
+
+
     public void sendAuctionPendingNotification(AuctionPendingInfo notificationPendingInfo) {
         log.info("Auction pending send noti was run");
         messagingTemplate.convertAndSend("/auctions/pending", notificationPendingInfo);
@@ -27,6 +26,16 @@ public class AuctionNotificationService {
     public void sendAuctionStartNotification(AuctionStartInfo notificationStart) {
         log.info("Auction start send noti was run");
         messagingTemplate.convertAndSend("/auctions/start", notificationStart);
+    }
+
+    public void sendPlaceBidTraditionalNotification(PlaceBidTraditionalInfo placeBidTraditionalInfo){
+        log.info("Place bid traditional send noti was run");
+        messagingTemplate.convertAndSend("/auctions/place-bid/traditional", placeBidTraditionalInfo);
+    }
+
+    public void sendWinnerOfFixedPrice(UserWinAucionInfo userWinAucionInfo){
+        log.info("Winner of fixed price send noti was run");
+        messagingTemplate.convertAndSend("/auctions/fixed-price/winner", userWinAucionInfo);
     }
 
     public void sendAuctionCantNotStartNotification(AuctionCanNotStartInfo notificationCanNotStart) {

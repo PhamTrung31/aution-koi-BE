@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.auction.AuctionJoinRequest;
 import swp.auctionkoi.dto.request.bid.BidRequest;
@@ -47,6 +48,7 @@ public class MemberManageAuctionController {
     @GetMapping("/check-participation/{auctionId}/{userId}")
     public ApiResponse<String> checkAuctionParticipation(@PathVariable int userId, @PathVariable int auctionId) {
         String participationStatus = auctionService.checkUserParticipationInAuction(userId, auctionId);
+        var context = SecurityContextHolder.getContext();
         return ApiResponse.<String>builder()
                 .code(200)
                 .message(participationStatus)

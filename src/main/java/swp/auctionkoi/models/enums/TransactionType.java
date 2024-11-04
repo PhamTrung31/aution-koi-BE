@@ -4,4 +4,5 @@ public enum TransactionType {
     BID,
     TOP_UP,
     TRANSFER,
+    WITHDRAW
 }
