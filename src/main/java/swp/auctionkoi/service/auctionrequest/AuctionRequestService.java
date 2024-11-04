@@ -53,5 +53,5 @@ public interface AuctionRequestService {
 
     AuctionRequestUpdateResponse rejectByAssignedStaff(int auctionRequestId, int staffId);
 
-    public AuctionRequestUpdateResponse scheduleAuction(int auctionRequestId, int staffId, Instant startTime, Instant endTime);
+    AuctionRequestUpdateResponse scheduleAuction(int auctionRequestId, int staffId, Instant startTime, Instant endTime);
 }

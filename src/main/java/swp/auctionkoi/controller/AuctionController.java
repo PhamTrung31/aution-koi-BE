@@ -139,7 +139,7 @@ public class AuctionController {
 
 
     @PutMapping("/manager/reject")
-    public ApiResponse<AuctionRequestUpdateResponse> rejectByManager(@RequestBody ManagerActionDto request) {
+    public ApiResponse<AuctionRequestUpdateResponse> rejectByManager(@RequestBody ManagerRejectDto request) {
         AuctionRequestUpdateResponse response = auctionRequestService.rejectByManager(
                 request.getAuctionRequestId(),
                 request.getManagerId()
