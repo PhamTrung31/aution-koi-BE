@@ -12,6 +12,8 @@ import swp.auctionkoi.models.Delivery;
 import swp.auctionkoi.models.enums.DeliveryStatus;
 import swp.auctionkoi.service.delivery.DeliveryService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/deliveries")
@@ -31,10 +33,10 @@ public class DeliveryController {
                 .build();
     }
 
-    @GetMapping("/{deliveryId}")
-    public ApiResponse<?> getDeliveryById(@PathVariable("deliveryId") int deliveryId) {
-        Delivery delivery = deliveryService.getDeliveryById(deliveryId);
-        return ApiResponse.builder()
+    @GetMapping("/alldelivery")
+    public ApiResponse<List<Delivery>> getAllDelivery() {
+        List<Delivery> delivery = deliveryService.getAllDelivery();
+        return ApiResponse.<List<Delivery>>builder()
                 .result(delivery)
                 .code(200)
                 .message("Successfully!")
