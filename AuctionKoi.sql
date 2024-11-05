@@ -74,11 +74,11 @@ CREATE TABLE Auctions(
 	id int IDENTITY(1,1) primary key,
 	fish_id int not null,
 	winner_id int null,
-	current_price float null,
 	[status] int not null,
 	extension_seconds int DEFAULT 60,
 	highest_prices float,
 	deposit_amount float,
+	buy_intent_count int DEFAULT 0,
 	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id),
 	FOREIGN KEY (winner_id) REFERENCES Users(id)
 );
@@ -99,22 +99,22 @@ GO
 CREATE TABLE Auction_Requests(
 	id int IDENTITY(1,1) primary key,
 	[user_id] int not null,
-	[approved_staff_id] int null,
+	[assigned_staff_id] int null,
 	fish_id int not null,
 	auction_id int,
 	buy_out float not null,
-	increment_step float not null,
+	increment_step float,
 	start_price float not null,
 	method_type int not null,
-	start_time datetime not null,
-	end_time datetime not null,
+	start_time datetime,
+	end_time datetime,
 	request_status int not null,
 	request_created_date datetime default GETDATE() not null,
 	request_updated_date datetime default GETDATE() not null,
 	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 	FOREIGN KEY ([user_id]) REFERENCES Users(id),
 	FOREIGN KEY (fish_id) REFERENCES Koi_Fish(id),
-	FOREIGN KEY (approved_staff_id) REFERENCES Users(id),
+	FOREIGN KEY ([assigned_staff_id]) REFERENCES Users(id),
 
 );
 Go
@@ -153,6 +153,7 @@ CREATE TABLE Bids(
 	[user_id] int not null,
 	bid_amount float not null,
 	bid_created_date datetime default GETDATE() not null,
+	bid_updated_date datetime default GETDATE() not null,
 	is_auto_bid bit default 0,
 	auto_bid_max float,
 	increment_autobid float,
@@ -160,6 +161,19 @@ CREATE TABLE Bids(
 	FOREIGN KEY ([user_id]) REFERENCES Users(id)
 );
 Go
+
+CREATE TRIGGER trg_BidUpdatedDate
+ON Bids
+AFTER UPDATE
+AS
+BEGIN
+    -- Update the RequestUpdatedDate to the current date/time when any field is updated
+    UPDATE Bids
+    SET bid_updated_date = GETDATE()
+    FROM Bids b
+    INNER JOIN inserted i ON b.id = b.id;
+END;
+GO
 
 
 
@@ -189,12 +203,11 @@ Go
 
 CREATE TABLE Deliveries(
 	id int IDENTITY(1,1) primary key,
-	transaction_id int not null,
 	from_address nvarchar(250) not null,
 	to_address nvarchar(250) not null,
-	[status] int not null,
+	delivery_status int not null,
 	delivery_date date,
-	FOREIGN KEY (transaction_id) REFERENCES Transactions(id),
+	delivery_fee float
 );
 Go
 
@@ -232,12 +245,14 @@ VALUES
 (6, 'Koi 6', 1, 27, 3, 'Beautiful Koi 6', 'http://koi6.jpg', 'http://koi6.mp4', 1);
 Go
 
-INSERT INTO Auction_Requests (user_id, fish_id, approved_staff_id, auction_id, buy_out, start_price, method_type, start_time, end_time, request_status)
+INSERT INTO Auction_Requests (user_id, fish_id, [assigned_staff_id], auction_id, buy_out, start_price, increment_step,method_type, start_time, end_time, request_status)
 VALUES 
-(1, 1, null, null, 1200, 1000, 0, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
-(2, 2, null, null, 1800, 1500, 1, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
-(3, 3, null, null, 1300, 1200, 2, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
-(4, 4, null, null, 1900, 1800, 0, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
-(5, 5, null, null, 2100, 2000, 1, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
-(6, 6, null, null, 1750, 1700, 2, GETDATE(), DATEADD(day, 7, GETDATE()), 0);
+(1, 1, null, null, 1200, 1000, 100, 0, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
+(2, 2, null, null, 1800, 1500, 150, 1, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
+(3, 3, null, null, 1300, 1200, 120, 2, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
+(4, 4, null, null, 1900, 1800, 180, 0, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
+(5, 5, null, null, 2100, 2000, 200, 1, GETDATE(), DATEADD(day, 7, GETDATE()), 0),
+(6, 6, null, null, 1750, 1700, 170, 2, GETDATE(), DATEADD(day, 7, GETDATE()), 0);
 Go
+
+
