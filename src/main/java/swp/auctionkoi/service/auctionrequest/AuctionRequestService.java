@@ -32,6 +32,8 @@ public interface AuctionRequestService {
 
     List<AuctionRequest> getAuctionRequestsInAssignedToStaff(Integer staffId);
 
+    List<AuctionRequest> getAuctionRequestsInAwaitingSchedule(Integer staffId);
+
     List<AuctionRequest> getAuctionRequestsByAssignedToStaff(Integer staffId);
 
     List<AuctionRequest> getAuctionRequestsInAwaitingSchedule();

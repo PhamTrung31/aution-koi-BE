@@ -24,9 +24,7 @@ import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -207,6 +205,14 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return auctionRequestRepository.findByAssignedStaffIdAndStatus(
                 staffId,
                 AuctionRequestStatus.ASSIGNED_TO_STAFF
+        );
+    }
+
+    @Override
+    public List<AuctionRequest> getAuctionRequestsInAwaitingSchedule(Integer staffId) {
+        return auctionRequestRepository.findByAssignedStaffIdAndStatus(
+                staffId,
+                AuctionRequestStatus.AWAITING_SCHEDULE
         );
     }
 
