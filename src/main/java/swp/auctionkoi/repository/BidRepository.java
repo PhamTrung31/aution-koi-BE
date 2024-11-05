@@ -26,4 +26,5 @@ public interface BidRepository extends JpaRepository<Bid, Integer> {
     List<Bid> findListBidByAuctionId(int auctionId);
 
     Bid findByAuctionIdAndUserId(int auctionId, int userId);
+    List<Bid> findListBidByAuctionIdAndUserId(int auctionId, int userId);
 }

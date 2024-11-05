@@ -20,6 +20,7 @@ import swp.auctionkoi.service.bid.impl.BidServiceImpl;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,17 +67,33 @@ public class TraditionalAuctionService {
         boolean valid = checkValid(auction, auctionParticipant, auctionRequest, user, walletUser, bidAmount, bidRequestTraditional);
 
         if(valid) {
-            Bid findBidByUser = bidRepository.findByAuctionIdAndUserId(auction.getId(), user.getId());
-
+            List<Bid> bidOfuser = bidRepository.findListBidByAuctionIdAndUserId(auction.getId(), user.getId());
             float amount_find = 0;
+            if(!bidOfuser.isEmpty()){
+                for(Bid bid : bidOfuser){
+                    amount_find += bid.getBidAmount();
+                }
+            }
 
-            if (findBidByUser == null) {
+            if (bidOfuser.isEmpty() && auction.getHighestPrice() == null) {
+                Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
+                bidRepository.save(bid);
+            } if(bidOfuser.isEmpty() && bidAmount > auction.getHighestPrice()) {
+                if(!(bidAmount % auctionRequest.getIncrementStep() == 0)){
+                    throw new AppException(ErrorCode.NOT_FOLLOW_INCREMENT_STEP);
+                }
                 Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
                 bidRepository.save(bid);
             } else {
-                amount_find = findBidByUser.getBidAmount();
-                findBidByUser.setBidAmount(bidAmount);
-                bidRepository.save(findBidByUser);
+
+                if(!(bidAmount % auctionRequest.getIncrementStep() == 0)){
+                    throw new AppException(ErrorCode.NOT_FOLLOW_INCREMENT_STEP);
+                }
+
+                float difference = bidAmount - amount_find;
+
+                Bid bid = buildBid(auction, user, bidRequestTraditional, difference);
+                bidRepository.save(bid);
             }
 
 

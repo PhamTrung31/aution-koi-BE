@@ -46,7 +46,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // If delivery is successful, transfer the money to the breeder
         if (status == DeliveryStatus.DELIVERY_SUCCESS) {
-            Auction auction = delivery.getTransaction().getAuction();
+            Auction auction = delivery.getAuction();
             User winner = auction.getWinner();
 
             // Get the AuctionRequest for the current auction

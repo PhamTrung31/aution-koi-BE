@@ -10,6 +10,8 @@ import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.dto.respone.auction.AuctionHistoryResponse;
 import swp.auctionkoi.models.AuctionRequest;
+import swp.auctionkoi.models.Bid;
+import swp.auctionkoi.repository.BidRepository;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 import swp.auctionkoi.service.koifish.impl.KoiFishServiceImpl;
@@ -31,15 +33,17 @@ public class AuctionController {
     @Autowired
     private KoiFishServiceImpl koiFishService;
 
+    @Autowired
+    private BidRepository bidRepository;
+
     @GetMapping("/past-auction")
-    public ApiResponse<List<AuctionHistoryResponse>> getAuctionComplete(){
+    public ApiResponse<List<AuctionHistoryResponse>> getAuctionComplete() {
         return ApiResponse.<List<AuctionHistoryResponse>>builder()
                 .code(200)
                 .message("OK")
                 .result(auctionService.getListAuctionComplete())
                 .build();
     }
-
 
 
     @GetMapping("/view-all-requests")
@@ -81,6 +85,7 @@ public class AuctionController {
                 .result(auctionRequests)
                 .build();
     }
+
     @GetMapping("/awaiting_schedule")
     public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAwaitingSchedule() {
         List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule();
@@ -192,7 +197,7 @@ public class AuctionController {
     }
 
     @PutMapping("/schedule")
-    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction( @RequestBody ScheduleAuctionRequestDTO scheduleRequest
+    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction(@RequestBody ScheduleAuctionRequestDTO scheduleRequest
     ) {
         AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
                 scheduleRequest.getAuctionRequestId(),
@@ -218,7 +223,6 @@ public class AuctionController {
     }
 
 
-
     @GetMapping("/detail/{id}")
     public ApiResponse<Auction> getAuctionById(@PathVariable int id) {
         Auction auction = auctionService.getAuctionById(id);
@@ -229,7 +233,15 @@ public class AuctionController {
                 .build();
     }
 
+    @GetMapping("/listBidOfUser/{auctionId}/{userId}")
+    public ApiResponse<List<Bid>> listBidOfUser(@PathVariable int auctionId, @PathVariable int userId) {
+        List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auctionId, userId);
 
+        return ApiResponse.<List<Bid>>builder()
+                .code(200)
+                .result(bidOfUser)
+                .build();
+    }
 
 
 //    @PutMapping("/reject/{auctionRequestId}")

@@ -25,7 +25,7 @@ public class AuctionRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @NotNull
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -65,9 +65,9 @@ public class AuctionRequest {
     @NotNull
     Float buyOut;
 
-//    @Column(name = "increment_step")
-//    @NotNull
-//    Integer incrementStep;
+    @Column(name = "increment_step")
+    @NotNull
+    Integer incrementStep;
 
     @Column(name = "start_price")
     @NotNull

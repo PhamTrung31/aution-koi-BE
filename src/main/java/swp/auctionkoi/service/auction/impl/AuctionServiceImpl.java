@@ -126,22 +126,22 @@ public class AuctionServiceImpl implements AuctionService {
         Transaction transaction = Transaction.builder()
                 .auction(auction)
                 .user(user)
-                .transactionType(TransactionType.TRANSFER)
+                .transactionType(TransactionType.DEPOSIT)
                 .walletId(wallet.getId())
                 .amount(depositAmount)
                 .transactionFee(0F)
                 .build();
         transactionRepository.save(transaction);
 
-        Transaction transaction1 = Transaction.builder()
+        Transaction transactionAdmin = Transaction.builder()
                 .auction(auction)
                 .user(admin)
-                .transactionType(TransactionType.TRANSFER)
+                .transactionType(TransactionType.DEPOSIT)
                 .walletId(wallet.getId())
                 .amount(depositAmount)
                 .transactionFee(0F)
                 .build();
-        transactionRepository.save(transaction1);
+        transactionRepository.save(transactionAdmin);
 
 
         // user join vào danh sách người tham gia đấu giá
@@ -294,7 +294,7 @@ public class AuctionServiceImpl implements AuctionService {
             Transaction transaction = Transaction.builder()
                     .auction(auction)
                     .user(participant.getUser())
-                    .transactionType(TransactionType.TRANSFER)
+                    .transactionType(TransactionType.BACK_DEPOSIT)
                     .walletId(userWallet.getId())
                     .transactionFee(0F)
                     .amount(refundAmount)
@@ -305,27 +305,33 @@ public class AuctionServiceImpl implements AuctionService {
 
     private void backMoneyBid(Auction auction, List<AuctionParticipants> participants, User admin) {
         for (AuctionParticipants participant : participants) {
-            if(auction.getWinner() == null || !participant.getUser().getId().equals(auction.getWinner().getId())){
-                Bid bid = bidRepository.findByAuctionIdAndUserId(auction.getId(), participant.getId());
-                if (bid != null) {
+            if(!participant.getUser().getId().equals(auction.getWinner().getId())){
+                List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auction.getId(), participant.getUser().getId());
+                if (bidOfUser != null) {
+
+                    float amount_bid = 0;
+                    for(Bid bid : bidOfUser){
+                        amount_bid += bid.getBidAmount();
+                    }
+
                     Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     //transaction backmoney when user have bid
                     Transaction transaction = Transaction.builder()
                             .user(participant.getUser())
                             .auction(auction)
-                            .transactionType(TransactionType.TRANSFER)
+                            .transactionType(TransactionType.BACK_MONEY_BID)
                             .walletId(userWallet.getId())
                             .transactionFee(0F)
-                            .amount(bid.getBidAmount())
+                            .amount(amount_bid)
                             .build();
                     transactionRepository.save(transaction);
 
                     //back money
-                    userWallet.setBalance(userWallet.getBalance() + bid.getBidAmount());
+                    userWallet.setBalance(userWallet.getBalance() + amount_bid);
                     walletRepository.save(userWallet);
                     //minus money from system wallet
-                    adminWallet.setBalance(adminWallet.getBalance() - bid.getBidAmount());
+                    adminWallet.setBalance(adminWallet.getBalance() - amount_bid);
                     walletRepository.save(adminWallet);
                 }
             }
