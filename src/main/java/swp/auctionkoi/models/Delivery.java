@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.lang.Nullable;
 import swp.auctionkoi.models.enums.DeliveryStatus;
 import swp.auctionkoi.models.enums.TransactionType;
 
@@ -27,9 +28,10 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_id")
-    swp.auctionkoi.models.Transaction transaction;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "auction_id")
+    @Nullable
+    Auction auction;
 
     @Size(max = 250)
     @Nationalized
