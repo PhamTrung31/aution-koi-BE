@@ -212,6 +212,7 @@ public class AuctionController {
         AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
                 scheduleRequest.getAuctionRequestId(),
                 scheduleRequest.getStaffId(),
+                scheduleRequest.getIncrementStep(),
                 scheduleRequest.getStartTime(),
                 scheduleRequest.getEndTime()
         );

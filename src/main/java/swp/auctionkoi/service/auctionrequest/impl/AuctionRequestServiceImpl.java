@@ -22,6 +22,7 @@ import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 import swp.auctionkoi.models.enums.KoiStatus;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .user(user)
                 .fish(fish)
                 .buyOut(auctionRequestDTO.getBuyOut())
-                .incrementStep(auctionRequestDTO.getIncrementStep())
+//                .incrementStep(auctionRequestDTO.getIncrementStep())
                 .startPrice(auctionRequestDTO.getStartPrice())
                 .methodType(auctionRequestDTO.getMethodType())
                 .requestStatus(AuctionRequestStatus.WAIT)
@@ -116,7 +117,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setUser(user);
         auctionRequest.setFish(fish);
         auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
-        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
+//        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
         auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
 //        auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
@@ -290,6 +291,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return createUpdateResponse(auctionRequest);
     }
 
+
     @Override
     public AuctionRequestUpdateResponse assignToStaffByManager(int auctionRequestId, int managerId, Integer staffId) {
         if (staffId == null) {
@@ -337,9 +339,10 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         return createUpdateResponse(auctionRequest);
     }
 
+
     // Add this new method
     @Override
-    public AuctionRequestUpdateResponse scheduleAuction(int auctionRequestId, int staffId, Instant startTime, Instant endTime) {
+    public AuctionRequestUpdateResponse scheduleAuction(int auctionRequestId, int staffId,int incrementStep, Instant startTime, Instant endTime) {
         User staff = validateStaff(staffId);
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_EXISTED));
@@ -353,21 +356,27 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        Instant now = Instant.now().plus(Duration.ofHours(7));
+
+
+        Instant adjustedStartTime = startTime.plus(Duration.ofHours(7));
+        Instant adjustedEndTime = endTime.plus(Duration.ofHours(7));
+
         // Validate times
-        Instant now = Instant.now();
-        if (startTime.isBefore(now) || endTime.isBefore(startTime)) {
+        if (adjustedStartTime.isBefore(now) || adjustedEndTime.isBefore(adjustedStartTime)) {
             throw new AppException(ErrorCode.INVALID_AUCTION_TIME);
         }
 
         // Check minimum duration of 10 minutes
-        long durationMinutes = java.time.Duration.between(startTime, endTime).toMinutes();
+        long durationMinutes = java.time.Duration.between(adjustedStartTime, adjustedEndTime).toMinutes();
         if (durationMinutes < 10) {
             throw new AppException(ErrorCode.INVALID_AUCTION_DURATION);
         }
 
         // Update auction request
-        auctionRequest.setStartTime(startTime);
-        auctionRequest.setEndTime(endTime);
+        auctionRequest.setIncrementStep(incrementStep);
+        auctionRequest.setStartTime(adjustedStartTime);
+        auctionRequest.setEndTime(adjustedEndTime);
         auctionRequest.setRequestStatus(AuctionRequestStatus.SCHEDULED);
 
         // Update associated auction
@@ -446,6 +455,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 auctionRequest.getRequestStatus().name(),
                 KoiFishDTO.fromKoiFish(auctionRequest.getFish()),
                 auctionRequest.getBuyOut(),
+                auctionRequest.getIncrementStep(),
                 auctionRequest.getStartPrice(),
                 auctionRequest.getMethodType(),
                 auctionRequest.getRequestCreatedDate(),

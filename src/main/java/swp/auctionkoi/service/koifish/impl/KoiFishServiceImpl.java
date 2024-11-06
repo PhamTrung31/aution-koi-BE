@@ -81,6 +81,11 @@ public class KoiFishServiceImpl implements KoiFishService {
         return koiFishRepository.findByBreederIdAndStatus(breederId, KoiStatus.NEW);
     }
 
+    @Override
+    public List<KoiFish> viewKoiFishByBreederId(int breederId) {
+        return koiFishRepository.findByBreederId(breederId);
+    }
+
 
     @Override
     public KoiFish cancelKoiFish(int id) {
