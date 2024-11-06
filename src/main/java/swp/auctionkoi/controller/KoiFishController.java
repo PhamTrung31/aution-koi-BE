@@ -56,7 +56,7 @@ public class KoiFishController {
     // View KoiFish by breeder ID
     @GetMapping("/breeder/{breederId}")
     public ApiResponse<List<KoiFish>> viewKoiFishByBreederId(@PathVariable int breederId) {
-        List<KoiFish> koiFishList = koiFishService.viewKoiFishByBreederId(breederId);
+        List<KoiFish> koiFishList = koiFishService.viewKoiFishByBreederIdInNew(breederId);
         return ApiResponse.<List<KoiFish>>builder()
                 .code(200)
                 .message("Successfully")

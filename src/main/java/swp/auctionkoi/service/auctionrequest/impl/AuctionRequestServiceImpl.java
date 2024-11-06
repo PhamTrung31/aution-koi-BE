@@ -68,7 +68,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .user(user)
                 .fish(fish)
                 .buyOut(auctionRequestDTO.getBuyOut())
-//                .incrementStep(auctionRequestDTO.getIncrementStep())
+                .incrementStep(auctionRequestDTO.getIncrementStep())
                 .startPrice(auctionRequestDTO.getStartPrice())
                 .methodType(auctionRequestDTO.getMethodType())
                 .requestStatus(AuctionRequestStatus.WAIT)
@@ -116,7 +116,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         auctionRequest.setUser(user);
         auctionRequest.setFish(fish);
         auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
-//        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
+        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
         auctionRequest.setMethodType(auctionRequestDTO.getMethodType());
 //        auctionRequest.setStartTime(auctionRequestDTO.getStart_time());
