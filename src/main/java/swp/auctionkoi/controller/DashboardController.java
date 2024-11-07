@@ -12,6 +12,7 @@ import swp.auctionkoi.dto.respone.MonthlyAuctionDataResponse;
 import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.Wallet;
 import swp.auctionkoi.models.enums.AuctionStatus;
+import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.AuctionRequestRepository;
@@ -19,9 +20,7 @@ import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.repository.WalletRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -68,6 +67,26 @@ public class DashboardController {
         return ApiResponse.<List<MonthlyAuctionDataResponse>>builder()
                 .code(200)
                 .result(monthlyData)
+                .build();
+    }
+
+    @GetMapping("/auction-type-percentage")
+    public ApiResponse<Map<String, Double>> getAuctionTypePercentage() {
+
+        int totalTraditional = auctionRequestRepository.countAuctionsByType(AuctionType.TRADITIONAL);
+        int totalAnonymous = auctionRequestRepository.countAuctionsByType(AuctionType.ANONYMOUS);
+        int totalAuctions = totalTraditional + totalAnonymous;
+
+        float traditionalPercentage = totalAuctions > 0 ? (float) totalTraditional / totalAuctions * 100 : 0;
+        float anonymousPercentage = totalAuctions > 0 ? (float) totalAnonymous / totalAuctions * 100 : 0;
+
+        Map<String, Double> response = new HashMap<>();
+        response.put("TRADITIONAL", traditionalPercentage);
+        response.put("ANONYMOUS", anonymousPercentage);
+
+        return ApiResponse.<Map<String, Double>>builder()
+                .code(200)
+                .result(response)
                 .build();
     }
 }
