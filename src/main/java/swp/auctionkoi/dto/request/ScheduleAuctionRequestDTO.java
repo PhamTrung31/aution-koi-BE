@@ -1,6 +1,7 @@
 package swp.auctionkoi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +19,8 @@ import java.time.Instant;
 public class ScheduleAuctionRequestDTO {
     Integer auctionRequestId;
     Integer staffId;
+    @NotNull(message = "Increment step cannot be null!")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Increment step must be a positive number")
     Integer incrementStep;
     @JsonProperty("start_time")
     Instant startTime;

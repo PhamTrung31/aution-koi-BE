@@ -449,6 +449,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     private Auction createNewAuction(KoiFish fish) {
         Auction newAuction = new Auction();
         newAuction.setFish(fish);
+        newAuction.setExtensionSeconds(60);
         newAuction.setStatus(AuctionStatus.NEW);
         return auctionRepository.save(newAuction);
     }

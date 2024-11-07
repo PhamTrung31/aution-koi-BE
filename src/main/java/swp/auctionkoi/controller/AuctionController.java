@@ -1,5 +1,6 @@
 package swp.auctionkoi.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -207,7 +208,7 @@ public class AuctionController {
     }
 
     @PutMapping("/schedule")
-    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction(@RequestBody ScheduleAuctionRequestDTO scheduleRequest
+    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction(@RequestBody @Valid ScheduleAuctionRequestDTO scheduleRequest
     ) {
         AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
                 scheduleRequest.getAuctionRequestId(),

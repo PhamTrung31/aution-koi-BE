@@ -1,5 +1,7 @@
 package swp.auctionkoi.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,6 +12,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationRequest {
+    @NotBlank(message = "Username cannot be blank!")
+    @Size(min = 5, message = "Invalid username!")
     String username;
+    @NotBlank(message = "Password cannot be blank!")
     String password;
 }

@@ -1,6 +1,7 @@
 package swp.auctionkoi.controller;
 
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +30,7 @@ public class BreederManageAutionController {
     AuctionRequestService auctionRequestService;
 
     @PostMapping("/send-request")
-    public ApiResponse<AuctionRequest> sendAuctionRequest(@RequestBody AuctionRequestDTO auctionRequestDTO) {
+    public ApiResponse<AuctionRequest> sendAuctionRequest(@RequestBody @Valid AuctionRequestDTO auctionRequestDTO) {
         AuctionRequest auctionRequestResponse = auctionRequestService.sendAuctionRequest(auctionRequestDTO);
         return ApiResponse.<AuctionRequest>builder()
                 .code(200)
