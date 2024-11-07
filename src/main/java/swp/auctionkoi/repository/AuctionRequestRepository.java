@@ -2,6 +2,7 @@ package swp.auctionkoi.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import swp.auctionkoi.dto.request.AuctionRequestResponseData;
 import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
@@ -9,6 +10,7 @@ import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
 
 import javax.swing.text.html.Option;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -34,4 +36,8 @@ public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, 
 
     @Query("SELECT ar FROM AuctionRequest ar WHERE ar.assignedStaff.id = :staffId")
     List<AuctionRequest> findByAssignedStaffId(Integer staffId);
+
+    @Query("SELECT ar FROM AuctionRequest ar WHERE ar.endTime BETWEEN :startTimeMinusOneHour AND :startTime")
+    List<AuctionRequest> findCloseEndTimes(@Param("startTimeMinusOneHour") Instant startTimeMinusOneHour, @Param("startTime") Instant startTime);
+
 }
