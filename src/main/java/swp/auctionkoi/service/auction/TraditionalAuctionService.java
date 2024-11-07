@@ -67,18 +67,18 @@ public class TraditionalAuctionService {
         boolean valid = checkValid(auction, auctionParticipant, auctionRequest, user, walletUser, bidAmount, bidRequestTraditional);
 
         if(valid) {
-            List<Bid> bidOfuser = bidRepository.findListBidByAuctionIdAndUserId(auction.getId(), user.getId());
+            List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auction.getId(), user.getId());
             float amount_find = 0;
-            if(!bidOfuser.isEmpty()){
-                for(Bid bid : bidOfuser){
+            if(!bidOfUser.isEmpty()){
+                for(Bid bid : bidOfUser){
                     amount_find += bid.getBidAmount();
                 }
             }
 
-            if (bidOfuser.isEmpty() && auction.getHighestPrice() == null) {
+            if (bidOfUser.isEmpty() && auction.getHighestPrice() == null) {
                 Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
                 bidRepository.save(bid);
-            } if(bidOfuser.isEmpty() && bidAmount > auction.getHighestPrice()) {
+            } if(bidOfUser.isEmpty() && bidAmount > auction.getHighestPrice()) {
                 if(!(bidAmount % auctionRequest.getIncrementStep() == 0)){
                     throw new AppException(ErrorCode.NOT_FOLLOW_INCREMENT_STEP);
                 }
@@ -106,6 +106,17 @@ public class TraditionalAuctionService {
                     auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
                     auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
                     auctionRepository.save(auction);
+                }
+
+                if(bidAmount == auctionRequest.getBuyOut()){
+                    Duration originalDuration = Duration.between(auctionRequest.getStartTime(), auctionRequest.getEndTime());
+
+                    Duration reducedDuration = originalDuration.multipliedBy(25).dividedBy(100);
+
+                    Instant newEndTime = auctionRequest.getStartTime().plus(reducedDuration);
+
+                    auctionRequest.setEndTime(newEndTime);
+                    auctionRequestRepository.save(auctionRequest);
                 }
             }
 
