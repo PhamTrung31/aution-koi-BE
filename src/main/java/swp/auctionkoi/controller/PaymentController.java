@@ -28,6 +28,16 @@ public class PaymentController {
                 .result(result)
                 .build();
     }
+    @GetMapping("/breeder/{breederId}")
+    public ApiResponse<List<Payment>> getAllPaymentsOfBreeder(@PathVariable int breederId) {
+        List<Payment> payments = paymentService.getAllPayMentOfBreeder(breederId);
+       return ApiResponse.<List<Payment>>builder()
+               .code(200)
+               .message("Successfully")
+               .result(payments)
+               .build();
+
+    }
 
     @GetMapping("/pending-withdrawals")
     public ApiResponse<List<Payment>> getPendingWithdrawals() {

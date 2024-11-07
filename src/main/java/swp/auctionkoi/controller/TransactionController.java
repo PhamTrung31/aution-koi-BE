@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.models.Transaction;
+import swp.auctionkoi.service.transaction.MemberTransactionService;
 import swp.auctionkoi.service.transaction.TransactionService;
 import swp.auctionkoi.service.transaction.impl.TransactionServiceImpl;
 
@@ -15,6 +16,9 @@ public class TransactionController {
 
     @Autowired
     private TransactionServiceImpl transactionService;
+
+    @Autowired
+    private MemberTransactionService memberTransactionService;
 
     // API cho phép sắp xếp theo cột chỉ định
     @GetMapping("/sort")
@@ -33,6 +37,14 @@ public class TransactionController {
                 .code(200)
                 .message("Successfully")
                 .result(transactions)
+                .build();
+    }
+
+    @GetMapping("/all/{userId}")
+    public ApiResponse<List<Transaction>> getAllTransactionsOfUser(@PathVariable Integer userId) {
+        return ApiResponse.<List<Transaction>>builder()
+                .code(200)
+                .result(memberTransactionService.getAllTransactionsByUserId(userId))
                 .build();
     }
 }

@@ -5,6 +5,8 @@ import swp.auctionkoi.models.Payment;
 import java.util.List;
 
 public interface PaymentService {
+    List<Payment> getAllPayMentOfBreeder(int breederId);
+
     public String requestWithdrawMoney(int userId, float amount) throws Exception;
 
     List<Payment> getAllPendingWithdrawRequests();

@@ -104,6 +104,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getTransactionsByUserId(Integer userId) {
-        return transactionRepository.findByUserId(userId);
+        return transactionRepository.findListTransactionByUserId(userId);
     }
 }

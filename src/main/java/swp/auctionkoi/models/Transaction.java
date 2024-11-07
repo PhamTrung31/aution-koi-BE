@@ -32,11 +32,12 @@
         @JsonIdentityReference(alwaysAsId = true)
         Auction auction;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "user_id")
         @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
         @JsonIdentityReference(alwaysAsId = true)
         swp.auctionkoi.models.User user;
+
 
         @Column(name = "payment_id")
         Integer paymentId;

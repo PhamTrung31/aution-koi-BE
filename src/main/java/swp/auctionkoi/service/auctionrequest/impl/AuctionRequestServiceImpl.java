@@ -373,6 +373,12 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
             throw new AppException(ErrorCode.INVALID_AUCTION_DURATION);
         }
 
+        Instant startTimeMinusOneHour = adjustedStartTime.minus(Duration.ofHours(1));
+        List<AuctionRequest> closeEndTimeRequests = auctionRequestRepository.findCloseEndTimes(startTimeMinusOneHour, adjustedStartTime);
+        if (!closeEndTimeRequests.isEmpty()) {
+            throw new AppException(ErrorCode.AUCTION_TOO_CLOSE_TO_PREVIOUS);
+        }
+
         // Update auction request
         auctionRequest.setIncrementStep(incrementStep);
         auctionRequest.setStartTime(adjustedStartTime);
