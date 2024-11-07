@@ -77,7 +77,7 @@ public class AuctionScheduler {
             // Add 7 hours to Instant
             Instant currentTime = instantNow.plus(Duration.ofHours(7));
 
-            log.info("Current Time: {}", currentTime);
+            log.info("Current Tim   e: {}", currentTime);
             //get list bidder in this auction
             List<AuctionParticipants> auctionParticipants = auctionParticipantsRepository.findListAuctionParticipantsByAuctionId(request.getAuction().getId());
 
