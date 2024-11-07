@@ -1,5 +1,8 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -31,6 +34,8 @@ public class Delivery {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "auction_id")
     @Nullable
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     Auction auction;
 
     @Size(max = 250)

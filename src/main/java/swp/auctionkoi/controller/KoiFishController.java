@@ -53,6 +53,16 @@ public class KoiFishController {
                 .build();
     }
 
+    // View KoiFish by breeder ID in NEW
+    @GetMapping("/breeder/new/{breederId}")
+    public ApiResponse<List<KoiFish>> viewKoiFishByBreederIdInNew(@PathVariable int breederId) {
+        List<KoiFish> koiFishList = koiFishService.viewKoiFishByBreederIdInNew(breederId);
+        return ApiResponse.<List<KoiFish>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(koiFishList)
+                .build();
+    }
     // View KoiFish by breeder ID
     @GetMapping("/breeder/{breederId}")
     public ApiResponse<List<KoiFish>> viewKoiFishByBreederId(@PathVariable int breederId) {
@@ -63,6 +73,7 @@ public class KoiFishController {
                 .result(koiFishList)
                 .build();
     }
+
 
     // Cancel a KoiFish by ID
     @PutMapping("/cancel/{id}")

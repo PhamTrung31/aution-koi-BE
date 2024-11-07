@@ -66,7 +66,7 @@ public class AuctionRequest {
     Float buyOut;
 
     @Column(name = "increment_step")
-    @NotNull
+    @Nullable
     Integer incrementStep;
 
     @Column(name = "start_price")

@@ -106,6 +106,16 @@ public class AuctionController {
                 .build();
     }
 
+    @GetMapping("/awaiting-schedule/{staffId}")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAwaitingSchedule(@PathVariable Integer staffId) {
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule(staffId);
+        return ApiResponse.<List<AuctionRequest>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(auctionRequests)
+                .build();
+    }
+
     @GetMapping("/staff/all-assigned/{staffId}")
     public ApiResponse<List<AuctionRequest>> getAuctionRequestsByAssignedStaff(@PathVariable Integer staffId) {
         List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsByAssignedToStaff(staffId);
@@ -202,6 +212,7 @@ public class AuctionController {
         AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
                 scheduleRequest.getAuctionRequestId(),
                 scheduleRequest.getStaffId(),
+                scheduleRequest.getIncrementStep(),
                 scheduleRequest.getStartTime(),
                 scheduleRequest.getEndTime()
         );
