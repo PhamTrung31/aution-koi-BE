@@ -71,7 +71,7 @@ public class DashboardController {
     }
 
     @GetMapping("/auction-type-percentage")
-    public ApiResponse<Map<String, Double>> getAuctionTypePercentage() {
+    public ApiResponse<Map<String, Float>> getAuctionTypePercentage() {
 
         int totalTraditional = auctionRequestRepository.countAuctionsByType(AuctionType.TRADITIONAL);
         int totalAnonymous = auctionRequestRepository.countAuctionsByType(AuctionType.ANONYMOUS);
@@ -80,11 +80,11 @@ public class DashboardController {
         float traditionalPercentage = totalAuctions > 0 ? (float) totalTraditional / totalAuctions * 100 : 0;
         float anonymousPercentage = totalAuctions > 0 ? (float) totalAnonymous / totalAuctions * 100 : 0;
 
-        Map<String, Double> response = new HashMap<>();
+        Map<String, Float> response = new HashMap<>();
         response.put("TRADITIONAL", traditionalPercentage);
         response.put("ANONYMOUS", anonymousPercentage);
 
-        return ApiResponse.<Map<String, Double>>builder()
+        return ApiResponse.<Map<String, Float>>builder()
                 .code(200)
                 .result(response)
                 .build();
