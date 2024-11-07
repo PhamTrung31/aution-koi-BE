@@ -18,6 +18,7 @@ import java.time.Instant;
 public class ScheduleAuctionRequestDTO {
     Integer auctionRequestId;
     Integer staffId;
+    Integer incrementStep;
     @JsonProperty("start_time")
     Instant startTime;
     @JsonProperty("end_time")

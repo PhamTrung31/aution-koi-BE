@@ -13,7 +13,7 @@ import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
 import swp.auctionkoi.service.delivery.DeliveryService;
 
-import java.util.Optional;
+import java.util.List;
 
 
 @Service
@@ -90,9 +90,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    public Delivery getDeliveryById(int deliveryId) {
-        return deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new AppException(ErrorCode.DELIVERY_NOT_EXISTED));
+    @Override
+    public List<Delivery> getAllDelivery() {
+        List<Delivery> deliveries = deliveryRepository.findAll();
+        if (deliveries.isEmpty()) {
+            throw new AppException(ErrorCode.DELIVERY_NOT_EXISTED);
+        }
+        return deliveries;
     }
 }
 

@@ -38,6 +38,11 @@ public class PaymentServiceImpl implements PaymentService {
     private UserRepository userRepository;
 
     @Override
+    public List<Payment> getAllPayMentOfBreeder(int breederId){
+        return paymentRepository.findAllByUserId(breederId);
+    }
+
+    @Override
     public String requestWithdrawMoney(int userId, float amount) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));

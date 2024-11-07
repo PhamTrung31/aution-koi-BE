@@ -203,11 +203,13 @@ Go
 
 CREATE TABLE Deliveries(
 	id int IDENTITY(1,1) primary key,
+	auction_id int null,
 	from_address nvarchar(250) not null,
 	to_address nvarchar(250) not null,
 	delivery_status int not null,
 	delivery_date date,
 	delivery_fee float
+	FOREIGN KEY (auction_id) REFERENCES Auctions(id),
 );
 Go
 

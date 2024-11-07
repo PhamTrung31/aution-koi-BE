@@ -65,7 +65,7 @@ public enum ErrorCode {
     DUPLICATE_FISH_NAME(1052,"Duplicated fish name",HttpStatus.BAD_REQUEST),
     INVALID_PAYMENT_STATUS(1053,"Invalid payment status",HttpStatus.BAD_REQUEST),
     NOT_FOLLOW_INCREMENT_STEP(1054, "Must follow the increment step!", HttpStatus.BAD_REQUEST),
-
+    AUCTION_TOO_CLOSE_TO_PREVIOUS(1055,"End time of previous auction is closed than start time", HttpStatus.BAD_REQUEST),
 
     ;
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
