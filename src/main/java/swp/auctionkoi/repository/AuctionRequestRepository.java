@@ -8,6 +8,7 @@ import swp.auctionkoi.dto.respone.AuctionRequestResponse;
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.enums.AuctionRequestStatus;
+import swp.auctionkoi.models.enums.AuctionType;
 
 import javax.swing.text.html.Option;
 import java.time.Instant;
@@ -40,4 +41,10 @@ public interface AuctionRequestRepository extends JpaRepository<AuctionRequest, 
     @Query("SELECT ar FROM AuctionRequest ar WHERE ar.endTime BETWEEN :startTimeMinusOneHour AND :startTime")
     List<AuctionRequest> findCloseEndTimes(@Param("startTimeMinusOneHour") Instant startTimeMinusOneHour, @Param("startTime") Instant startTime);
 
+    @Query("SELECT COUNT(ar) FROM AuctionRequest ar JOIN ar.auction a WHERE YEAR(ar.endTime) = :year " +
+            "AND MONTH(ar.endTime) = :month AND a.status = swp.auctionkoi.models.enums.AuctionStatus.COMPLETED")
+    int countCompletedAuctionsByEndTimeYearAndMonth(@Param("year") int year, @Param("month") int month);
+
+    @Query("SELECT COUNT(ar) FROM AuctionRequest ar WHERE ar.methodType = :type")
+    int countAuctionsByType(@Param("type") AuctionType type);
 }

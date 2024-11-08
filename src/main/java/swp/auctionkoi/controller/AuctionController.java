@@ -325,6 +325,17 @@ public class AuctionController {
                 .build();
     }
 
+    @GetMapping("/listBidOfUser/{auctionId}/{userId}")
+    public ApiResponse<List<Bid>> listBidOfUser(@PathVariable int auctionId, @PathVariable int userId) {
+        List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auctionId, userId);
+
+        return ApiResponse.<List<Bid>>builder()
+                .code(200)
+                .result(bidOfUser)
+                .build();
+    }
+
+
 //    @PutMapping("/reject/{auctionRequestId}")
 //    public AuctionRequestResponse rejectAuctionRequestForStaff(@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId) {
 //        return auctionRequestService.rejectAuctionRequestForStaff(auctionRequestId, staffId);

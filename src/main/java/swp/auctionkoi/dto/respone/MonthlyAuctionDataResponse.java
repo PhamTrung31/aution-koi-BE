@@ -1,16 +1,16 @@
-package swp.auctionkoi.dto;
+package swp.auctionkoi.dto.respone;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Setter
-@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class OrderRequestDTO {
-     long amount;
-     String memberId;
+public class MonthlyAuctionDataResponse {
+    int month;
+    int auctionCount;
 }
