@@ -112,7 +112,7 @@ public class MemberManageAuctionController {
             fixedPriceAuctionService.placeBid(user.getId(), bidRequest.getAuctionId(), bidRequest);
         }
         if(auctionRequest.getMethodType().equals(AuctionType.ANONYMOUS)){
-            anonymousAuctionService.placeBid(bidRequest.getAuctionId(), bidRequest);
+            anonymousAuctionService.placeBid(user.getId(), bidRequest.getAuctionId(), bidRequest);
         }
         return ApiResponse.<String>builder()
                 .code(200)

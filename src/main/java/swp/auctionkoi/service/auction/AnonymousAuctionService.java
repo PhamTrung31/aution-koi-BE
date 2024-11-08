@@ -39,7 +39,7 @@ public class AnonymousAuctionService {
 
     AuctionParticipantsRepository auctionParticipantsRepository;
 
-    public void placeBid(int auctionId, BidRequest bidRequest) {
+    public void placeBid(int userId, int auctionId, BidRequest bidRequest) {
 
         //get auction
         Auction auction = auctionRepository.findById(auctionId)
@@ -49,7 +49,7 @@ public class AnonymousAuctionService {
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
 
         //get user
-        User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 
