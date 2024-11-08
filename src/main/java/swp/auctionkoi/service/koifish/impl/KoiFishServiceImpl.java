@@ -48,8 +48,8 @@ public class KoiFishServiceImpl implements KoiFishService {
     }
 
     @Override
-    public KoiFish updateKoiFish(int id, KoiFishUpdateRequest updatedKoiFish) {
-        KoiFish existingKoiFish = koiFishRepository.findById(id)
+    public KoiFish updateKoiFish(int fishId, KoiFishUpdateRequest updatedKoiFish) {
+        KoiFish existingKoiFish = koiFishRepository.findById(fishId)
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
         // Check if the new name is different from the current name
         if (!existingKoiFish.getName().equals(updatedKoiFish.getName())) {
@@ -57,7 +57,7 @@ public class KoiFishServiceImpl implements KoiFishService {
             if (koiFishRepository.existsByNameAndBreederIdAndIdNot(
                     updatedKoiFish.getName(),
                     existingKoiFish.getBreeder().getId(),
-                    id)) {
+                    fishId)) {
                 throw new AppException(ErrorCode.DUPLICATE_FISH_NAME);
             }
         }

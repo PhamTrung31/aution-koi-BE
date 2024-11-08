@@ -14,7 +14,7 @@ import java.util.List;
 public interface AuctionRequestService {
     AuctionRequest getAuctionRequestDetailByAuctionId(int auctionId);
 
-    AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO);
+    AuctionRequest sendAuctionRequest(int userId, AuctionRequestDTO auctionRequestDTO);
 
     List<AuctionRequest> viewAllAuctionRequest();
 
@@ -22,7 +22,7 @@ public interface AuctionRequestService {
 
     List<AuctionRequest> viewAllAuctionRequestsForBreeder(Integer breederId);
 
-    AuctionRequest updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO);
+    AuctionRequest updateAuctionRequestForBreeder(Integer auctionRequestId, int breederId,AuctionRequestDTO auctionRequestDTO);
 
     AuctionRequestResponse cancelAuctionRequest(int auctionRequestId, int breederID);
 

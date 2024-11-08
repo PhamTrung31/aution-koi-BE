@@ -13,7 +13,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ManagerActionDto {
      int auctionRequestId;
-     int managerId;
      Integer staffId;
-
 }

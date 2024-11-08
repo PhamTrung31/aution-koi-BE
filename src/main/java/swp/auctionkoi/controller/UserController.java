@@ -23,6 +23,8 @@ import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.UserService;
 
 import java.util.HashMap;
@@ -34,6 +36,14 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+
+    private User getUserFromContext(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        return userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
 
     @PostMapping("/login")
     @ExceptionHandler(AppException.class)
@@ -73,10 +83,12 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{id}/avatar")
-    public ApiResponse<String> updateAvatar(@PathVariable int id, @RequestBody @Valid AvatarRequest avatarRequest) {
+    @PutMapping("/avatar")
+    public ApiResponse<String> updateAvatar(@RequestBody @Valid AvatarRequest avatarRequest) {
 
-        userService.updateAvatar(id, avatarRequest.getAvatarUrl());
+        User user = getUserFromContext();
+
+        userService.updateAvatar(user.getId(), avatarRequest.getAvatarUrl());
         return ApiResponse.<String>builder()
                 .result(String.valueOf(true))
                 .code(200)
@@ -85,7 +97,7 @@ public class UserController {
 
     }
     @GetMapping("/users/{id}")
-    public ApiResponse<User> getUserById(@PathVariable int id) {
+    public ApiResponse<User> getUserById(@PathVariable int id) { //khong biet cho ai dung
         User user = userService.getUserById(id);
         return ApiResponse.<User>builder()
                 .code(200)

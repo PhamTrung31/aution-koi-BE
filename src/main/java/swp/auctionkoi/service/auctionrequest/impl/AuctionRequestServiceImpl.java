@@ -48,9 +48,9 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
 
-    public AuctionRequest sendAuctionRequest(AuctionRequestDTO auctionRequestDTO) {
+    public AuctionRequest sendAuctionRequest(int userId, AuctionRequestDTO auctionRequestDTO) {
         // Fetching User and Fish
-        User user = userRepository.findById(auctionRequestDTO.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         KoiFish fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
@@ -83,7 +83,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     }
 
 
-    public AuctionRequest updateAuctionRequestForBreeder(Integer auctionRequestId, AuctionRequestDTO auctionRequestDTO) {
+    public AuctionRequest updateAuctionRequestForBreeder(Integer auctionRequestId, int breederId,AuctionRequestDTO auctionRequestDTO) {
 
         // Fetch existing AuctionRequest
         AuctionRequest auctionRequest = auctionRequestRepository.findById(auctionRequestId)
@@ -95,7 +95,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
         }
 
         // Fetch the user
-        User user = userRepository.findById(auctionRequestDTO.getUserId())
+        User user = userRepository.findById(breederId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Determine which KoiFish to use for the update
@@ -449,6 +449,7 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
     private Auction createNewAuction(KoiFish fish) {
         Auction newAuction = new Auction();
         newAuction.setFish(fish);
+        newAuction.setExtensionSeconds(60);
         newAuction.setStatus(AuctionStatus.NEW);
         return auctionRepository.save(newAuction);
     }
@@ -509,7 +510,3 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
 //        }
     }
 }
-
-
-
-

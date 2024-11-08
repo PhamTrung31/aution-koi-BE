@@ -30,7 +30,7 @@ public class FixedPriceAuctionService {
     BidRepository bidRepository;
     AuctionParticipantsRepository auctionParticipantsRepository;
     
-    public void placeBid(int auctionId, BidRequest bidRequest) {
+    public void placeBid(int userId, int auctionId, BidRequest bidRequest) {
 
         //get data from database
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
@@ -47,7 +47,7 @@ public class FixedPriceAuctionService {
             throw new AppException(ErrorCode.INVALID_AUCTION_TYPE);
         }
 
-        User user = userRepository.findById(bidRequest.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 

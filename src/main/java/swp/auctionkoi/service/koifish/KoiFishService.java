@@ -11,7 +11,7 @@ public interface KoiFishService {
 
     public KoiFish createKoiFish(KoiFish koiFish, int breederId);
 
-    public KoiFish updateKoiFish(int id, KoiFishUpdateRequest updatedKoiFish);
+    public KoiFish updateKoiFish(int fishId, KoiFishUpdateRequest updatedKoiFish);
 
     public List<KoiFish> viewKoiFishByBreederIdInNew(int breederId);
 

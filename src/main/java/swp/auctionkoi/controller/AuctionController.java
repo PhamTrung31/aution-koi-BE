@@ -1,17 +1,24 @@
 package swp.auctionkoi.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.request.*;
 import swp.auctionkoi.dto.respone.ApiResponse;
 
 import swp.auctionkoi.dto.respone.AuctionRequestUpdateResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.dto.respone.auction.AuctionHistoryResponse;
 import swp.auctionkoi.models.AuctionRequest;
 import swp.auctionkoi.models.Bid;
+import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.BidRepository;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auctionrequest.AuctionRequestService;
 import swp.auctionkoi.service.koifish.impl.KoiFishServiceImpl;
@@ -35,6 +42,17 @@ public class AuctionController {
 
     @Autowired
     private BidRepository bidRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private User getUserFromContext(){
+        var context = SecurityContextHolder.getContext();
+
+        String username = context.getAuthentication().getName();
+
+        return userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
 
     @GetMapping("/past-auction")
     public ApiResponse<List<AuctionHistoryResponse>> getAuctionComplete() {
@@ -87,7 +105,7 @@ public class AuctionController {
     }
 
     @GetMapping("/awaiting_schedule")
-    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAwaitingSchedule() {
+    public ApiResponse<List<AuctionRequest>> getAllAuctionRequestForManage() {
         List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule();
         return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
@@ -96,9 +114,16 @@ public class AuctionController {
                 .build();
     }
 
-    @GetMapping("/assigned-staff/{staffId}")
-    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAssignedStaff(@PathVariable Integer staffId) {
-        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAssignedToStaff(staffId);
+    @GetMapping("/assigned-staff")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAssignedStaff() {
+
+        User staff = getUserFromContext();
+
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAssignedToStaff(staff.getId());
         return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
                 .message("Successfully")
@@ -106,9 +131,16 @@ public class AuctionController {
                 .build();
     }
 
-    @GetMapping("/awaiting-schedule/{staffId}")
-    public ApiResponse<List<AuctionRequest>> getAuctionRequestsInAwaitingSchedule(@PathVariable Integer staffId) {
-        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule(staffId);
+    @GetMapping("/awaiting-schedule")
+    public ApiResponse<List<AuctionRequest>> getAllAuctinoRequestWaitForSchedule() {
+
+        User staff = getUserFromContext();
+
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsInAwaitingSchedule(staff.getId());
         return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
                 .message("Successfully")
@@ -116,9 +148,15 @@ public class AuctionController {
                 .build();
     }
 
-    @GetMapping("/staff/all-assigned/{staffId}")
-    public ApiResponse<List<AuctionRequest>> getAuctionRequestsByAssignedStaff(@PathVariable Integer staffId) {
-        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsByAssignedToStaff(staffId);
+    @GetMapping("/staff/all-assigned")
+    public ApiResponse<List<AuctionRequest>> getAuctionRequestsByAssignedStaff() {
+
+        User staff = getUserFromContext();
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        List<AuctionRequest> auctionRequests = auctionRequestService.getAuctionRequestsByAssignedToStaff(staff.getId());
         return ApiResponse.<List<AuctionRequest>>builder()
                 .code(200)
                 .message("Successfully")
@@ -126,11 +164,17 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/staff/send-to-manager")
-    public ApiResponse<AuctionRequestUpdateResponse> sendToManager(@RequestBody AuctionRequestActionDto request) {
+    @PutMapping("/staff/send-to-manager/{auctionRequestId}")
+    public ApiResponse<AuctionRequestUpdateResponse> sendToManager(@PathVariable int auctionRequestId) {
+
+        User staff = getUserFromContext();
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.SendToManager(
-                request.getAuctionRequestId(),
-                request.getStaffId()
+                auctionRequestId,
+                staff.getId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
@@ -139,11 +183,17 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/staff/approve")
-    public ApiResponse<AuctionRequestUpdateResponse> approveByStaff(@RequestBody AuctionRequestActionDto request) {
+    @PutMapping("/staff/approve/{auctionRequestId}")
+    public ApiResponse<AuctionRequestUpdateResponse> approveByStaff(@PathVariable int auctionRequestId) {
+
+        User staff = getUserFromContext();
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.approveDirectlyByStaff(
-                request.getAuctionRequestId(),
-                request.getStaffId()
+                auctionRequestId,
+                staff.getId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
@@ -153,11 +203,18 @@ public class AuctionController {
     }
 
 
-    @PutMapping("/manager/reject")
-    public ApiResponse<AuctionRequestUpdateResponse> rejectByManager(@RequestBody ManagerRejectDto request) {
+    @PutMapping("/manager/reject/{auctionRequestId}")
+    public ApiResponse<AuctionRequestUpdateResponse> rejectByManager(@PathVariable int auctionRequestId) {
+
+        User manager = getUserFromContext();
+
+        if(!manager.getRole().equals(Role.MANAGER)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.rejectByManager(
-                request.getAuctionRequestId(),
-                request.getManagerId()
+                auctionRequestId,
+                manager.getId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
@@ -168,9 +225,15 @@ public class AuctionController {
 
     @PutMapping("/manager/assign-staff")
     public ApiResponse<AuctionRequestUpdateResponse> assignToStaff(@RequestBody ManagerActionDto request) {
+
+        User manager = getUserFromContext();
+        if(!manager.getRole().equals(Role.MANAGER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.assignToStaffByManager(
                 request.getAuctionRequestId(),
-                request.getManagerId(),
+                manager.getId(),
                 request.getStaffId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
@@ -180,11 +243,17 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/assignedstaff/approve")
-    public ApiResponse<AuctionRequestUpdateResponse> approveByAssignedStaff(@RequestBody AuctionRequestActionDto request) {
-        AuctionRequestUpdateResponse response = auctionRequestService.approveByAssignedStaff(
-                request.getAuctionRequestId(),
-                request.getStaffId()
+    @PutMapping("/assignedstaff/approve/{auctionRequestId}")
+    public ApiResponse<AuctionRequestUpdateResponse> approveByAssignedStaff(@PathVariable Integer auctionRequestId) {
+
+        User staff = getUserFromContext();
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        AuctionRequestUpdateResponse response = auctionRequestService.rejectByAssignedStaff(
+                auctionRequestId,
+                staff.getId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
@@ -193,11 +262,17 @@ public class AuctionController {
                 .build();
     }
 
-    @PutMapping("/assignedstaff/reject")
-    public ApiResponse<AuctionRequestUpdateResponse> rejectByAssignedStaff(@RequestBody AuctionRequestActionDto request) {
+    @PutMapping("/assignedstaff/reject/{auctionRequestId}")
+    public ApiResponse<AuctionRequestUpdateResponse> rejectByAssignedStaff(@PathVariable Integer auctionRequestId) {
+
+        User staff = getUserFromContext();
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.rejectByAssignedStaff(
-                request.getAuctionRequestId(),
-                request.getStaffId()
+                auctionRequestId,
+                staff.getId()
         );
         return ApiResponse.<AuctionRequestUpdateResponse>builder()
                 .code(200)
@@ -207,11 +282,17 @@ public class AuctionController {
     }
 
     @PutMapping("/schedule")
-    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction(@RequestBody ScheduleAuctionRequestDTO scheduleRequest
-    ) {
+    public ApiResponse<AuctionRequestUpdateResponse> scheduleAuction(@RequestBody @Valid ScheduleAuctionRequestDTO scheduleRequest) {
+
+        User staff = getUserFromContext();
+
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         AuctionRequestUpdateResponse response = auctionRequestService.scheduleAuction(
                 scheduleRequest.getAuctionRequestId(),
-                scheduleRequest.getStaffId(),
+                staff.getId(),
                 scheduleRequest.getIncrementStep(),
                 scheduleRequest.getStartTime(),
                 scheduleRequest.getEndTime()
@@ -243,17 +324,6 @@ public class AuctionController {
                 .result(auction)
                 .build();
     }
-
-    @GetMapping("/listBidOfUser/{auctionId}/{userId}")
-    public ApiResponse<List<Bid>> listBidOfUser(@PathVariable int auctionId, @PathVariable int userId) {
-        List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auctionId, userId);
-
-        return ApiResponse.<List<Bid>>builder()
-                .code(200)
-                .result(bidOfUser)
-                .build();
-    }
-
 
 //    @PutMapping("/reject/{auctionRequestId}")
 //    public AuctionRequestResponse rejectAuctionRequestForStaff(@PathVariable Integer auctionRequestId, @RequestHeader("staffId") Integer staffId) {

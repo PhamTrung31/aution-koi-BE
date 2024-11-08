@@ -45,7 +45,7 @@ public class TraditionalAuctionService {
 
     AuctionNotificationService auctionNotificationService;
 
-    public void placeBid(int auctionId, BidRequestTraditional bidRequestTraditional) {
+    public void placeBid(int userId, int auctionId, BidRequestTraditional bidRequestTraditional) {
 
         // get auction
         Auction auction = auctionRepository.findById(auctionId)
@@ -54,7 +54,7 @@ public class TraditionalAuctionService {
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
 
         //get user
-        User user = userRepository.findById(bidRequestTraditional.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         AuctionParticipants auctionParticipant = auctionParticipantsRepository.findByAuctionIdAndUserId(auctionId, user.getId());
 

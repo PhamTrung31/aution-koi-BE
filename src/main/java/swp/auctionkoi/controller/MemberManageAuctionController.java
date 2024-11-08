@@ -16,8 +16,11 @@ import swp.auctionkoi.dto.respone.auction.AuctionJoinResponse;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.AuctionRequest;
+import swp.auctionkoi.models.User;
 import swp.auctionkoi.models.enums.AuctionType;
+import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.AuctionRequestRepository;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.auction.AnonymousAuctionService;
 import swp.auctionkoi.service.auction.AuctionService;
 import swp.auctionkoi.service.auction.FixedPriceAuctionService;
@@ -35,19 +38,40 @@ public class MemberManageAuctionController {
     FixedPriceAuctionService fixedPriceAuctionService;
     AnonymousAuctionService anonymousAuctionService;
     AuctionService auctionService;
-    
-    @PostMapping("/join/{auctionId}/{userId}")
-    public ApiResponse<String> joinAuction(@PathVariable int userId, @PathVariable int auctionId) {
-        auctionService.joinAuction(userId, auctionId);
+    private final UserRepository userRepository;
+
+    private User getUserFromContext(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        return userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    @PostMapping("/join/{auctionId}")
+    public ApiResponse<String> joinAuction(@PathVariable int auctionId) {
+
+        User user = getUserFromContext();
+
+        if(!user.getRole().equals(Role.MEMBER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        auctionService.joinAuction(user.getId(), auctionId);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Join auction successfully!")
                 .build();
     }
 
-    @GetMapping("/check-participation/{auctionId}/{userId}")
-    public ApiResponse<String> checkAuctionParticipation(@PathVariable int userId, @PathVariable int auctionId) {
-        String participationStatus = auctionService.checkUserParticipationInAuction(userId, auctionId);
+    @GetMapping("/check-participation/{auctionId}")
+    public ApiResponse<String> checkAuctionParticipation(@PathVariable int auctionId) {
+
+        User user = getUserFromContext();
+
+        if(!user.getRole().equals(Role.MEMBER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        String participationStatus = auctionService.checkUserParticipationInAuction(user.getId(), auctionId);
         var context = SecurityContextHolder.getContext();
         return ApiResponse.<String>builder()
                 .code(200)
@@ -57,9 +81,16 @@ public class MemberManageAuctionController {
 
     @PostMapping("/placebid/traditional")
     public ApiResponse<String> placeBidTraditional(@RequestBody BidRequestTraditional bidRequestTraditional){
+
+        User user = getUserFromContext();
+
+        if(!user.getRole().equals(Role.MEMBER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(bidRequestTraditional.getAuctionId()).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
         if(auctionRequest.getMethodType().equals(AuctionType.TRADITIONAL)){
-            traditionalAuctionService.placeBid(bidRequestTraditional.getAuctionId(), bidRequestTraditional);
+            traditionalAuctionService.placeBid(user.getId(), bidRequestTraditional.getAuctionId(), bidRequestTraditional);
         }
         return ApiResponse.<String>builder()
                 .code(200)
@@ -69,9 +100,16 @@ public class MemberManageAuctionController {
 
     @PostMapping("/placebid")
     public ApiResponse<String> placeBid(@RequestBody BidRequest bidRequest){
+
+        User user = getUserFromContext();
+
+        if(!user.getRole().equals(Role.MEMBER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(bidRequest.getAuctionId()).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
         if(auctionRequest.getMethodType().equals(AuctionType.FIXED_PRICE)){
-            fixedPriceAuctionService.placeBid(bidRequest.getAuctionId(), bidRequest);
+            fixedPriceAuctionService.placeBid(user.getId(), bidRequest.getAuctionId(), bidRequest);
         }
         if(auctionRequest.getMethodType().equals(AuctionType.ANONYMOUS)){
             anonymousAuctionService.placeBid(bidRequest.getAuctionId(), bidRequest);

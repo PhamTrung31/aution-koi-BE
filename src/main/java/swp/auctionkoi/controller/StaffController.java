@@ -27,6 +27,7 @@ public class StaffController {
     @Autowired
     private StaffService staffService;
 
+
     @GetMapping("/all")
     public ApiResponse<List<UserResponse>> getAllUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,6 +62,7 @@ public class StaffController {
 
     @PostMapping("/ban/{userId}")
     public ApiResponse<String> banUser(@PathVariable int userId) {
+
         staffService.banUser(userId);
 
         return ApiResponse.<String>builder()

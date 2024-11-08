@@ -14,7 +14,6 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BidRequestTraditional {
     int auctionId;
-    int userId;
     float bidAmount;
     boolean isAutoBid;
 //    AutoBidIncrement incrementAutobid;

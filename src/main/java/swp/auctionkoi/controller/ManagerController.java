@@ -10,7 +10,11 @@ import swp.auctionkoi.dto.respone.ApiResponse;
 import swp.auctionkoi.dto.request.user.UserCreateRequest;
 import swp.auctionkoi.dto.request.user.UserUpdateRequest;
 import swp.auctionkoi.dto.respone.user.UserResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.user.ManagerService;
 import swp.auctionkoi.service.user.impl.ManagerServiceImpl;
 
@@ -27,19 +31,19 @@ public class ManagerController {
 
     @Autowired
     private ManagerServiceImpl managerService;
+    @Autowired
+    private UserRepository userRepository;
+
+    private User getUserFromContext(){
+        var context = SecurityContextHolder.getContext();
+
+        String username = context.getAuthentication().getName();
+
+        return userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
 
     @GetMapping("/allstaff")
     public ApiResponse<List<User>> getAllStaff() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("Username {}", authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info("GrantedAuthority {}", grantedAuthority));
-
-//        // Get all staff and filter out those who are not active
-//        List<User> activeStaff = managerService.getAllStaff().stream()
-//                .filter(User::getIsActive)  // Chỉ bao gồm staff active
-//                .collect(Collectors.toList());
-
         return ApiResponse.<List<User>>builder()
                 .result(managerService.getAllStaff())
                 .code(200)
@@ -47,9 +51,16 @@ public class ManagerController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse<UserResponse> getStaff(@PathVariable Integer id) {
-        UserResponse userResponse = managerService.getStaff(id);
+    @GetMapping("")
+    public ApiResponse<UserResponse> getStaff() {
+
+        User staff = getUserFromContext();
+
+        if(!staff.getRole().equals(Role.STAFF)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        UserResponse userResponse = managerService.getStaff(staff.getId());
 
         return ApiResponse.<UserResponse>builder()
                 .result(userResponse)

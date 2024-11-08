@@ -314,7 +314,7 @@ public class AuctionServiceImpl implements AuctionService {
                         amount_bid += bid.getBidAmount();
                     }
 
-                    Wallet userWallet = walletRepository.findByUserId(participant.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
+                    Wallet userWallet = walletRepository.findByUserId(participant.getUser().getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     Wallet adminWallet = walletRepository.findByUserId(admin.getId()).orElseThrow(() -> new AppException(ErrorCode.WALLET_NOT_EXISTED));
                     //transaction backmoney when user have bid
                     Transaction transaction = Transaction.builder()

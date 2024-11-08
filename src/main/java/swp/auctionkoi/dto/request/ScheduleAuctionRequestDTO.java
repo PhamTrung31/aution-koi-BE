@@ -17,7 +17,6 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ScheduleAuctionRequestDTO {
     Integer auctionRequestId;
-    Integer staffId;
     Integer incrementStep;
     @JsonProperty("start_time")
     Instant startTime;

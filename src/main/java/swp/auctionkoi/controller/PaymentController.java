@@ -3,9 +3,15 @@ package swp.auctionkoi.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import swp.auctionkoi.dto.respone.ApiResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.Payment;
+import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.enums.Role;
+import swp.auctionkoi.repository.UserRepository;
 import swp.auctionkoi.service.payment.impl.PaymentServiceImpl;
 
 import java.util.List;
@@ -15,22 +21,43 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentController {
-    private final PaymentServiceImpl paymentService;
+    PaymentServiceImpl paymentService;
 
-    @PostMapping("/withdraw/{userId}/{amount}")
+    UserRepository userRepository;
+
+    private User getUserFromContext(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        return userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    @PostMapping("/withdraw/{amount}")
     public ApiResponse<String> requestWithdraw(
-            @PathVariable int userId,
             @PathVariable float amount) throws Exception {
-        String result = paymentService.requestWithdrawMoney(userId, amount);
+
+        User user = getUserFromContext();
+
+        if(!user.getRole().equals(Role.MEMBER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        String result = paymentService.requestWithdrawMoney(user.getId(), amount);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Successfully")
                 .result(result)
                 .build();
     }
-    @GetMapping("/breeder/{breederId}")
-    public ApiResponse<List<Payment>> getAllPaymentsOfBreeder(@PathVariable int breederId) {
-        List<Payment> payments = paymentService.getAllPayMentOfBreeder(breederId);
+    @GetMapping("/all/payment")
+    public ApiResponse<List<Payment>> getAllPaymentsOfBreeder() {
+
+        User breeder = getUserFromContext();
+
+        if(!breeder.getRole().equals(Role.BREEDER)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<Payment> payments = paymentService.getAllPayMentOfBreeder(breeder.getId());
        return ApiResponse.<List<Payment>>builder()
                .code(200)
                .message("Successfully")

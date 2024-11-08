@@ -15,7 +15,6 @@ import java.time.Instant;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuctionRequestDTO {
-    int userId; //breeder
     Integer fishId;
     @JsonProperty("buyOut")
     Float buyOut;

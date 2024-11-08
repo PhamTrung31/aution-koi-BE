@@ -12,6 +12,5 @@ import swp.auctionkoi.models.enums.AutoBidIncrement;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BidRequest {
     int auctionId;
-    int userId;
     float bidAmount;
 }
