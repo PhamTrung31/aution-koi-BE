@@ -1,5 +1,6 @@
 package swp.auctionkoi.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,7 +61,7 @@ public class ManagerController {
 
 
     @PostMapping("/add")
-    public ApiResponse<User> addStaff(@RequestBody UserCreateRequest request) {
+    public ApiResponse<User> addStaff(@RequestBody @Valid UserCreateRequest request) {
 
         User user = managerService.addStaff(request);
 
@@ -73,7 +74,7 @@ public class ManagerController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UserResponse> updateStaff( @PathVariable Integer id,
+    public ApiResponse<UserResponse> updateStaff( @PathVariable @Valid Integer id,
             @RequestBody UserUpdateRequest request) {
         UserResponse user = managerService.updateStaff(id, request);
         return ApiResponse.<UserResponse>builder()

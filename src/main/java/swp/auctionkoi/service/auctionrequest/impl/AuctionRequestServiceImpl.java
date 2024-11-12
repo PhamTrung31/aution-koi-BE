@@ -99,23 +99,38 @@ public class AuctionRequestServiceImpl implements AuctionRequestService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Determine which KoiFish to use for the update
-        KoiFish fish;
+        KoiFish currentFish = auctionRequest.getFish();
+        KoiFish newFish;
+
         if (auctionRequestDTO.getFishId() != null) {
-            fish = koiFishRepository.findById(auctionRequestDTO.getFishId())
+            newFish = koiFishRepository.findById(auctionRequestDTO.getFishId())
                     .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_EXISTED));
-            if (!fish.getBreeder().equals(user)) {
+
+            // Check if the new fish belongs to the breeder
+            if (!newFish.getBreeder().equals(user)) {
                 throw new AppException(ErrorCode.NOT_BELONG_TO_BREEDER);
             }
+
+            // Update fish status only if there is a change in the fish
+            if (!newFish.equals(currentFish)) {
+                // Change the status of the old fish back to NEW
+                currentFish.setStatus(KoiStatus.NEW);
+                koiFishRepository.save(currentFish);
+
+                // Change the status of the new fish to PENDING_APPROVED
+                newFish.setStatus(KoiStatus.PENDING_APPROVAL);
+                koiFishRepository.save(newFish);
+            }
         } else {
-            fish = auctionRequest.getFish();
+            newFish = currentFish;
         }
 
         // Validate request data
-        checkRequest(auctionRequestDTO, user, fish);
+        checkRequest(auctionRequestDTO, user, newFish);
 
         // Update the AuctionRequest fields
         auctionRequest.setUser(user);
-        auctionRequest.setFish(fish);
+        auctionRequest.setFish(newFish);
         auctionRequest.setBuyOut(auctionRequestDTO.getBuyOut());
 //        auctionRequest.setIncrementStep(auctionRequestDTO.getIncrementStep());
         auctionRequest.setStartPrice(auctionRequestDTO.getStartPrice());
