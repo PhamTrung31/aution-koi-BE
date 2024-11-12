@@ -77,7 +77,7 @@ public class KoiFishController {
     }
 
     // View KoiFish by breeder ID in NEW
-    @GetMapping("/fish/view")
+    @GetMapping("/fish/view/new")
     public ApiResponse<List<KoiFish>> viewKoiFishByBreederIdInNew() {
 
         User breeder = getUserFromContext();
