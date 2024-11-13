@@ -51,6 +51,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse authenticated(AuthenticationRequest authenticationRequest) {
 
         var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(user.getIsActive().equals(false)){
+            throw new AppException(ErrorCode.ACCOUNT_DISABLED);
+        }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
