@@ -20,6 +20,8 @@ import swp.auctionkoi.service.bid.impl.BidServiceImpl;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -51,6 +53,10 @@ public class TraditionalAuctionService {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
+        if(auction.getExtensionSeconds() <= 0){
+            throw new AppException(ErrorCode.CANT_NOT_BID);
+        }
+
         AuctionRequest auctionRequest = auctionRequestRepository.findByAuctionId(auctionId).orElseThrow(() -> new AppException(ErrorCode.AUCTION_REQUEST_NOT_FOUND));
 
         //get user
@@ -66,11 +72,11 @@ public class TraditionalAuctionService {
 
         boolean valid = checkValid(auction, auctionParticipant, auctionRequest, user, walletUser, bidAmount, bidRequestTraditional);
 
-        if(valid) {
+        if (valid) {
             List<Bid> bidOfUser = bidRepository.findListBidByAuctionIdAndUserId(auction.getId(), user.getId());
             float amount_find = 0;
-            if(!bidOfUser.isEmpty()){
-                for(Bid bid : bidOfUser){
+            if (!bidOfUser.isEmpty()) {
+                for (Bid bid : bidOfUser) {
                     amount_find += bid.getBidAmount();
                 }
             }
@@ -78,15 +84,16 @@ public class TraditionalAuctionService {
             if (bidOfUser.isEmpty() && auction.getHighestPrice() == null) {
                 Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
                 bidRepository.save(bid);
-            } if(bidOfUser.isEmpty() && bidAmount > auction.getHighestPrice()) {
-                if(!(bidAmount % auctionRequest.getIncrementStep() == 0)){
+            }
+            if (bidOfUser.isEmpty() && bidAmount > auction.getHighestPrice()) {
+                if (!(bidAmount % auctionRequest.getIncrementStep() == 0)) {
                     throw new AppException(ErrorCode.NOT_FOLLOW_INCREMENT_STEP);
                 }
                 Bid bid = buildBid(auction, user, bidRequestTraditional, bidAmount);
                 bidRepository.save(bid);
             } else {
 
-                if(!(bidAmount % auctionRequest.getIncrementStep() == 0)){
+                if (!(bidAmount % auctionRequest.getIncrementStep() == 0)) {
                     throw new AppException(ErrorCode.NOT_FOLLOW_INCREMENT_STEP);
                 }
 
@@ -101,22 +108,24 @@ public class TraditionalAuctionService {
                 Instant instantNow = Instant.now();
                 // Add 7 hours to Instant
                 Instant currentTime = instantNow.plus(Duration.ofHours(7));
+
                 Duration duration = Duration.between(currentTime, auctionRequest.getEndTime());
-                if (!duration.isNegative() && duration.toMillis() < 10000) {
+                if (!duration.isNegative() && duration.toMillis() < 20000) {
                     auctionRequest.setEndTime(auctionRequest.getEndTime().plusSeconds(auction.getExtensionSeconds()));
                     auction.setExtensionSeconds(auction.getExtensionSeconds() - 10);
                     auctionRepository.save(auction);
                 }
-
-                if(bidAmount == auctionRequest.getBuyOut()){
+// tính duration của khoảng thời gian ban đầu (của start và end time ) với khoảng thời gian còn lại
+                if (bidAmount == auctionRequest.getBuyOut()) {
                     Duration originalDuration = Duration.between(auctionRequest.getStartTime(), auctionRequest.getEndTime());
+                    Duration result = originalDuration.minus(duration);
+                    if (result.toMinutes() < 5) {
+                        Duration reducedDuration = originalDuration.multipliedBy(25).dividedBy(100);
+                        Instant newEndTime = auctionRequest.getStartTime().plus(reducedDuration);
+                        auctionRequest.setEndTime(newEndTime);
+                        auctionRequestRepository.save(auctionRequest);
+                    }
 
-                    Duration reducedDuration = originalDuration.multipliedBy(25).dividedBy(100);
-
-                    Instant newEndTime = auctionRequest.getStartTime().plus(reducedDuration);
-
-                    auctionRequest.setEndTime(newEndTime);
-                    auctionRequestRepository.save(auctionRequest);
                 }
             }
 
@@ -165,8 +174,8 @@ public class TraditionalAuctionService {
     }
 
     /**
-     *  For build a new bid
-     * */
+     * For build a new bid
+     */
     private Bid buildBid(Auction auction, User user, BidRequestTraditional bidRequestTraditional, float bidAmount) {
         Bid bid = Bid.builder()
                 .auction(auction)
@@ -179,7 +188,7 @@ public class TraditionalAuctionService {
     }
 
     private boolean checkValid(Auction auction, AuctionParticipants auctionParticipant, AuctionRequest auctionRequest, User user, Wallet walletUser, float bidAmount, BidRequestTraditional bidRequestTraditional) {
-        if(auctionParticipant == null) {
+        if (auctionParticipant == null) {
             throw new AppException(ErrorCode.USER_NOT_IN_AUCTION);
         }
 
@@ -199,23 +208,23 @@ public class TraditionalAuctionService {
         }
 
         //get bidAmount
-        if(bidAmount <= auction.getHighestPrice()){
+        if (bidAmount <= auction.getHighestPrice()) {
             throw new AppException(ErrorCode.LOWER_CURRENT_PRICE);
         }
 
-        if(auction.getWinner() != null) {
+        if (auction.getWinner() != null) {
             if (user.getId().equals(auction.getWinner().getId())) {
                 throw new AppException(ErrorCode.AlREADY_WIN);
             }
         }
 
         //not enough money
-        if(bidAmount > walletUser.getBalance()) {
+        if (bidAmount > walletUser.getBalance()) {
             throw new AppException(ErrorCode.MONEY_IN_WALLET_NOT_ENOUGH);
         }
 
         //check bid amount out of max auto amount
-        if(bidRequestTraditional.isAutoBid()) {
+        if (bidRequestTraditional.isAutoBid()) {
             if (bidAmount > bidRequestTraditional.getMaxBidAmount()) {
                 throw new AppException(ErrorCode.AUCTION_AUTO_BID_EXCEEDS_MAX);
             }

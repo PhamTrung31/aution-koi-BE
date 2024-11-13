@@ -2,7 +2,6 @@ package swp.auctionkoi.service.koifish;
 
 import swp.auctionkoi.dto.request.koifish.KoiFishUpdateRequest;
 import swp.auctionkoi.models.KoiFish;
-import swp.auctionkoi.models.enums.KoiStatus;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public interface KoiFishService {
 
     public List<KoiFish> viewKoiFishByBreederId(int breederId);
 
-    public KoiFish cancelKoiFish(int id);
+    public boolean cancelKoiFish(int id);
 
 
 }

@@ -88,11 +88,11 @@ public class KoiFishServiceImpl implements KoiFishService {
 
 
     @Override
-    public KoiFish cancelKoiFish(int id) {
+    public boolean cancelKoiFish(int id) {
         KoiFish koiFish = koiFishRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
-        koiFish.setStatus(KoiStatus.CANCELED);
-        return koiFishRepository.save(koiFish);
+        koiFishRepository.delete(koiFish);
+        return true;
     }
 
 

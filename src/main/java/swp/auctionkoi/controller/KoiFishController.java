@@ -75,14 +75,13 @@ public class KoiFishController {
     }
 
 
-    // Cancel a KoiFish by ID
-    @PutMapping("/cancel/{id}")
-    public ApiResponse<KoiFish> cancelKoiFish(@PathVariable int id) {
-        KoiFish canceledKoiFish = koiFishService.cancelKoiFish(id);
-        return ApiResponse.<KoiFish>builder()
+    // Delete a KoiFish by ID
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<String> deleteKoiFish(@PathVariable int id) {
+        boolean del = koiFishService.cancelKoiFish(id);
+        return ApiResponse.<String>builder()
                 .code(200)
                 .message("Successfully")
-                .result(canceledKoiFish)
                 .build();
     }
 }
