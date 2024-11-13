@@ -13,7 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationRequest {
     @NotBlank(message = "Username cannot be blank!")
-    @Size(min = 5, message = "Invalid username!")
     String username;
     @NotBlank(message = "Password cannot be blank!")
     String password;
