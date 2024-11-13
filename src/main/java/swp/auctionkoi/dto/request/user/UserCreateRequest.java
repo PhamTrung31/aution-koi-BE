@@ -15,7 +15,6 @@ import lombok.experimental.FieldDefaults;
 public class UserCreateRequest {
     int id;
     @NotBlank(message = "Username cannot be blank!")
-    @Size(min = 5, message = "Invalid username!")
     String username;
     @NotBlank(message = "Password cannot be blank!")
     String password;
@@ -26,6 +25,5 @@ public class UserCreateRequest {
     String phone;
     @NotBlank(message = "Address cannot be blank!")
     String address;
-    @NotBlank(message = "Avatar URL cannot be blank!")
     String avatar_url;
 }

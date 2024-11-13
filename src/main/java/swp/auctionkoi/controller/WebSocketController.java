@@ -3,8 +3,7 @@ package swp.auctionkoi.controller;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import swp.auctionkoi.dto.respone.auction.AuctionPendingInfo;
-import swp.auctionkoi.dto.respone.auction.AuctionStartInfo;
+import swp.auctionkoi.dto.respone.auction.*;
 import swp.auctionkoi.service.AuctionNotificationService;
 
 import java.util.List;
@@ -36,5 +35,25 @@ public class WebSocketController {
                 messagingTemplate.convertAndSend("/auctions/start", message)
         );
 
+        List<PlaceBidTraditionalInfo> placeBidNotifications = notificationService.getPlaceBidNotifications();
+
+        placeBidNotifications.forEach(message ->
+                messagingTemplate.convertAndSend("/auctions/place-bid/traditional", message)
+        );
+
+        List<UserWinAucionInfo> userWinNotifications = notificationService.getUserWinNotifications();
+
+        userWinNotifications.forEach(message ->
+                messagingTemplate.convertAndSend("/auctions/fixed-price/winner", message));
+
+        List<AuctionCanNotStartInfo> canNotStartNotifications = notificationService.getCanNotStartNotifications();
+
+        canNotStartNotifications.forEach(message ->
+                messagingTemplate.convertAndSend("/auctions/not-start", message));
+
+        List<AuctionEndInfo> notificationEnd = notificationService.getAuctionEndNotifications();
+
+        notificationEnd.forEach(message ->
+                messagingTemplate.convertAndSend("/auctions/end", message));
     }
 }
