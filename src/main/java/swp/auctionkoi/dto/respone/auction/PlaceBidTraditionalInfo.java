@@ -16,4 +16,5 @@ public class PlaceBidTraditionalInfo {
     int winner_Id;
     float highest_price;
     Instant end_time;
+    String winner_fullname;
 }

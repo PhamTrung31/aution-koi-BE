@@ -61,7 +61,7 @@ spring:
 #      cache:
 #        use_second_level_cache: false
 #      format_sql: true
-#  show-sql: true
+#  show-sql: false
 
 springdoc:
   api-docs:

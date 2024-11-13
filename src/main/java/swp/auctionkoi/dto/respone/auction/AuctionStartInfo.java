@@ -34,4 +34,6 @@ public class AuctionStartInfo {
     Instant end_time;
     AuctionType method_type;
     Float buy_out;
+    Integer increment_step;
+    Float start_price;
 }
