@@ -22,6 +22,12 @@ public class AuctionNotificationService {
     // Tạo danh sách tạm thời để lưu thông báo
     private final List<AuctionPendingInfo> pendingNotifications = new ArrayList<>();
     private final List<AuctionStartInfo> startNotifications = new ArrayList<>();
+    private final List<PlaceBidTraditionalInfo> placeBidNotifications = new ArrayList<>();
+    private final List<UserWinAucionInfo> userWinNotifications = new ArrayList<>();
+    private final List<AuctionCanNotStartInfo> canNotStartNotifications = new ArrayList<>();
+    private final List<AuctionEndInfo> endNotifications = new ArrayList<>();
+
+
 
     public void sendAuctionPendingNotification(AuctionPendingInfo notificationPendingInfo) {
         log.info("Auction pending send noti was run");
@@ -58,23 +64,68 @@ public class AuctionNotificationService {
 
     public void sendPlaceBidTraditionalNotification(PlaceBidTraditionalInfo placeBidTraditionalInfo){
         log.info("Place bid traditional send noti was run");
+
+        if (placeBidNotifications.size() >= 1) { // Giới hạn số lượng
+            placeBidNotifications.remove(0);
+        }
+        placeBidNotifications.add(placeBidTraditionalInfo);
+        log.info("List Place Bid message: " + placeBidNotifications);
+
         messagingTemplate.convertAndSend("/auctions/place-bid/traditional", placeBidTraditionalInfo);
     }
 
+    public List<PlaceBidTraditionalInfo> getPlaceBidNotifications() {
+        return new ArrayList<>(placeBidNotifications);  // Trả về bản sao để đảm bảo an toàn dữ liệu
+    }
+
+
     public void sendWinnerOfFixedPrice(UserWinAucionInfo userWinAucionInfo){
         log.info("Winner of fixed price send noti was run");
+
+        if(userWinNotifications.size() >= 1){
+            userWinNotifications.remove(0);
+        }
+        userWinNotifications.add(userWinAucionInfo);
+        log.info("List user win message: " + userWinNotifications);
+
         messagingTemplate.convertAndSend("/auctions/fixed-price/winner", userWinAucionInfo);
+    }
+
+    public List<UserWinAucionInfo> getUserWinNotifications() {
+        return new ArrayList<>(userWinNotifications);
     }
 
     public void sendAuctionCantNotStartNotification(AuctionCanNotStartInfo notificationCanNotStart) {
         log.info("Auction can not start send noti was run");
+
+        if(canNotStartNotifications.size() >= 1){
+            canNotStartNotifications.remove(0);
+        }
+        canNotStartNotifications.add(notificationCanNotStart);
+        log.info("List can not start message: " + canNotStartNotifications);
+
         messagingTemplate.convertAndSend("/auctions/not-start", notificationCanNotStart);
     }
 
+    public List<AuctionCanNotStartInfo> getCanNotStartNotifications() {
+        return new ArrayList<>(canNotStartNotifications);
+    }
 
     public void sendAuctionEndNotification(AuctionEndInfo notificationEnd) {
         log.info("Auction end send noti was run");
+
+        if (endNotifications.size() >= 1) {
+            endNotifications.remove(0);
+        }
+        endNotifications.add(notificationEnd);
+        log.info("List end message: " + endNotifications);
+
         messagingTemplate.convertAndSend("/auctions/end", notificationEnd);
+    }
+
+        public List<AuctionEndInfo> getAuctionEndNotifications(){
+            return new ArrayList<>(endNotifications);
+        }
         // them list bid cua auction
     }
-}
+
