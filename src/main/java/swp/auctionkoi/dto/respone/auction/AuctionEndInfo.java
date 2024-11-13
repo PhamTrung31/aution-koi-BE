@@ -15,4 +15,5 @@ public class AuctionEndInfo {
     Integer auction_id;
     Integer user_id; //winner
     Float highest_prices;
+    String user_fullname;
 }

@@ -116,12 +116,11 @@ public class TraditionalAuctionService {
                     auctionRepository.save(auction);
                 }
 // tính duration của khoảng thời gian ban đầu (của start và end time ) với khoảng thời gian còn lại
-                if (bidAmount == auctionRequest.getBuyOut()) {
-                    Duration originalDuration = Duration.between(auctionRequest.getStartTime(), auctionRequest.getEndTime());
-                    Duration result = originalDuration.minus(duration);
-                    if (result.toMinutes() < 5) {
-                        Duration reducedDuration = originalDuration.multipliedBy(25).dividedBy(100);
-                        Instant newEndTime = auctionRequest.getStartTime().plus(reducedDuration);
+                if (bidAmount >= auctionRequest.getBuyOut()) {
+
+                    if (duration.toMinutes() > 5) {
+                        Duration reducedDuration = duration.multipliedBy(25).dividedBy(100);
+                        Instant newEndTime = currentTime.plusMillis(reducedDuration.toMillis());
                         auctionRequest.setEndTime(newEndTime);
                         auctionRequestRepository.save(auctionRequest);
                     }

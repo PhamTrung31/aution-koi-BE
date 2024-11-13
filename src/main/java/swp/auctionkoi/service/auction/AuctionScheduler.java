@@ -192,6 +192,7 @@ public class AuctionScheduler {
                             .auction_id(request.getAuction().getId())
                             .user_id(request.getAuction().getWinner().getId())
                             .highest_prices(request.getAuction().getHighestPrice())
+                            .user_fullname(request.getAuction().getWinner().getFullname())
                             .build();
                     auctionNotificationService.sendAuctionEndNotification(auctionEndInfo);
                     log.info("Auction ID: {} ended", request.getAuction().getId());
