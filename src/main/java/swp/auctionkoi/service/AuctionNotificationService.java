@@ -104,9 +104,8 @@ public class AuctionNotificationService {
             canNotStartNotifications.add(notificationCanNotStart);
             log.info("List can not start message: " + canNotStartNotifications);
 
-            messagingTemplate.convertAndSend("/auctions/not-start", notificationCanNotStart);
-
             pendingNotifications.clear();
+            messagingTemplate.convertAndSend("/auctions/not-start", notificationCanNotStart);
         }
 
         public List<AuctionCanNotStartInfo> getCanNotStartNotifications() {
@@ -114,15 +113,19 @@ public class AuctionNotificationService {
         }
 
         public void sendAuctionEndNotification(AuctionEndInfo notificationEnd) {
-        log.info("Auction end send noti was run");
+            log.info("Auction end send noti was run");
 
-        if (endNotifications.size() >= 1) {
-            endNotifications.remove(0);
-        }
-        endNotifications.add(notificationEnd);
-        log.info("List end message: " + endNotifications);
+            if (endNotifications.size() >= 1) {
+                endNotifications.remove(0);
+            }
+            endNotifications.add(notificationEnd);
+            log.info("List end message: " + endNotifications);
 
-        messagingTemplate.convertAndSend("/auctions/end", notificationEnd);
+            startNotifications.clear();
+            pendingNotifications.clear();
+            placeBidNotifications.clear();
+            messagingTemplate.convertAndSend("/auctions/end", notificationEnd);
+
         }
 
         public List<AuctionEndInfo> getAuctionEndNotifications(){
