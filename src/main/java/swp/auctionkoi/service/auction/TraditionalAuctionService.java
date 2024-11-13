@@ -156,6 +156,7 @@ public class TraditionalAuctionService {
                     .winner_Id(auction.getWinner().getId())
                     .end_time(auctionRequest.getEndTime())
                     .highest_price(auction.getHighestPrice())
+                    .winner_fullname(auction.getWinner().getFullname())
                     .build();
 
             //send info winnner
