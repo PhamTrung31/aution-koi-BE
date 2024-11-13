@@ -62,6 +62,7 @@ import swp.auctionkoi.models.User;
 import swp.auctionkoi.repository.TransactionRepository;
 import swp.auctionkoi.service.transaction.TransactionService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -76,11 +77,11 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionRepository transactionRepository;
 
 
-    public HashMap<Integer, Transaction> getAllTransaction(){
-        HashMap<Integer, Transaction> transactions = new HashMap<>();
+    public List<Transaction> getAllTransaction(){
+        List<Transaction> transactions = new ArrayList<>();
         List<Transaction> transactionList = transactionRepository.findAll();
         for (Transaction transaction : transactionList) {
-            transactions.put(transaction.getId(), transaction);
+            transactions.add( transaction);
         }
         return transactions;
     }

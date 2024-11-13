@@ -47,5 +47,14 @@ public class TransactionController {
                 .result(memberTransactionService.getAllTransactionsByUserId(userId))
                 .build();
     }
+
+    @GetMapping("/all")
+    public ApiResponse<List<Transaction>> getAllTransactions() {
+        return ApiResponse.<List<Transaction>>builder()
+                .code(200)
+                .message("Successfully")
+                .result(transactionService.getAllTransaction())
+                .build();
+    }
 }
 
