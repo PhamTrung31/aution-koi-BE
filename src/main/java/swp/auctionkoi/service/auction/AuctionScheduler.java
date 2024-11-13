@@ -152,6 +152,8 @@ public class AuctionScheduler {
                         .end_time(request.getEndTime())
                         .method_type(request.getMethodType())
                         .aution_status(request.getAuction().getStatus())
+                        .increment_step(request.getIncrementStep())
+                        .start_price(request.getStartPrice())
                         .build();
                 //send message
                 auctionNotificationService.sendAuctionStartNotification(auctionStartInfo);
@@ -163,14 +165,14 @@ public class AuctionScheduler {
     @Transactional
     public void endTimeButWasNotStartSchedule(AuctionRequest request, List<AuctionParticipants> auctionParticipants, Instant currentTime) {
         //check that this auction have bid and have valid number of participant or not
-        if (request.getEndTime().isBefore(currentTime) && auctionParticipants.size() < 2) { //real run will be 7
+        if (request.getStartTime().isBefore(currentTime) && auctionParticipants.size() < 2) { //real run will be 7
             request.getAuction().setStatus(AuctionStatus.UNSOLD);
             request.getAuction().setWinner(null);
             request.getFish().setStatus(KoiStatus.UNSOLD);
             auctionRequestRepository.save(request);
             AuctionCanNotStartInfo canNotStartInfo = AuctionCanNotStartInfo.builder()
                     .auction_id(request.getAuction().getId())
-                    .message("Auction can not start. An auction must have at least 7 members.")
+                    .message("Auction can not start. An auction must have at least 2 members.")
                     .build();
             auctionNotificationService.sendAuctionCantNotStartNotification(canNotStartInfo);
             log.info("Auction ID: {} marked as UNSOLD due to insufficient participants.", request.getAuction().getId());

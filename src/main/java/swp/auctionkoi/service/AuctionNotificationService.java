@@ -69,8 +69,9 @@ public class AuctionNotificationService {
     public void sendAuctionCantNotStartNotification(AuctionCanNotStartInfo notificationCanNotStart) {
         log.info("Auction can not start send noti was run");
         messagingTemplate.convertAndSend("/auctions/not-start", notificationCanNotStart);
-    }
 
+        pendingNotifications.clear();
+    }
 
     public void sendAuctionEndNotification(AuctionEndInfo notificationEnd) {
         log.info("Auction end send noti was run");
