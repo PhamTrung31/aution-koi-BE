@@ -108,6 +108,8 @@ public class AnonymousAuctionService {
                 .auction(auction)
                 .user(user)
                 .walletId(wallet.getId())
+                .amount(bidRequest.getBidAmount())
+                .transactionFee(0F)
                 .transactionType(TransactionType.BID)
                 .build();
 
