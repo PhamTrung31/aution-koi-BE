@@ -1,17 +1,16 @@
-package swp.auctionkoi.dto.request;
+package swp.auctionkoi.dto.respone.auction;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Getter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String password;
-    String fullname;
-    String phone;
-    String address;
+public class AuctionCanNotStartInfo {
+    Integer auction_id;
+    String message;
 }

@@ -3,26 +3,38 @@ package swp.auctionkoi.service.user.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.UserCreateRequest;
-import swp.auctionkoi.dto.request.UserUpdateRequest;
-import swp.auctionkoi.dto.respone.UserResponse;
+import swp.auctionkoi.dto.request.user.StaffCreateUserRequest;
+import swp.auctionkoi.dto.request.user.StaffUpdateUserRequest;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserUpdateRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
+import swp.auctionkoi.exception.AppException;
+import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.mapper.UserMapper;
 import swp.auctionkoi.models.Auction;
 import swp.auctionkoi.models.Bid;
 import swp.auctionkoi.models.User;
+import swp.auctionkoi.models.Wallet;
+import swp.auctionkoi.models.enums.Role;
 import swp.auctionkoi.repository.AuctionRepository;
 import swp.auctionkoi.repository.UserRepository;
+import swp.auctionkoi.repository.WalletRepository;
 import swp.auctionkoi.service.user.StaffService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('STAFF')")
 public class StaffServiceImpl implements StaffService {
 
     UserRepository userRepository;
@@ -31,85 +43,101 @@ public class StaffServiceImpl implements StaffService {
 
     UserMapper userMapper;
 
+    PasswordEncoder passwordEncoder;
+    private final WalletRepository walletRepository;
+
     @Override
-    public HashMap<Integer, User> getAllUser() {
-        List<User> listUser = userRepository.findAll();
-        HashMap<Integer, User> userHashMap = new HashMap<>();
-        for (User user : listUser) {
-            userHashMap.put(user.getId(), user);
+    public List<UserResponse> getAllMemberAndBreeder() {
+        List<User> userList = userRepository.findAll();
+        List<UserResponse> result = new ArrayList<>();
+        for (User user : userList) {
+            if(user.getRole().equals(Role.MEMBER) || user.getRole().equals(Role.BREEDER)) {
+                result.add(userMapper.toUserResponse(user));
+            }
         }
-        return userHashMap;
+        return result;
+    }
+
+
+
+    @Override
+    public UserResponse getUserById(int id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
     }
 
     @Override
-    public Optional<UserResponse> getUser(int id) {
-        User user =  userRepository.findById(id).get();
-        return Optional.ofNullable(userMapper.toUserResponse(user));
-    }
-
-    @Override
-    public Optional<User> addUser(UserCreateRequest request) {
-        User user = new User();
+    public UserResponse addUser(StaffCreateUserRequest request) {
 
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Username already exists");
 
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFullname(request.getFullname());
-        user.setPhone(request.getPhone());
-        user.setAddress(request.getAddress());
-        return Optional.of(userRepository.save(user));
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        User user = userMapper.toUser(request);
+
+        log.info("Request field isBreeder: " + request.isBreeder());
+
+        if(request.isBreeder()){
+            user.setRole(Role.BREEDER);
+        } else{
+            user.setRole(Role.MEMBER);
+        }
+
+        log.info("User role: " + user.getRole());
+
+        user.setIsActive(true);
+
+        userRepository.save(user);
+
+        Wallet wallet = Wallet.builder()
+                .user(user)
+                .balance(100000) //temp, real will be 0
+                .build();
+
+        walletRepository.save(wallet);
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
-    public Optional<UserResponse> updateUser(int id, UserUpdateRequest tryUpdateUser) {
-        User user = userRepository.findById(id).get();
-        if(user != null) {
-            userMapper.updateUser(user, tryUpdateUser);
-            return Optional.of(userMapper.toUserResponse(userRepository.save(user)));
+    public UserResponse updateUser(StaffUpdateUserRequest updateUser) {
+        User user = userRepository.findById(updateUser.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        if(updateUser.getPassword() != null){
+            updateUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+        } else {
+            updateUser.setPassword(user.getPassword());
         }
-        return null;
+        userMapper.updateUser(user, updateUser);
+        if(updateUser.getIsBreeder()){
+            user.setRole(Role.BREEDER);
+        } else {
+            user.setRole(Role.MEMBER);
+        }
+
+        userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
     public boolean deleteUser(int id) {
-        User user = userRepository.findById(id).get();
-        if(user != null) {
-            userRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.deleteById(user.getId());
+        return true;
     }
 
     @Override
-    public Optional<Auction> getAuction(int id) {
-
-        return null;
+    public void banUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(false);
+        userRepository.save(user);
     }
 
     @Override
-    public Auction addAuction(Auction auction) {
-        return null;
-    }
-
-    @Override
-    public Auction updateAuction(Auction auction) {
-        return null;
-    }
-
-    @Override
-    public void deleteAuction(int id) {
-
-    }
-
-    @Override
-    public void viewDetailAuction(int auctionId) {
-
-    }
-
-    @Override
-    public HashMap<Integer, Bid> viewHistoryBidAuction(int auctionId) {
-        return null;
+    public void unBanUser(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setIsActive(true);
+        userRepository.save(user);
     }
 }

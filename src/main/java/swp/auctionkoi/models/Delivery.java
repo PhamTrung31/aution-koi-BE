@@ -1,18 +1,28 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.lang.Nullable;
+import swp.auctionkoi.models.enums.DeliveryStatus;
+import swp.auctionkoi.models.enums.TransactionType;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@DynamicInsert
+@Builder
 @Table(name = "Deliveries")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Delivery {
@@ -21,9 +31,12 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_id")
-    swp.auctionkoi.models.Transaction transaction;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "auction_id")
+    @Nullable
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    Auction auction;
 
     @Size(max = 250)
     @Nationalized
@@ -35,13 +48,14 @@ public class Delivery {
     @Column(name = "to_address", length = 250)
     String toAddress;
 
-    @Column(name = "status")
-    Integer status;
+    @Column(name = "delivery_status")
+    @Enumerated(EnumType.ORDINAL)
+    DeliveryStatus deliveryStatus ;
 
     @Column(name = "delivery_date")
-    LocalDate deliveryDate;
+    Instant deliveryDate;
 
     @Column(name = "delivery_fee")
-    Double deliveryFee;
+    Float deliveryFee;
 
 }

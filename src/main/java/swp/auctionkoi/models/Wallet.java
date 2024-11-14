@@ -1,14 +1,17 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Table(name = "Wallets")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Wallet {
@@ -18,10 +21,22 @@ public class Wallet {
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    User member;
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    User user;
 
     @Column(name = "balance")
-    Double balance;
+    float balance;
 
+//    @JsonProperty("userId")
+//    public Integer getUserId() {
+//        return user != null ? user.getId() : null;
+//    }
 }
+
+
+
+//    public Integer getAuctionId() {
+//        return auction != null ? auction.getId() : null;
+//    }
+

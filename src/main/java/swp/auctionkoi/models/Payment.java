@@ -1,14 +1,19 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import swp.auctionkoi.models.enums.PaymentStatus;
+import swp.auctionkoi.models.enums.TransactionType;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Payments")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment {
@@ -18,13 +23,16 @@ public class Payment {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private swp.auctionkoi.models.User member;
+    @JoinColumn(name = "user_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private swp.auctionkoi.models.User user;
 
     @Column(name = "amount")
-    private Double amount;
+    private float amount;
 
     @Column(name = "payment_status")
-    private Integer paymentStatus;
+    @Enumerated(EnumType.ORDINAL)
+    PaymentStatus paymentStatus;
 
 }
