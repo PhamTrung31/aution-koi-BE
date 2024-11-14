@@ -220,30 +220,30 @@ public class AuctionServiceImpl implements AuctionService {
             createDeliveryKoiForWinner(auctionRequest.getAuction());
         }
 
-        if (auctionRequest.getMethodType().equals(AuctionType.FIXED_PRICE)) {
-            backDepositAmount(auctionRequest.getAuction(), participants, admin);
-            List<Bid> listBid = bidRepository.getListBidByAuctionId(auctionRequest.getAuction().getId());
-            if(listBid.size() > 1) {
-                User winner = randomWinner(listBid);
-                auctionRequest.getAuction().setWinner(winner);
-                createDeliveryKoiForWinner(auctionRequest.getAuction());
-            } else if (listBid.size() == 1){
-                User winner = listBid.get(0).getUser();
-                auctionRequest.getAuction().setWinner(winner);
-                createDeliveryKoiForWinner(auctionRequest.getAuction());
-            } else{
-                auctionRequest.getAuction().setWinner(null);
-                auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
-                return;
-            }
-            UserWinAucionInfo userWinAucionInfo = UserWinAucionInfo.builder()
-                    .user_id(auctionRequest.getAuction().getWinner().getId())
-                    .full_name(auctionRequest.getAuction().getWinner().getFullname())
-                    .avatar_url(auctionRequest.getAuction().getWinner().getAvatarUrl())
-                    .highest_bid(auctionRequest.getAuction().getHighestPrice())
-                    .build();
-            auctionNotificationService.sendWinnerOfFixedPrice(userWinAucionInfo);
-        }
+//        if (auctionRequest.getMethodType().equals(AuctionType.FIXED_PRICE)) {
+//            backDepositAmount(auctionRequest.getAuction(), participants, admin);
+//            List<Bid> listBid = bidRepository.getListBidByAuctionId(auctionRequest.getAuction().getId());
+//            if(listBid.size() > 1) {
+//                User winner = randomWinner(listBid);
+//                auctionRequest.getAuction().setWinner(winner);
+//                createDeliveryKoiForWinner(auctionRequest.getAuction());
+//            } else if (listBid.size() == 1){
+//                User winner = listBid.get(0).getUser();
+//                auctionRequest.getAuction().setWinner(winner);
+//                createDeliveryKoiForWinner(auctionRequest.getAuction());
+//            } else{
+//                auctionRequest.getAuction().setWinner(null);
+//                auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
+//                return;
+//            }
+//            UserWinAucionInfo userWinAucionInfo = UserWinAucionInfo.builder()
+//                    .user_id(auctionRequest.getAuction().getWinner().getId())
+//                    .full_name(auctionRequest.getAuction().getWinner().getFullname())
+//                    .avatar_url(auctionRequest.getAuction().getWinner().getAvatarUrl())
+//                    .highest_bid(auctionRequest.getAuction().getHighestPrice())
+//                    .build();
+//            auctionNotificationService.sendWinnerOfFixedPrice(userWinAucionInfo);
+//        }
 
         if (auctionRequest.getMethodType().equals(AuctionType.ANONYMOUS)) {
             backDepositAmount(auctionRequest.getAuction(), participants, admin);
@@ -251,7 +251,15 @@ public class AuctionServiceImpl implements AuctionService {
             if(bid != null) {
                 User winner = bid.getUser();
                 auctionRequest.getAuction().setWinner(winner);
+                auctionRequest.getAuction().setHighestPrice(bid.getBidAmount());
                 createDeliveryKoiForWinner(auctionRequest.getAuction());
+                UserWinAucionInfo userWinAucionInfo = UserWinAucionInfo.builder()
+                        .user_id(auctionRequest.getAuction().getWinner().getId())
+                        .full_name(auctionRequest.getAuction().getWinner().getFullname())
+                        .avatar_url(auctionRequest.getAuction().getWinner().getAvatarUrl())
+                        .highest_bid(auctionRequest.getAuction().getHighestPrice())
+                        .build();
+                auctionNotificationService.sendWinnerOfAnonymous(userWinAucionInfo);
             } else {
                 auctionRequest.getAuction().setStatus(AuctionStatus.UNSOLD);
                 return;

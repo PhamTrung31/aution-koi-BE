@@ -79,21 +79,21 @@ public class AuctionNotificationService {
         }
 
 
-        public void sendWinnerOfFixedPrice(UserWinAucionInfo userWinAucionInfo){
-            log.info("Winner of fixed price send noti was run");
+//        public void sendWinnerOfFixedPrice(UserWinAucionInfo userWinAucionInfo){
+//            log.info("Winner of fixed price send noti was run");
+//
+//            if(userWinNotifications.size() >= 1){
+//                userWinNotifications.remove(0);
+//            }
+//            userWinNotifications.add(userWinAucionInfo);
+//            log.info("List user win message: " + userWinNotifications);
+//
+//            messagingTemplate.convertAndSend("/auctions/fixed-price/winner", userWinAucionInfo);
+//        }
 
-            if(userWinNotifications.size() >= 1){
-                userWinNotifications.remove(0);
-            }
-            userWinNotifications.add(userWinAucionInfo);
-            log.info("List user win message: " + userWinNotifications);
-
-            messagingTemplate.convertAndSend("/auctions/fixed-price/winner", userWinAucionInfo);
-        }
-
-        public List<UserWinAucionInfo> getUserWinNotifications() {
-            return new ArrayList<>(userWinNotifications);
-        }
+//        public List<UserWinAucionInfo> getUserWinNotifications() {
+//            return new ArrayList<>(userWinNotifications);
+//        }
 
         public void sendAuctionCantNotStartNotification(AuctionCanNotStartInfo notificationCanNotStart) {
             log.info("Auction can not start send noti was run");
@@ -132,5 +132,22 @@ public class AuctionNotificationService {
             return new ArrayList<>(endNotifications);
         }
         // them list bid cua auction
+
+    public void sendWinnerOfAnonymous(UserWinAucionInfo userWinAucionInfo){
+        log.info("Winner of anonymous send noti was run");
+        if(userWinNotifications.size() >= 1){
+            userWinNotifications.remove(0);
+        }
+        userWinNotifications.add(userWinAucionInfo);
+        log.info("List user win message: " + userWinNotifications);
+        messagingTemplate.convertAndSend("/auctions/anonymous/winner", userWinAucionInfo);
     }
+    public List<UserWinAucionInfo> getUserWinNotifications() {
+        return new ArrayList<>(userWinNotifications);
+    }
+
+
+
+
+}
 

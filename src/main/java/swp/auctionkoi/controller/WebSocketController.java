@@ -44,7 +44,7 @@ public class WebSocketController {
         List<UserWinAucionInfo> userWinNotifications = notificationService.getUserWinNotifications();
 
         userWinNotifications.forEach(message ->
-                messagingTemplate.convertAndSend("/auctions/fixed-price/winner", message));
+                messagingTemplate.convertAndSend("/auctions/anonymous/winner", message));
 
         List<AuctionCanNotStartInfo> canNotStartNotifications = notificationService.getCanNotStartNotifications();
 
