@@ -69,6 +69,7 @@ public enum ErrorCode {
     AUCTION_TOO_CLOSE_TO_PREVIOUS(1055,"End time of previous auction is closed than start time", HttpStatus.BAD_REQUEST),
     CANT_NOT_BID(1056,"Too close end time!", HttpStatus.BAD_REQUEST),
     ACCOUNT_DISABLED(1057," Your account is disabled!", HttpStatus.BAD_REQUEST),
+    FISH_CAN_NOT_DELETE(1058,"Fish can't delete ", HttpStatus.BAD_REQUEST),
     ;
     //    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 //    USER_EXISTED(1001, "User existed", HttpStatus.BAD_REQUEST),

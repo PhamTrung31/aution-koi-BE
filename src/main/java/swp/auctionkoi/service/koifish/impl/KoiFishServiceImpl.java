@@ -91,6 +91,11 @@ public class KoiFishServiceImpl implements KoiFishService {
     public boolean cancelKoiFish(int id) {
         KoiFish koiFish = koiFishRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.FISH_NOT_AVAILABLE));
+
+        if(!koiFish.getStatus().equals(KoiStatus.NEW)) {
+            throw new AppException(ErrorCode.FISH_CAN_NOT_DELETE);
+        }
+
         koiFishRepository.delete(koiFish);
         return true;
     }
