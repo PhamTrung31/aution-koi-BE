@@ -85,7 +85,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         .auction(auction)
                         .transactionType(TransactionType.TRANSFER)
                         .walletId(breederWallet.getId())
-                        .transactionFee(amountForBreeder)
+                        .amount(amountForBreeder)
+                        .transactionFee(0F)
                         .build();
                 transactionRepository.save(paymentTransaction);
 
