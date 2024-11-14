@@ -3,6 +3,7 @@ package swp.auctionkoi.service.delivery.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
@@ -16,6 +17,7 @@ import swp.auctionkoi.service.delivery.DeliveryService;
 import java.util.List;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -42,10 +44,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // Update the delivery status
         delivery.setDeliveryStatus(status);
-        deliveryRepository.save(delivery);
+
 
         // If delivery is successful, transfer the money to the breeder
-        if (status == DeliveryStatus.DELIVERY_SUCCESS) {
+        if (status.equals(DeliveryStatus.DELIVERY_SUCCESS)) {
             Auction auction = delivery.getAuction();
             User winner = auction.getWinner();
 
@@ -86,7 +88,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                         .transactionFee(amountForBreeder)
                         .build();
                 transactionRepository.save(paymentTransaction);
+
+                log.info("In process back money for breeder");
             }
+            deliveryRepository.save(delivery);
         }
     }
 
