@@ -4,7 +4,7 @@ server:
     context-path: /auctionkoi
 
 jwt:
-  signerKey: "wxZ78Wi0+dAAbQLRRkt/c5gkT1t68h9/PucRFyJ3BZBryUdRsiObtjM2Q4Zn4HJ+"
+  signerKey: ${SIGNER_KEY}
 
 spring:
   profiles:
@@ -18,11 +18,60 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
         ddl-auto: update
-        naming-strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
+        cache:
+          use_second_level_cache: false
+          format_sql: true
+        naming:
+          physical-strategy=org:
+            hibernate:
+              boot:
+                model:
+                  naming:
+                    PhysicalNamingStrategyStandardImpl
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+#            scope: https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
+#            redirect-uri: "http://localhost:8081/auctionkoi/login/oauth2/code/google"
+#            client-name: Google
+    show-sql: true
+
+#  jpa:
+#    hibernate:
+#      naming:
+#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+##  thymeleaf:
+##    prefix: classpath:/templates/    # Thư mục chứa các file HTML
+##    suffix: .html                     # Phần mở rộng của file
+##    cache: false
+#
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    org.springframework.security: DEBUG
+#  properties:
+#    hibernate:
+#      dialect: org.hibernate.dialect.SQLServerDialect
+#      ddl-auto: update
+#      cache:
+#        use_second_level_cache: false
+#      format_sql: true
+#  show-sql: false
 
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui-custom.html
+
+vnpay:
+  tmncode: ${TMN_CODE}                   # Merchant code provided by VNPAY
+  hashsecret: ${HASH_SECRET}             # Secret key for data signing
+  payurl: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"   # Payment initiation URL
+  returnurl: "/auctionkoi/vnpay/vnpay-payment-return"                   # Secret key for data signing
 

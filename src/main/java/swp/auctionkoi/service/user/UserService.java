@@ -1,13 +1,21 @@
 package swp.auctionkoi.service.user;
 
-import org.springframework.stereotype.Service;
-import swp.auctionkoi.dto.request.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserCreateRequest;
+import swp.auctionkoi.dto.request.user.UserLoginRequest;
+import swp.auctionkoi.dto.respone.user.UserResponse;
 import swp.auctionkoi.models.User;
 
+import javax.swing.text.html.Option;
+import java.util.HashMap;
+import java.util.Optional;
+
 public interface UserService {
-    public void login();
+    public UserResponse login(UserLoginRequest userLoginRequest);
     public void logout();
-    public User createAccount(UserCreateRequest request);
-    public void viewProfile(int userId);
+    public User create(UserCreateRequest request);
+    public UserResponse viewProfile();
     public void updateProfile(User user);
+    public HashMap<Integer, User> getAllBreeder();
+    public void updateAvatar(int id, String avatarUrl);
+    public User getUserById(int id);
 }

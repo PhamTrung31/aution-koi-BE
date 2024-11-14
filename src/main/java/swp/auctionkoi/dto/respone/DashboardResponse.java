@@ -4,15 +4,15 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
-    String username;
-    String password;
-    String fullname;
-    String phone;
-    String address;
+public class DashboardResponse {
+    private int totalBreeders;
+    private int totalMembers;
+    private int totalAuctions;
+    private float profit;
 }

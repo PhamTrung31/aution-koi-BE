@@ -1,20 +1,29 @@
 package swp.auctionkoi.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.google.firebase.database.annotations.NotNull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Nationalized;
+import swp.auctionkoi.models.enums.KoiStatus;
+import swp.auctionkoi.models.enums.Sex;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "KoiFishs")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicInsert
+@Table(name = "Koi_Fish")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class KoiFish {
     @Id
@@ -24,6 +33,8 @@ public class KoiFish {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "breeder_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     swp.auctionkoi.models.User breeder;
 
     @Size(max = 250)
@@ -31,10 +42,11 @@ public class KoiFish {
     String name;
 
     @Column(name = "sex")
-    Integer sex;
+    @Enumerated(EnumType.ORDINAL)
+    Sex sex;
 
-    @Column(name = "\"size\"")
-    Double size;
+    @Column(name = "size")
+    Float size;
 
     @Column(name = "age")
     Integer age;
@@ -45,11 +57,17 @@ public class KoiFish {
     String description;
 
     @Size(max = 2000)
-    @Column(name = "image", length = 2000)
-    String image;
+    @NotNull
+    @Column(name = "image_url", nullable = false, length = 2000)
+    String imageUrl;
 
+    @Size(max = 2000)
+    @NotNull
+    @Column(name = "video_url", nullable = false, length = 2000)
+    String videoUrl;
     @Column(name = "status")
-    Integer status;
+    @Enumerated(EnumType.ORDINAL)
+    KoiStatus status;
 
     @ColumnDefault("getdate()")
     @Column(name = "fish_created_date")
