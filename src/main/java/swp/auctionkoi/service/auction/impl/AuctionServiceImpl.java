@@ -360,6 +360,7 @@ public class AuctionServiceImpl implements AuctionService {
                     .fromAddress(fromAddress)  // Manual input for fromAddress
                     .toAddress(toAddress)      // Manual input for toAddress
                     .deliveryStatus(DeliveryStatus.PREPARING_SHIPMENT)
+                    .auction(auction)
                     .build();
             deliveryRepository.save(delivery);
         }
