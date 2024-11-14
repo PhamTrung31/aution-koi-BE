@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import swp.auctionkoi.dto.request.bid.BidRequest;
 import swp.auctionkoi.dto.request.bid.BidRequestTraditional;
+import swp.auctionkoi.dto.respone.auction.PlaceBidTraditionalInfo;
 import swp.auctionkoi.exception.AppException;
 import swp.auctionkoi.exception.ErrorCode;
 import swp.auctionkoi.models.*;
@@ -15,6 +16,7 @@ import swp.auctionkoi.models.enums.AuctionStatus;
 import swp.auctionkoi.models.enums.AuctionType;
 import swp.auctionkoi.models.enums.TransactionType;
 import swp.auctionkoi.repository.*;
+import swp.auctionkoi.service.AuctionNotificationService;
 import swp.auctionkoi.service.wallet.WalletService;
 
 @Service
@@ -38,6 +40,8 @@ public class AnonymousAuctionService {
     WalletService walletService;
 
     AuctionParticipantsRepository auctionParticipantsRepository;
+
+    AuctionNotificationService auctionNotificationService;
 
     public void placeBid(int auctionId, BidRequest bidRequest) {
 
@@ -108,12 +112,25 @@ public class AnonymousAuctionService {
                 .auction(auction)
                 .user(user)
                 .walletId(wallet.getId())
+                .amount(bidRequest.getBidAmount())
+                .transactionFee(0F)
                 .transactionType(TransactionType.BID)
                 .build();
 
         bidRepository.save(bid);
         walletRepository.save(wallet);
         transactionRepository.save(transaction);
+
+
+        PlaceBidTraditionalInfo placeBidTraditionalInfo = PlaceBidTraditionalInfo.builder()
+                .winner_Id(auction.getWinner().getId())
+                .end_time(auctionRequest.getEndTime())
+                .highest_price(auction.getHighestPrice())
+                .winner_fullname(auction.getWinner().getFullname())
+                .build();
+
+        //send info winnner
+        auctionNotificationService.sendPlaceBidTraditionalNotification(placeBidTraditionalInfo);
     }
 
 }

@@ -20,7 +20,7 @@ public interface BidRepository extends JpaRepository<Bid, Integer> {
 
     public List<Bid> getListBidByAuctionId(int auctionId);
 
-    @Query(value = "SELECT * FROM Bids WHERE auction_id = :auctionId ORDER BY bid_amount DESC, bid_created_date ASC LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT TOP 1 * FROM Bids WHERE auction_id = :auctionId ORDER BY bid_amount DESC, bid_created_date ASC", nativeQuery = true)
     public Bid getBidHighestAmountAndEarliestInAuction(@Param("auctionId") Integer auctionId);
 
     List<Bid> findListBidByAuctionId(int auctionId);
